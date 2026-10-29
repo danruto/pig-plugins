@@ -1,0 +1,8 @@
+*
+!delegates
+!.gitignore
+!issues-repo
+!briefs/
+!briefs/**
+!verify/
+!verify/**

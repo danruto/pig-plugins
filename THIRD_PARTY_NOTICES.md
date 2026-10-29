@@ -1,0 +1,9 @@
+# Third-party sources
+
+- `@narumitw/pi-usage` **0.68.3**, MIT, by narumiruna: https://github.com/narumiruna/pi-extensions/tree/main/packages/pi-usage. Used as the internal status collection backend, not installed as a second PiG extension package. Its provider adapters, usage menu, account handling and Codex controls remain upstream code.
+- `pig-claude-bridge` **0.2.0**, commit `670c5a379a9843db82ea069aad840f71099afde2`, MIT, by balcsida: https://github.com/balcsida/pig-claude-bridge. Its native usage status is consumed through PiG's footer data. The bridge is not modified or redistributed here.
+- Planned `pig-hermes` compatibility baseline: `pi-hermes-memory` **0.9.11**, MIT, by chandra447, https://github.com/chandra447/pi-hermes-memory. `patches/hermes-0.9.11-async-integrity.patch` retains the existing local integrity-worker changes against commit `71cf5ab7d909318a383bf52bb3ad3cf83a9efc03`; its patch context is upstream code under the license retained in `patches/pi-hermes-memory.LICENSE`. Source and patch hashes are recorded in `docs/compatibility/hermes-baseline.json`. Preserve this attribution and the upstream Hermes attribution when porting code.
+
+- Docs preview: `markdown-it` **14.3.3**, MIT, https://github.com/markdown-it/markdown-it, renders Markdown with raw HTML disabled. Aqua Cutter **2.0.0** assets are fetched from public release commit `9be4e3d9cab518de4cae13471388ca516d47978f`, https://github.com/danruto/aqua-cutter-releases, and verified against pinned SHA-384 hashes. The release retains its dependency notices under `releases/2.0.0/licenses/`.
+
+Dependencies retain their own license files. No personal memory, session history, authentication data or machine configuration belongs in this repository.

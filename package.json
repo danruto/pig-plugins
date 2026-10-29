@@ -1,0 +1,31 @@
+{
+  "name": "@danruto/pig-plugins",
+  "version": "0.3.0",
+  "description": "Personal PiG extensions: compact status and persistent memory",
+  "type": "module",
+  "license": "MIT",
+  "repository": "github:danruto/pig-plugins",
+  "keywords": ["pig-package"],
+  "files": ["extensions", "status", "scripts", "docs", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+  "pi": {
+    "extensions": ["extensions/pig-status", "extensions/pig-status-usage.ts"]
+  },
+  "dependencies": {
+    "@narumitw/pi-usage": "0.68.3"
+  },
+  "overrides": {
+    "@narumitw/pi-tui-kit": "0.67.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "markdown-it": "14.3.3",
+    "typescript": "7.0.2",
+    "tsx": "4.23.15"
+  },
+  "scripts": {
+    "docs:dev": "node scripts/docs-dev.mjs",
+    "test": "bash scripts/check.sh",
+    "test:docs": "node --test test/test-docs.mjs",
+    "typecheck": "tsc --noEmit"
+  }
+}

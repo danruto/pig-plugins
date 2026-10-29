@@ -1,0 +1,22 @@
+{
+  "package": "pi-hermes-memory",
+  "version": "0.9.11",
+  "upstreamCommit": "71cf5ab7d909318a383bf52bb3ad3cf83a9efc03",
+  "upstreamArchive": {
+    "url": "https://codeload.github.com/chandra447/pi-hermes-memory/tar.gz/71cf5ab7d909318a383bf52bb3ad3cf83a9efc03",
+    "sha256": "e5a8e6646bf5b4fafa494c51494374c73d4e5cd008352cb650f8032175db454a"
+  },
+  "patch": {
+    "path": "patches/hermes-0.9.11-async-integrity.patch",
+    "sha256": "89daabee44a102625b1872a99fae40c8885b81f8e9dfaa23a7a64aabca8f364d"
+  },
+  "sourceRoots": ["src", "scripts", "docs"],
+  "sourceFiles": ["LICENSE", "README.md", "package.json"],
+  "sourceFileCount": 92,
+  "sourceTreeAlgorithm": "sha256 of UTF-8 compact ASCII JSON containing sorted [relative POSIX path, file sha256] pairs",
+  "sourceTreeSha256": "bab497d8edc1100c99d9a13b575dd7ff4cb80c9bca1ea22097d66f499dc33a8b",
+  "patchedSourceHashes": {
+    "src/index.ts": "9db8c4597492a9bd0bcc9f78322343155b04cef7495cf52a3d8ead8221dccff3",
+    "src/store/db.ts": "5dd235c642de8da476de7c262703edb0f8eb264f685d2901be89cafe3d9cffaf"
+  }
+}

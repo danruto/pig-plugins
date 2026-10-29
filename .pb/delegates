@@ -1,0 +1,11 @@
+# .pb/delegates — /pb:work routing roster: one `<role> <backend>@<model>[:<effort>]` per line.
+# Roles: test-writer, implementer, fix, reviewer, reviewer-light, test-gate.
+# A role with no line runs native; fix falls back to the implementer route.
+# reviewer may repeat (a council); reviewer-light reviews only non-code and guard-chain objectives.
+# Comma-separated values are a failover chain; `native` is accepted only as the last entry.
+# test-writer     pi@openai-codex/gpt-5.6-sol:medium
+# implementer     pi@accounts/fireworks/models/deepseek-v4p1-flash
+# fix             claude@claude-opus-5:high
+# reviewer        opencode@anthropic/claude-sonnet-5
+# reviewer-light  claude@claude-sonnet-5
+# test-gate       claude@claude-sonnet-5

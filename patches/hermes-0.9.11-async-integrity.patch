@@ -1,0 +1,120 @@
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -461,6 +461,7 @@
+         // Best effort only — shutdown should not be held up by indexing errors.
+       }
+       try {
++        await dbManager.waitForStartupIntegrityScan();
+         databaseClosed = true;
+         measureLifecycleSync("shutdown.database-close", () => dbManager.close());
+       } catch { /* best effort — never block shutdown */ }
+--- a/src/store/db.ts
++++ b/src/store/db.ts
+@@ -1,11 +1,12 @@
+ import path from 'node:path';
+ import fs from 'node:fs';
+ import { createRequire } from 'node:module';
++import { Worker } from 'node:worker_threads';
+ import { SCHEMA_SQL } from './schema.js';
+ import { AtomicLockCoordinator } from './atomic-lock-coordinator.js';
+ import { canonicalStoragePathSync } from './canonical-storage-path.js';
+ import { isBunRuntime, loadBetterSqlite3 } from './sqlite-native.js';
+-import { measureLifecycleSync } from '../lifecycle-timing.js';
++import { measureLifecycle, measureLifecycleSync } from '../lifecycle-timing.js';
+ import { MDSYNC_METADATA_KEY_PREFIX } from '../constants.js';
+ 
+ type StatementLike = {
+@@ -165,6 +166,7 @@
+   private lastRecovery: DatabaseRecoveryResult | null = null;
+   private openGuard: (() => void) | null = null;
+   private pendingOpenIntegrityScan: Promise<void> | null = null;
++  private startupIntegrityWorker: Worker | null = null;
+   private quickCheckOnOpen = true;
+   private activeRecoveryLease: { coordinator: AtomicLockCoordinator; key: string; token: string } | null = null;
+ 
+@@ -313,14 +315,23 @@
+     if (!this.quickCheckOnOpen) return;
+     if (this.pendingOpenIntegrityScan) return;
+     const scan = new Promise<void>((resolve) => {
+-      setTimeout(() => {
++      setTimeout(async () => {
+         try {
+           if (this.db !== db) {
+             // Manager closed or reopened; the newest open schedules its own
+             // scan, so skip to avoid a stale-handle recovery.
+             return;
+           }
+-          measureLifecycleSync('database.quick-check', () => {
++          await measureLifecycle('database.quick-check', async () => {
++            let healthy = false;
++            if (!isBunRuntime()) {
++              try {
++                healthy = await this.checkIntegrityInWorker();
++              } catch {
++                // Unsupported workers retain the synchronous safety check.
++              }
++            }
++            if (this.db !== db || healthy) return;
+             try {
+               this.assertIntegrityOk(db, 'quick_check', 'after open');
+             } catch (err) {
+@@ -341,6 +352,49 @@
+       }, 0);
+     });
+     this.pendingOpenIntegrityScan = scan;
++  }
++
++  private async checkIntegrityInWorker(): Promise<boolean> {
++    const require = createRequire(import.meta.url);
++    const worker = new Worker(`
++      const { parentPort, workerData } = require('node:worker_threads');
++      let db;
++      let healthy = false;
++      try {
++        const Database = require(workerData.nativeModule);
++        db = new Database(workerData.dbPath, {
++          readonly: true, fileMustExist: true, timeout: workerData.timeout,
++        });
++        const rows = db.prepare('PRAGMA quick_check').all();
++        healthy = rows.length > 0 && rows.every(row =>
++          String(Object.values(row)[0] ?? '').toLowerCase() === 'ok');
++      } catch {
++        healthy = false;
++      } finally {
++        if (db) {
++          try { db.close(); } catch { healthy = false; }
++        }
++      }
++      parentPort.postMessage(healthy);
++    `, {
++      eval: true,
++      workerData: {
++        nativeModule: require.resolve('better-sqlite3'),
++        dbPath: this.dbPath,
++        timeout: SQLITE_BUSY_TIMEOUT_MS,
++      },
++    });
++    this.startupIntegrityWorker = worker;
++    try {
++      return await new Promise<boolean>((resolve) => {
++        let healthy = false;
++        worker.once('message', (result) => { healthy = result === true; });
++        worker.once('error', () => { healthy = false; });
++        worker.once('exit', (code) => resolve(code === 0 && healthy));
++      });
++    } finally {
++      if (this.startupIntegrityWorker === worker) this.startupIntegrityWorker = null;
++    }
+   }
+ 
+   /** Test aid. */
+@@ -1170,6 +1224,9 @@
+    * Close the database connection.
+    */
+   close(): void {
++    const worker = this.startupIntegrityWorker;
++    this.startupIntegrityWorker = null;
++    if (worker) void worker.terminate().catch(() => {});
+     const db = this.db;
+     if (db) {
+       try {

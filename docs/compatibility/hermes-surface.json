@@ -1,0 +1,289 @@
+{
+  "generatedBy": "probes/capture-hermes.py",
+  "package": "pi-hermes-memory",
+  "version": "0.9.11",
+  "upstreamCommit": "71cf5ab7d909318a383bf52bb3ad3cf83a9efc03",
+  "sourceTreeSha256": "bab497d8edc1100c99d9a13b575dd7ff4cb80c9bca1ea22097d66f499dc33a8b",
+  "patchSha256": "89daabee44a102625b1872a99fae40c8885b81f8e9dfaa23a7a64aabca8f364d",
+  "tools": [
+    "memory_add",
+    "memory_remove",
+    "memory_replace",
+    "memory_search",
+    "session_search",
+    "skill_manage"
+  ],
+  "commands": [
+    "learn-memory-tool",
+    "memory-consolidate",
+    "memory-index-sessions",
+    "memory-insights",
+    "memory-interview",
+    "memory-pin",
+    "memory-preview-context",
+    "memory-skills",
+    "memory-switch-project",
+    "memory-sync-markdown"
+  ],
+  "handlers": [
+    "before_agent_start",
+    "message_end",
+    "resources_discover",
+    "session_before_compact",
+    "session_shutdown",
+    "session_start",
+    "tool_result",
+    "turn_end"
+  ],
+  "toolDetails": [
+    {
+      "name": "memory_add",
+      "label": "Memory Add",
+      "description": "Save durable information to persistent memory that survives across sessions. Memory is searchable in future turns, so keep it compact and focused on facts that will still matter later.\n\nWHEN TO SAVE (do this proactively, don't wait to be asked):\n- User corrects you or says 'remember this' / 'don't do that again'\n- User shares a preference, habit, or personal detail (name, role, timezone, coding style)\n- You discover something about the environment (OS, installed tools, project structure)\n- You learn a convention, API quirk, or workflow specific to this user's setup\n- You identify a stable fact that will be useful again in future sessions\n\nPRIORITY: User preferences and corrections > environment facts > procedural knowledge.\n\nDo NOT save task progress, session outcomes, completed-work logs, or temporary TODO state.\n\nMEMORY TARGETS:\n- 'user': who the user is -- name, role, preferences, communication style, pet peeves\n- 'memory': global notes -- environment facts, tool quirks, and durable lessons\n- 'project': project-specific notes -- architecture decisions, API quirks, and team norms\n- 'failure': failures, corrections, insights, conventions, preferences, and tool quirks\n\nTOOLS:\n- memory_add requires target and content; category and failure_reason are optional for failure memories.\n- memory_replace requires target, old_text, and content.\n- memory_remove requires target and old_text.\n- Use the action-specific tool that matches the requested mutation.\n\nThis action-specific tool accepts only the parameters listed in its schema.\n\nAdd one durable entry. The target and content fields are required.",
+      "promptSnippet": "Memory Add: persistent memory that survives across sessions",
+      "promptGuidelines": [
+        "Use this tool proactively when the user corrects you, shares a preference, or reveals durable environment or project facts.",
+        "Do not use memory tools for temporary task state, TODO items, or session progress."
+      ]
+    },
+    {
+      "name": "memory_remove",
+      "label": "Memory Remove",
+      "description": "Save durable information to persistent memory that survives across sessions. Memory is searchable in future turns, so keep it compact and focused on facts that will still matter later.\n\nWHEN TO SAVE (do this proactively, don't wait to be asked):\n- User corrects you or says 'remember this' / 'don't do that again'\n- User shares a preference, habit, or personal detail (name, role, timezone, coding style)\n- You discover something about the environment (OS, installed tools, project structure)\n- You learn a convention, API quirk, or workflow specific to this user's setup\n- You identify a stable fact that will be useful again in future sessions\n\nPRIORITY: User preferences and corrections > environment facts > procedural knowledge.\n\nDo NOT save task progress, session outcomes, completed-work logs, or temporary TODO state.\n\nMEMORY TARGETS:\n- 'user': who the user is -- name, role, preferences, communication style, pet peeves\n- 'memory': global notes -- environment facts, tool quirks, and durable lessons\n- 'project': project-specific notes -- architecture decisions, API quirks, and team norms\n- 'failure': failures, corrections, insights, conventions, preferences, and tool quirks\n\nTOOLS:\n- memory_add requires target and content; category and failure_reason are optional for failure memories.\n- memory_replace requires target, old_text, and content.\n- memory_remove requires target and old_text.\n- Use the action-specific tool that matches the requested mutation.\n\nThis action-specific tool accepts only the parameters listed in its schema.\n\nRemove one existing entry. The target and old_text fields are required.",
+      "promptSnippet": "Memory Remove: persistent memory that survives across sessions",
+      "promptGuidelines": [
+        "Use this tool proactively when the user corrects you, shares a preference, or reveals durable environment or project facts.",
+        "Do not use memory tools for temporary task state, TODO items, or session progress."
+      ]
+    },
+    {
+      "name": "memory_replace",
+      "label": "Memory Replace",
+      "description": "Save durable information to persistent memory that survives across sessions. Memory is searchable in future turns, so keep it compact and focused on facts that will still matter later.\n\nWHEN TO SAVE (do this proactively, don't wait to be asked):\n- User corrects you or says 'remember this' / 'don't do that again'\n- User shares a preference, habit, or personal detail (name, role, timezone, coding style)\n- You discover something about the environment (OS, installed tools, project structure)\n- You learn a convention, API quirk, or workflow specific to this user's setup\n- You identify a stable fact that will be useful again in future sessions\n\nPRIORITY: User preferences and corrections > environment facts > procedural knowledge.\n\nDo NOT save task progress, session outcomes, completed-work logs, or temporary TODO state.\n\nMEMORY TARGETS:\n- 'user': who the user is -- name, role, preferences, communication style, pet peeves\n- 'memory': global notes -- environment facts, tool quirks, and durable lessons\n- 'project': project-specific notes -- architecture decisions, API quirks, and team norms\n- 'failure': failures, corrections, insights, conventions, preferences, and tool quirks\n\nTOOLS:\n- memory_add requires target and content; category and failure_reason are optional for failure memories.\n- memory_replace requires target, old_text, and content.\n- memory_remove requires target and old_text.\n- Use the action-specific tool that matches the requested mutation.\n\nThis action-specific tool accepts only the parameters listed in its schema.\n\nReplace one existing entry. The target, old_text, and content fields are required.",
+      "promptSnippet": "Memory Replace: persistent memory that survives across sessions",
+      "promptGuidelines": [
+        "Use this tool proactively when the user corrects you, shares a preference, or reveals durable environment or project facts.",
+        "Do not use memory tools for temporary task state, TODO items, or session progress."
+      ]
+    },
+    {
+      "name": "memory_search",
+      "label": "Memory Search",
+      "description": "Search extended memory store for relevant entries. Use this when you need context beyond what's in the system prompt \u2014 the extended store has unlimited capacity and is searchable.\n\nUse cases:\n- Find memories about a specific topic: \"What do I know about auth setup?\"\n- Search project-specific memories: \"What conventions does project X follow?\"\n- Find user preferences: \"What are the user's testing preferences?\"\n- Search for past failures: \"memory_search('auth', category='failure')\"\n\ntarget=\"project\" returns only project-attributed memory entries (the ones labeled [target=project]); combine with project to search a named project.\n\nReturns matching memory entries with their mutation target, scope, and dates. The displayed target is the value required by memory_replace and memory_remove.",
+      "promptSnippet": "Search extended memory store (unlimited capacity)",
+      "promptGuidelines": [
+        "Use memory_search when you need context beyond what is in the system prompt.",
+        "Use memory_search to find project-specific memories or user preferences.",
+        "Use memory_search with category filter to find specific types of memories (failure, correction, insight, etc.)."
+      ]
+    },
+    {
+      "name": "session_search",
+      "label": "Session Search",
+      "description": "Search across past Pi coding sessions for relevant conversation context. Use this when the user asks about previous discussions, past work, or when you need context from earlier sessions.\n\nExamples:\n- \"What did we discuss about auth last week?\"\n- \"Find the PR where we fixed the test hang\"\n- \"What approach did we take for the database migration?\"\n\nReturns bounded conversation snippets with session dates and project context. Large messages are truncated with their original character count.",
+      "promptSnippet": "Search past conversations for relevant context",
+      "promptGuidelines": [
+        "Use session_search when the user asks about previous discussions or past work.",
+        "Use session_search when you need context from earlier sessions."
+      ]
+    },
+    {
+      "name": "skill_manage",
+      "label": "Skill Manager",
+      "description": "Manage reusable procedures and patterns as Pi-native skills that survive across sessions. Skills are procedural memory \u2014 they capture HOW to do something, not just what happened.\n\nThis tool is intentionally named 'skill_manage' because it manages saved procedural skills; it is not a generic skill-discovery tool.\n\nUse create for a new skill, patch for a targeted section update, update for a full rewrite, view to inspect existing skills, and delete to remove obsolete ones. When creating a skill, scope is required: use global for portable workflows and project for procedures tied to this repo's paths, scripts, architecture, deploy steps, or conventions.\n\nWHEN TO CREATE A SKILL:\n- After completing a complex task that required trial and error or multiple tool calls\n- When you discover a non-obvious approach that could be reused\n- When the user teaches you a specific workflow or procedure\n\nSCOPE:\n- 'global': transferable procedures that can be reused across repositories. Written to ~/.pi/agent/pi-hermes-memory/skills/<slug>/SKILL.md, this extension's own directory, kept separate from skills the user installed themselves. Pi also loads its own ~/.pi/agent/skills/ first, so a name already used there is rejected rather than silently shadowed.\n- 'project': procedures tied to this repo's paths, scripts, architecture, deploy flow, or conventions. Written to ~/.pi/agent/projects-memory/<project>/skills/<slug>/SKILL.md.\n\nWHEN TO UPDATE A SKILL:\n- Prefer 'patch' for one section when you can pass structured fields\n- Prefer 'update' for multi-section rewrites or when patch formatting would be unstable\n- Use patch when you discover a better approach, pitfall, or changed step in one section\n\nSKILL FORMAT:\n- name: short, descriptive (e.g., \"debug-typescript-errors\")\n- description: what the skill does and the trigger signals a user would type (error strings, symptoms, phrasings). Pi indexes skills by this field alone, so body-only triggers never surface at discovery time.\n- body: structured with sections \u2014 ## When to Use, ## Procedure, ## Pitfalls, ## Verification\n- Prefer structured fields over raw markdown when possible:\n  - when_to_use: expanded trigger conditions and boundaries. Renders into the skill body and does not participate in Pi's skill index \u2014 discoverable trigger signals belong in description.\n  - procedure_steps: ordered concrete steps\n  - pitfalls: caveats or failure modes\n  - verification_steps: checks that prove success\n- For patch, pass section plus the matching structured field (section=\"Procedure\" + procedure_steps, etc.). Do not pass JSON array/object strings as content.\n\nONE-SHOT EXAMPLE:\n{\n  \"action\": \"create\",\n  \"name\": \"debug-typescript-errors\",\n  \"description\": \"Debug TypeScript build failures in this repo: tsc --noEmit errors, type-check failures in the workspace or CI.\",\n  \"scope\": \"project\",\n  \"when_to_use\": \"Use when pnpm tsc --noEmit fails locally or in CI, or when asked to fix TypeScript build errors here. Not for runtime-only type issues.\",\n  \"procedure_steps\": [\n    \"Run pnpm tsc --noEmit to get the full error list.\",\n    \"Fix dependency or config errors before leaf-module errors.\",\n    \"Re-run the same command until it passes cleanly.\"\n  ],\n  \"pitfalls\": [\n    \"Do not trust editor-only diagnostics without the CLI output.\",\n    \"Do not stop after the first error if downstream modules are still failing.\"\n  ],\n  \"verification_steps\": [\n    \"pnpm tsc --noEmit exits successfully.\",\n    \"The failing CI TypeScript job passes.\"\n  ]\n}\n\nACTIONS: create (new skill), view (read full content or list), patch (update a section by skill_id), update (replace description + body by skill_id), delete (remove by skill_id).\n\nDo not use this tool to discover already-loaded external skills by name alone; use Pi's loaded skill context or explicit SKILL.md paths for that.",
+      "promptSnippet": "Create, inspect, and update reusable procedures and patterns",
+      "promptGuidelines": [
+        "Use the skill_manage tool after completing complex tasks that required trial and error or multiple tool calls.",
+        "Use 'create' to save a new reusable procedure, 'patch' to update a section of an existing skill by skill_id, and 'update' for a full rewrite.",
+        "Scope is required on create: choose scope='global' for transferable procedures and scope='project' when the workflow depends on this repo's paths, scripts, conventions, or deploy steps.",
+        "Prefer structured fields for create/update/patch: when_to_use, procedure_steps, pitfalls, and verification_steps. The tool renders valid SKILL.md sections for you. Put the trigger signals a user would type in 'description' \u2014 Pi indexes skills by that field alone.",
+        "For patch, pass section plus the matching structured field (e.g. section='Procedure' with procedure_steps). Avoid free-form content that is a JSON array/object string.",
+        "Prefer 'update' for multi-section rewrites when patch content would be large or format-unstable.",
+        "Use 'view' before patching or updating when you need to inspect an existing skill.",
+        "Do NOT use skills for temporary task state \u2014 only for durable, reusable procedures."
+      ]
+    }
+  ],
+  "commandDetails": [
+    {
+      "name": "learn-memory-tool",
+      "description": "Learn how to use the pi-hermes-memory extension effectively"
+    },
+    {
+      "name": "memory-consolidate",
+      "description": "Manually trigger memory consolidation to free up space"
+    },
+    {
+      "name": "memory-index-sessions",
+      "description": "Import past Pi sessions into the search database"
+    },
+    {
+      "name": "memory-insights",
+      "description": "Show what's stored in persistent memory"
+    },
+    {
+      "name": "memory-interview",
+      "description": "Answer a few questions to pre-fill your user profile so the agent remembers you across sessions"
+    },
+    {
+      "name": "memory-pin",
+      "description": "Pin a standing instruction that is injected into every session"
+    },
+    {
+      "name": "memory-preview-context",
+      "description": "Preview the memory policy or legacy memory context blocks"
+    },
+    {
+      "name": "memory-skills",
+      "description": "Manage global, active-project, and loaded external procedural skills"
+    },
+    {
+      "name": "memory-switch-project",
+      "description": "Switch the active project for project-scoped memory"
+    },
+    {
+      "name": "memory-sync-markdown",
+      "description": "Reconcile the SQLite search mirror with Markdown memories"
+    }
+  ],
+  "configKeys": [
+    "lazyInitialization",
+    "memoryMode",
+    "memoryPolicyStyle",
+    "memoryPolicyCustomText",
+    "memoryCharLimit",
+    "userCharLimit",
+    "projectCharLimit",
+    "nudgeInterval",
+    "reviewRecentMessages",
+    "reviewEnabled",
+    "reviewTransport",
+    "flushOnCompact",
+    "flushOnShutdown",
+    "flushMinTurns",
+    "flushRecentMessages",
+    "flushCompactTimeoutMs",
+    "memoryDir",
+    "projectsMemoryDir",
+    "sessionSearch",
+    "quickCheckOnOpen",
+    "llmModelOverride",
+    "llmFallbackModels",
+    "llmThinkingOverride",
+    "childExtensionPaths",
+    "memoryOverflowStrategy",
+    "overflowGraceMs",
+    "autoConsolidate",
+    "correctionDetection",
+    "correctionStrongPatterns",
+    "correctionWeakPatterns",
+    "correctionNegativePatterns",
+    "correctionDirectiveWords",
+    "failureInjectionEnabled",
+    "failureInjectionMaxAgeDays",
+    "failureInjectionMaxEntries",
+    "nudgeToolCalls",
+    "consolidationTimeoutMs",
+    "consolidationChunking",
+    "consolidationChunkChars",
+    "usageHitTrackingEnabled",
+    "consolidationUsageSignals",
+    "autoConsolidationWarnOnFailure",
+    "standingInstructionsEnabled",
+    "sessionRetentionDays"
+  ],
+  "sourceHashes": {
+    "LICENSE": "c0faef811db707d2c0e22a334343c58ee120c5041bd65e958d7e84a76cead49f",
+    "README.md": "49df3b414bcde1f8e19b81a320715824d89e4fae5d6163bb5ad14bfe3be1d6de",
+    "docs/0.1/TASKS.md": "e87061671938e5b2cd713bbe0ef9bcb0587f53135f8f709b7ef10dc71701b244",
+    "docs/0.2/PLAN.md": "5dd8f30a3d32eba3fec7057922c2799c7ee4908c74ae9a77f3a5c8ebdad7e45e",
+    "docs/0.2/TASKS.md": "2cc887c30b8eefc201d49025de97f9b02457bd1bf4462475d237a87251ba6922",
+    "docs/0.2/TEST-PLAN.md": "af595bf49131533d6b558c3b9d1fef01f2302f3c5953fb454b2f3c4064e32c00",
+    "docs/0.3/PLAN.md": "78ed1e191bf279582c2c6f1427210ae8c18576640930b472da47efadf3882957",
+    "docs/0.3/TASKS.md": "30c8d706f7ed340e5cbaf8af8822ed00789d1e09b92afab465e7e93f4c61b041",
+    "docs/0.4/PLAN.md": "653ca50bb134e4e4d1ef829633509b27abdcb031bd2176cb438a51b26ee762fe",
+    "docs/0.4/TASKS.md": "65276d8e6cab6c7e64f524dd76c002224294db0ca1177e6b6886591fb5fe8e9b",
+    "docs/0.6/CHANGELOG.md": "d72550ced1779d1e1cdf1cbef258987d5973e95847618a8a91c81ee1b1031f30",
+    "docs/0.6/PLAN.md": "9c36931c067fb0319005530aaf6dd8b5d023be9ae45fbd4a41a6837ff6d25765",
+    "docs/0.6/TASKS.md": "80e90aab19d2bac0258634e8f4c745d541f1beebd035fafa4094283f5d7c2e40",
+    "docs/0.7/PLAN.md": "b9806095bab2c9ba98a2d1b5cc01cfbf0858a2cb44f95c0dae32a7dfb839b0d3",
+    "docs/0.7/TASKS.md": "43de1b41e066a4b4231abe5a1b2ccca319b8ef720392a376cae730f42fac9240",
+    "docs/PUBLISHING.md": "b2da53208461dd1cd03baf92c9d4265d47bc26ffaeb6f9705f374abfafca68f5",
+    "docs/ROADMAP.md": "7306c73d816b480f3c5dc6914848cc749edd308f7beb5706550a621d32e0127c",
+    "docs/images/memory-architecture.svg": "e427f4254dc9893c46a31cd0364ab3a813cdd6ad897e507b4b0d10d6b1831d3a",
+    "docs/images/pi-logo.svg": "2d43cb4f6a239ac70416214ac05842be34175339f761001fab3e8d01459bec69",
+    "docs/images/pi_memory.png": "518b7a68960208954461c8ec24500e7544d389270b7ec00dee8bd439798b1dcc",
+    "docs/images/pi_memory.svg": "1ba630822d7742683a3dfd64c502d5c01a4fa659d1869a438fc68a7fa934c50d",
+    "docs/images/security-flow.svg": "14ecc1adec85ac154a8a11fdbe8de88d263551f764c45b6a0e11206b3db7bb93",
+    "docs/images/session-lifecycle.svg": "b11cb0d8565e250862eed647b0003d4f1464fe37018c734e54decebb9da18cf6",
+    "docs/images/source-architecture.svg": "9ffda261419a5de23db122275bdb3ae80ec69e216289c404788d6889c056e9e2",
+    "docs/mermaid/memory-architecture.mmd": "eedc08b667066f12e57bd6d12eaad2c2f8ae68071e6e0f4c62046242b26bd347",
+    "docs/mermaid/security-flow.mmd": "dcac0b33a0211567a11e77c3bebe36179fbdb0d6e8c72978cfa472e40a6acb28",
+    "docs/mermaid/session-lifecycle.mmd": "80120b90820903ff40939c3f8302263e0fb2a133c77bce890189ce20db9daa71",
+    "docs/mermaid/source-architecture.mmd": "7872df8bcd6f0ce747097539f9dd1ba32e76fe89d30a774039992b6e8f2c80d2",
+    "package.json": "8e7b4d4e4c172515a85afff89d36fec0e3cf01af295b868e6bb006cc416f9e3c",
+    "scripts/benchmark-memory-startup.mjs": "53dac213138df6f1af6ed9b07809277a750bd1286f73886a4d196124ae578fe2",
+    "scripts/check-min-sdk.mjs": "619f228554dc452718fa3db9bdacbbc5693c4a005cf007d849f2898bb758a5fe",
+    "scripts/check-production-install.mjs": "03543325b72fc9098a7a0ce1adc9972e4005d446eda9d9d60fa0858e27afcde8",
+    "scripts/ensure-dev.mjs": "0ad788a504372acbbb093f5b7468e510ba54f293285778a8b00ec6189382d1dc",
+    "scripts/promote-changelog.mjs": "b4eb2204960d9b2c9c3966f2f2c08ead3a58eb1cfbfd134b0b2b4fb3a35b0e61",
+    "scripts/release-notes.mjs": "483ea1142dd69a2650634467eba507bec48ede93790be2f597102c49283dfd03",
+    "src/auto-consolidation-warning.ts": "8b17e8d3e2417a17ab02fe887218735a44f132cac33c14455a790340a5b22c8c",
+    "src/config.ts": "3f4bacc7c99c0063fd30ab7996e925e9fccef69473906474cd23d08a6057efae",
+    "src/constants.ts": "1eb169eedab4b0c5dec6729b85f3c6b02fe1d7fa441b3588849eca7ed83d07d1",
+    "src/extension-root-migration.ts": "e7f5c1bccf9a3916e769a009685ac4cdf5a688683f74b09ff3c42441e938f63c",
+    "src/handlers/auto-consolidate.ts": "38acfe0e426b8afcf70ae0809c63eae1073bb783cb3f6d091a8b5c59ea13b637",
+    "src/handlers/background-review.ts": "5cb2d027b8ac84497c842048d17378f25caf427f4c8b8d32ee32d9bf5812f641",
+    "src/handlers/child-process-watchdog.mjs": "040f4b9f963ef2ed7850d47cb457368333e0f76b6086b81f3f13ae4de4e52d3b",
+    "src/handlers/correction-detector.ts": "4954fd747fa1398285e9696c9888d4462644acdb87f7faa7ef260a70d4cb2f4e",
+    "src/handlers/index-sessions.ts": "0bd7fcfb5dc5618a5a9582fc0ad87289315cc98603bffd840333072b50fc5875",
+    "src/handlers/insights.ts": "6aa530be6135b985af4584f6e76f07dcd9599ed7fd9dc996ce4b37a19bfdbecc",
+    "src/handlers/interview.ts": "f14781a21f381815e1b497d22995bb256db560e5ae3750077f5ad9d4ef3d4985",
+    "src/handlers/learn-memory.ts": "ecd79d6de990c054516548885e2e25d6702bd0a9c58d37cd12f93090163c7309",
+    "src/handlers/message-parts.ts": "3a75f48cd7b27db384efd4b4d402d749a9c96b1fe05df0d4b3052bb0cd0b9357",
+    "src/handlers/pi-child-process.ts": "76f23dc85025b12b979255f50a6a6c4dc3fd18908629e3211b978fbf71609276",
+    "src/handlers/preview-context.ts": "3645a1f5353cca63233c6b531d41bcbcc05d383a7b6abdb6fedb05f814499b94",
+    "src/handlers/review-memory-ops.ts": "d0610e08f6d17b4ba13730820eef033fe77e0db5762a96c8ac66a66e0118174f",
+    "src/handlers/session-backfill.ts": "7332d6d5f95ba55d50f9a139a63bec9012d8a298961e5ce0e440972bec758b95",
+    "src/handlers/session-flush.ts": "40c027c92b331f6f217feebe5e2491fe07cb4d56aae782e8177e5f19bdc1f6d0",
+    "src/handlers/session-live-index.ts": "8ffbfc65cdcbc9c64f29f83ad950e2e464ccd70fba706dcfec69ab85b8eb492a",
+    "src/handlers/skills-command.ts": "9a5b2a4874fac5d9a5ef9fb8376357aff9a94fa1b5d199998e5b172874e9dd8d",
+    "src/handlers/standing-pin.ts": "44767bc776f6459383ce4059bcb82f291028b027007b0ad0c119eb18a5272008",
+    "src/handlers/switch-project.ts": "86b438d903dabe13726e539f79a86843e61cf184c50d9fd91b6df506054ab7b7",
+    "src/handlers/sync-markdown-memories.ts": "dca297e7467d4b9bd22ba9b570ca5cc62185053008139e957af34b30dacde91f",
+    "src/index.ts": "9db8c4597492a9bd0bcc9f78322343155b04cef7495cf52a3d8ead8221dccff3",
+    "src/lifecycle-timing.ts": "d35fec91b7d67c764333573635f3256a3d32fa882728e05a6934c0c36974e86a",
+    "src/memory-initialization.ts": "2a3bba7a4a3c79965eb833e27603d93f30d4ca311de6842834eab6abea1d82bd",
+    "src/paths.ts": "8632324f3f8008bdf15525e3c821c6d3c33fc0d6763d52fe7a0c8318880c4a4e",
+    "src/project-context.ts": "e47512f90f5a7e7dbef022e8dc3e367170567e6020d48774271d9a5da8f81cb1",
+    "src/project-memory-migration.ts": "f290a5030e233f00f20484679c76e0595cf00644e1b675d4602f8edbec9e1457",
+    "src/project.ts": "da18f76ba0cc1ea1dd2e732cef665137fcf07e8f43e2df58d923eae6c8e9bd63",
+    "src/prompt-context.ts": "f76951addee17c603ce01323fa1f930c83168d9956ef9ccac4f8ffdac6e703c2",
+    "src/store/atomic-lock-coordinator.ts": "fe68bad17f1c3291936d9bfa92bfe2a8d2e396b99f81f4bb44480106b931e253",
+    "src/store/canonical-storage-path.ts": "a5bcf46f43a579bcb2a870ef2219b854efcdb40e46812a87c51cd10a043746aa",
+    "src/store/content-scanner.ts": "de007079d5d510c1ed0f01165e86be1b15262dca6f36093e4a57a4b185e0701a",
+    "src/store/db.ts": "5dd235c642de8da476de7c262703edb0f8eb264f685d2901be89cafe3d9cffaf",
+    "src/store/fts-query.ts": "89b448365e9a308da837dda23c9c8e16e125d83eb2bc14e929bc7cc87a0fadfa",
+    "src/store/markdown-mutation-lock.ts": "405fd467c5bdac6bdd2323aacfc8b03beca617100bd53de2f3fd4eeddbbf1c7b",
+    "src/store/memory-lookup.ts": "8a930aa8328d0a850903d30faad4fdc8efac7f9d288cca6a4b8bf7f9dc16731d",
+    "src/store/memory-store.ts": "08c817c4dfa6582434449926f78405a562c7772a0b8a80b016b56d5b2c8bf166",
+    "src/store/recovery-maintenance.ts": "8dab0f80e5f290bf68c4d41620cfa8db56d1ea131c9cc32c9cfe477bf87ab1bf",
+    "src/store/schema.ts": "c5ce68aaac40e5213449179c9976a5b72294affcee6f23f15e18fb8faddf5bd3",
+    "src/store/session-anchor-search.ts": "1cf85303896b1e4582f36c4ad6f17204d0ffaf60d9eb2ee3d33f5be242992162",
+    "src/store/session-indexer.ts": "0bf23afe1f3aef8f94f32ed2031e0b3b12924feb5abf2e0d95e790b1a5808540",
+    "src/store/session-parser.ts": "a12dc967bf2bbeb4c44f8787e9f6ecaaa8bdc5543ebf83bcdcdc5419d3fe1c9a",
+    "src/store/session-search.ts": "d3ca27865a52ffbf287f48daa82a8d33fdb940458c12dd33211a3740f3e89f8b",
+    "src/store/skill-store.ts": "b2be395196a748f0ff058efc7ed358f2d4b5944dc175c9bfbf7f618814071232",
+    "src/store/skill-utils.ts": "8ed60d980ae0e4c9ef6f4be17c65dc69cc6756173b333e605ceefebeabcfe054",
+    "src/store/sqlite-memory-store.ts": "bb8ebc23e6f415b9a9ab46c8efce13e7d259c95d664f5f95bef54d5ce2832476",
+    "src/store/sqlite-native.ts": "626880fbcaa1d298aa69fea73a6c8ed186125c6bb66993c823c455eacf886ce5",
+    "src/store/standing-instructions.ts": "a595106d253706ee3fd51dd44eae259ccbe9493ec36b41f0972b43043081acd2",
+    "src/tools/memory-search-tool.ts": "7952c6232ee588e1c9fd7b191d7887353b2296f5bb166a098d908a677f4ae2c5",
+    "src/tools/memory-tool.ts": "ee6814facbe40fb3c5b70c384b88a5a437599cf3465882aa88e1d2d360b72bde",
+    "src/tools/session-search-tool.ts": "9edaab292d4fe20e72d54987980017100c4be99193ee5ab06bed77f0eee7167d",
+    "src/tools/shared-output-view.ts": "afbe9228c7bd53d77c3e9bbf2f021880c2f5da79eb2473299afafa750212cb8f",
+    "src/tools/skill-tool.ts": "7c7fe5ca6ef9d1ee2d097a4e300bb1cea7f776e2330495d2dfd9bc91d1f36cf6",
+    "src/tools/tool-result-views.ts": "df84f3881d8b3ddd3549d28ccc86e902135a73f783342488d80f3531f1128ef4",
+    "src/types.ts": "077359641055d0d6e0b32319abec760c12610521a7521e921f31c323c2ffc9d2"
+  }
+}
