@@ -9,5 +9,5 @@
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["status/**/*.ts", "extensions/*.ts"]
+  "include": ["status/**/*.ts", "extensions/*.ts", "compaction/payload.ts"]
 }

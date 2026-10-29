@@ -5,6 +5,8 @@
   "upstreamCommit": "71cf5ab7d909318a383bf52bb3ad3cf83a9efc03",
   "sourceTreeSha256": "bab497d8edc1100c99d9a13b575dd7ff4cb80c9bca1ea22097d66f499dc33a8b",
   "patchSha256": "89daabee44a102625b1872a99fae40c8885b81f8e9dfaa23a7a64aabca8f364d",
+  "executableClosureSha256": "daeface9ed02836306bd779324cd79022d151190be6a49764af90051fdafbf2a",
+  "observationConfiguration": "isolated default registration; no provider or model requests",
   "tools": [
     "memory_add",
     "memory_remove",

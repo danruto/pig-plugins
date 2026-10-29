@@ -25,14 +25,15 @@
           };
           status = pkgs.buildNpmPackage {
             pname = "pig-status";
-            version = "0.3.0";
+            version = "0.3.1";
             src = pkgs.lib.cleanSourceWith {
               src = ./.;
-              filter = path: type: !(builtins.elem (baseNameOf path) [ ".git" "node_modules" ".direnv" "result" ]);
+              filter = path: type: !(builtins.elem (baseNameOf path) [ ".git" ".pb" "node_modules" ".direnv" "result" ])
+                && path != (toString ./. + "/compaction/generated");
             };
-            npmDepsHash = "sha256-9aYRKI29hwkFkXr2J99FDZ6ytfwQWUC+GFnYdV5PEHY=";
+            npmDepsHash = "sha256-/eV4JMGv0DZssixePje5kTJRjaoDS7B1qN3SzgEq7bg=";
             npmFlags = [ "--legacy-peer-deps" "--ignore-scripts" ];
-            nativeBuildInputs = [ pkgs.go ];
+            nativeBuildInputs = [ pkgs.go pkgs.python3 pkgs.patch ];
             env = {
               CGO_ENABLED = "0";
               GOTOOLCHAIN = "local";
@@ -41,6 +42,7 @@
             };
             buildPhase = ''
               runHook preBuild
+              npm run prepare:compaction
               export GOCACHE="$TMPDIR/go-cache"
               export GOMAXPROCS="$NIX_BUILD_CORES"
               export GOFLAGS="-p=$NIX_BUILD_CORES"
@@ -53,7 +55,9 @@
             doCheck = true;
             checkPhase = ''
               runHook preCheck
+              python3 probes/hermes-closure.py --check
               npm run typecheck
+              node --import tsx --test test/test-compaction-payload.mjs
               node --test test/test-usage.mjs test/test-docs.mjs
               (cd extensions/pig-status && go test ./... && go vet ./...)
               runHook postCheck
@@ -61,9 +65,11 @@
             installPhase = ''
               runHook preInstall
               npm prune --omit=dev --ignore-scripts --legacy-peer-deps
-              mkdir -p "$out/extensions" "$out/status" "$out/bin"
+              mkdir -p "$out/extensions" "$out/status" "$out/bin" "$out/compaction"
               install -m755 "$TMPDIR/pig-status" "$out/bin/pig-status"
-              cp extensions/pig-status-usage.ts "$out/extensions/"
+              cp extensions/pig-status-usage.ts extensions/pig-openai-server-compaction.ts "$out/extensions/"
+              cp compaction/payload.ts "$out/compaction/"
+              cp -r compaction/generated "$out/compaction/"
               cp status/usage.ts "$out/status/"
               cp -r node_modules "$out/"
               cp LICENSE THIRD_PARTY_NOTICES.md "$out/"

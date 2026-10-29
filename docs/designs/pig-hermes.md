@@ -4,7 +4,7 @@
 
 Replace `pi-hermes-memory` in PiG with a Go extension, without reducing features or splitting the existing knowledge base. Pi keeps the TypeScript implementation. Both hosts must safely share memories and procedural skills.
 
-Baseline: `pi-hermes-memory` **0.9.11**, upstream commit `71cf5ab7d909318a383bf52bb3ad3cf83a9efc03`, plus the retained [asynchronous integrity-scan patch](../../patches/hermes-0.9.11-async-integrity.patch). The [baseline manifest](../compatibility/hermes-baseline.json) pins the upstream archive, patch and complete packaged source tree, including startup/shutdown behavior in `src/index.ts` and `src/store/db.ts`. The port freezes that baseline; tracking subsequent upstream changes is separate work. Source fingerprints do not pin the installed dependency/runtime closure; H1 must retain those versions with each executable observation.
+Baseline: `pi-hermes-memory` **0.9.11**, upstream commit `71cf5ab7d909318a383bf52bb3ad3cf83a9efc03`, plus the retained [asynchronous integrity-scan patch](../../patches/hermes-0.9.11-async-integrity.patch). The [baseline manifest](../compatibility/hermes-baseline.json) pins the upstream archive, patch and complete packaged source tree, including startup/shutdown behavior in `src/index.ts` and `src/store/db.ts`. The port freezes that baseline; tracking subsequent upstream changes is separate work. Source fingerprints do not pin dependencies. The separate [executable closure](../compatibility/hermes-closure.json) retains the observed dependency graph, installed file hashes, PiG/Node/npm/Go and Nix closure, staged SDK, bundled Node bridge and both SQLite engine identities. [Reproduction](../compatibility/hermes.md#frozen-executable-closure) distinguishes offline artifact checks from installed-byte verification; executable observations must identify that verified closure.
 
 The current package contains **no native Hermes replacement**. The probes establish feasibility only. No live data migration or activation is authorized by a passing probe alone.
 
@@ -88,7 +88,7 @@ Preserve public response fields and configured notifications. Implement the [ope
 
 - [x] Capture real default upstream registration and canonical interface field names; this is not complete schema/configuration parity.
 - [x] Verify the pinned upstream archive plus retained patch reconstructs all 92 baseline packaged files with the recorded source-tree digest.
-- [ ] Retain exact dependency/runtime versions and digests for the executable corpus.
+- [x] Retain exact dependency/runtime versions and digests for the executable corpus.
 - [x] Prove cross-engine schema/trigram/read-write compatibility on a disposable database.
 - [x] Prove TypeScript lease visibility, release and refusal to steal a live Go-created lease.
 - [x] Prove direct and registry completions through an extension provider.

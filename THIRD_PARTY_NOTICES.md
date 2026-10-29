@@ -6,4 +6,6 @@
 
 - Docs preview: `markdown-it` **14.3.3**, MIT, https://github.com/markdown-it/markdown-it, renders Markdown with raw HTML disabled. Aqua Cutter **2.0.0** assets are fetched from public release commit `9be4e3d9cab518de4cae13471388ca516d47978f`, https://github.com/danruto/aqua-cutter-releases, and verified against pinned SHA-384 hashes. The release retains its dependency notices under `releases/2.0.0/licenses/`.
 
+- `pi-openai-server-compaction` **0.1.0**, MIT, by algal, pinned to commit `8a3de2f3b0c178fdd6f73f2f94172dfc3943e466`: https://github.com/algal/pi-openai-server-compaction. The tarball is a development-only preparation input. The explicit preparation script verifies the upstream source and generates the compaction hooks, summary generation and state reconstruction modules, retaining its `LICENSE.md`. Remote-history replay uses the owned context-preserving helper. The custom provider and WebSocket implementation are not generated or selected; PiG supplies native model transports. Neither the upstream tarball nor its `ws` dependency is required in the production dependency closure.
+
 Dependencies retain their own license files. No personal memory, session history, authentication data or machine configuration belongs in this repository.

@@ -5,6 +5,13 @@ sdk=$(pig reload --sdk-path)
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 cd "$root"
+npm run prepare:compaction
+node --import tsx --test test/test-compaction-payload.mjs test/test-compaction-integration.mjs
+python3 probes/hermes-closure.py --check
+if [[ -n ${HERMES_PACKAGE:-} ]]; then
+  python3 probes/hermes-closure.py --verify-installed
+fi
+TMPDIR="$tmp" python3 probes/test-hermes-closure.py -v -k test_h1_check -k test_h1_retained
 node --test test/test-usage.mjs test/test-docs.mjs
 npm run typecheck
 cd extensions/pig-status

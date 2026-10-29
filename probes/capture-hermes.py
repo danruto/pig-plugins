@@ -50,9 +50,16 @@ if len(pairs) != baseline["sourceFileCount"] or tree_hash != baseline["sourceTre
 if args.verify_source_only:
     print(f"Verified {len(pairs)} baseline files: {tree_hash}")
     raise SystemExit(0)
+subprocess.run(
+    ["python3", str(project / "probes/hermes-closure.py"), "--verify-installed", "--package", str(package)],
+    check=True, text=True, timeout=180,
+)
+closure_digest = (project / "docs/compatibility/hermes-closure.sha256").read_text(encoding="utf-8").strip()
 with tempfile.TemporaryDirectory(prefix="pig-hermes-surface-") as tmp:
     root = Path(tmp)
-    env = dict(os.environ, PIG_HOME=tmp, PIG_CODING_AGENT_DIR=str(root / "agent"), PI_CODING_AGENT_DIR=str(root / "pi-agent"))
+    env = {"PATH": os.environ["PATH"], "HOME": tmp, "TMPDIR": tmp,
+           "PIG_HOME": tmp, "PIG_CODING_AGENT_DIR": str(root / "agent"),
+           "PI_CODING_AGENT_DIR": str(root / "pi-agent"), "XDG_CONFIG_HOME": str(root / "config")}
     result = subprocess.run(["pig", "install", str(package), "--validate-only", "--json"], cwd=tmp, env=env, check=True, capture_output=True, text=True, timeout=60)
     try:
         registration = json.loads(result.stdout)
@@ -67,6 +74,8 @@ with tempfile.TemporaryDirectory(prefix="pig-hermes-surface-") as tmp:
         "upstreamCommit": baseline["upstreamCommit"],
         "sourceTreeSha256": tree_hash,
         "patchSha256": baseline["patch"]["sha256"],
+        "executableClosureSha256": closure_digest,
+        "observationConfiguration": "isolated default registration; no provider or model requests",
         "tools": extension["tools"], "commands": extension["commands"], "handlers": extension["handlers"],
         "toolDetails": extension["toolDetails"], "commandDetails": extension["commandDetails"],
         "configKeys": re.findall(r"^  (\w+)\??:", config, re.MULTILINE),

@@ -1,14 +1,28 @@
 {
   "name": "@danruto/pig-plugins",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Personal PiG extensions: compact status and persistent memory",
   "type": "module",
   "license": "MIT",
   "repository": "github:danruto/pig-plugins",
-  "keywords": ["pig-package"],
-  "files": ["extensions", "status", "scripts", "docs", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+  "keywords": [
+    "pig-package"
+  ],
+  "files": [
+    "extensions",
+    "status",
+    "compaction",
+    "scripts",
+    "docs",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
   "pi": {
-    "extensions": ["extensions/pig-status", "extensions/pig-status-usage.ts"]
+    "extensions": [
+      "extensions/pig-status",
+      "extensions/pig-status-usage.ts",
+      "extensions/pig-openai-server-compaction.ts"
+    ]
   },
   "dependencies": {
     "@narumitw/pi-usage": "0.68.3"
@@ -19,13 +33,15 @@
   "devDependencies": {
     "@types/node": "26.6.5",
     "markdown-it": "14.3.3",
-    "typescript": "7.0.2",
-    "tsx": "4.23.15"
+    "pi-openai-server-compaction": "https://github.com/algal/pi-openai-server-compaction/archive/8a3de2f3b0c178fdd6f73f2f94172dfc3943e466.tar.gz",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
   },
   "scripts": {
     "docs:dev": "node scripts/docs-dev.mjs",
     "test": "bash scripts/check.sh",
     "test:docs": "node --test test/test-docs.mjs",
+    "prepare:compaction": "node scripts/prepare-compaction.mjs",
     "typecheck": "tsc --noEmit"
   }
 }

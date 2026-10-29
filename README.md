@@ -2,7 +2,7 @@
 
 Owned PiG extensions, separate from personal system configuration. This package targets PiG only.
 
-**Available:** compact `pig-status` footer with integrated usage collection. **Planned:** native Go Hermes. The package does not install or activate a partial memory replacement.
+**Available:** compact `pig-status` footer with integrated usage collection and corrected OpenAI server compaction. **Planned:** native Go Hermes. The package does not install or activate a partial memory replacement.
 
 ## Install from a checkout
 
@@ -10,6 +10,7 @@ Requires PiG 0.5.3, Go 1.26+, Node 24+ and npm.
 
 ```sh
 npm ci
+npm run prepare:compaction
 pig install .
 ```
 
@@ -22,6 +23,16 @@ pig install git:github.com/balcsida/pig-claude-bridge@670c5a379a9843db82ea069aad
 ```
 
 Remove a previously selected bridge source so only one bridge is active. Use `/reload` or start a new session after changing extension selection.
+
+## Server compaction
+
+The package selects `extensions/pig-openai-server-compaction.ts` exactly once. Remove the separately selected upstream `pi-openai-server-compaction` package before enabling this entry; do not load both. Regular Pi configuration is outside this package.
+
+PiG retains its native OpenAI and Codex providers and WebSocket/HTTP transport; this extension registers no custom provider. The pinned upstream compactor owns remote compaction requests, local summaries, opaque-history storage and session reconstruction. With no compatible remote state, outgoing native requests are left unchanged. Replay keeps the current request’s ordered instructions, tool declarations and configuration updates ahead of opaque remote history, instead of discarding transcript-anchored tools or replaying stale context. Ordinary original conversation history is replaced, not retained.
+
+Lifecycle scripts remain disabled. After `npm ci`, explicitly run `npm run prepare:compaction` before loading the checkout or running `npm pack`. The upstream tarball is a development-only preparation input. Preparation verifies every upstream source hash and generates only the compaction-hook modules and license; extension loading only reads that copy. `npm test` and the Nix build prepare it automatically. No runtime download, installation or source patching occurs. The upstream global `~/.pi/agent/openai-server-compaction.json` and project `.pi/openai-server-compaction.json` locations and enabled/notify controls remain available. Optional continuation/store policy from the removed custom provider no longer applies.
+
+Offline synthetic checks cover payload preservation, native-provider retention and PiG registration/lifecycle replay for both OpenAI and Codex. They do not establish live OpenAI acceptance, a native provider network round trip or model tool execution.
 
 ## Footer
 
@@ -69,7 +80,7 @@ nix build "path:$PWD#pig-status"
 pig install ./result --validate-only --json
 ```
 
-The output contains the prebuilt native footer, status collector and locked production dependencies. PiG supplies the Node compatibility runtime. Source installation builds the Go footer on first use; the Nix output needs no Go compiler at runtime.
+The output contains the prebuilt native footer, status collector, prepared compactor and locked production dependencies. PiG supplies the Node compatibility runtime. Source installation builds the Go footer on first use; the Nix output needs no Go compiler at runtime.
 
 Dotfiles should select this package and own personal configuration, not contain its implementation. During development, select the checkout. Use an immutable source/release pin after publication.
 

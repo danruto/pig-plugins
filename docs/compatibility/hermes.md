@@ -2,7 +2,7 @@
 
 ## Scope
 
-Observed with PiG **0.5.3+1.4.0.74f46864**, Go **1.26.8**, Node **24.21.0**, patched `pi-hermes-memory` **0.9.11** and `modernc.org/sqlite` **1.52.0**. All memory/database/session fixtures were disposable. No personal memory was copied or migrated.
+Observed with PiG **0.5.3+1.4.0.74f46864**, Go **1.27.3**, Node **24.21.0**, patched `pi-hermes-memory` **0.9.11** and `modernc.org/sqlite` **1.52.0**. The original feasibility run used Go 1.26.8; the closure-bound reproduction uses the exact versions and digests in the [executable manifest](hermes-closure.json). All memory/database/session fixtures were disposable. No personal memory was copied or migrated.
 
 These are feasibility results, not acceptance credit for an unimplemented native extension.
 
@@ -10,7 +10,7 @@ These are feasibility results, not acceptance credit for an unimplemented native
 
 | Check | Result | What remains unproven |
 | --- | --- | --- |
-| Frozen source reconstruction | Pinned archive plus retained integrity patch reconstructs all 92 packaged files; source digest verified | Dependency/runtime closure and native behavior |
+| Frozen source reconstruction | Retained pinned archive plus integrity patch reconstructs all 92 packaged files; source digest verified offline | Native behavior |
 | Real upstream registration | 6 default tools, 10 default commands, 44 canonical interface fields captured | Parameter schemas, parser aliases, configuration-dependent registration and native result parity |
 | Open TypeScript-created database from Go | Passed; TypeScript SQLite 3.53.4, Go SQLite 3.53.2 | All recovery paths and supported platforms |
 | FTS5 trigram search | Japanese substring found through the real upstream schema/index | Full query grammar, ranking, short-query behavior and every tokenizer edge |
@@ -25,59 +25,52 @@ The background probe deliberately gates its completion until the real foreground
 
 ## Reproduce
 
-From the repository root, after `npm ci`, point `HERMES_PACKAGE` at the pinned source installation, not its data directory:
+From the repository root, after `npm ci`, select source explicitly, never a memory directory. Keep all disposable state under the objective scratch root:
 
 ```sh
+export TMPDIR="$PWD/.pb/probes/2"
+mkdir -p "$TMPDIR"
 export HERMES_PACKAGE="$HOME/.pig/agent/npm/node_modules/pi-hermes-memory"
 
-python3 probes/capture-hermes.py "$HERMES_PACKAGE" --verify-source-only
-python3 probes/test-capture-hermes.py
-python3 probes/capture-hermes.py "$HERMES_PACKAGE" \
-  --output /tmp/hermes-surface.json
-cmp docs/compatibility/hermes-surface.json /tmp/hermes-surface.json
-rm /tmp/hermes-surface.json
+python3 probes/hermes-closure.py --check
+python3 probes/hermes-closure.py --verify-installed
+python3 probes/capture-hermes.py "$HERMES_PACKAGE" --output "$TMPDIR/hermes-surface.json"
+cmp docs/compatibility/hermes-surface.json "$TMPDIR/hermes-surface.json"
 
-(cd probes/hermes-sqlite && go test -race -v ./...)
-python3 probes/check-completion.py
-node --import tsx probes/check-session-format.mjs
+python3 probes/hermes-closure.py --observe bash -c \
+  'cd probes/hermes-sqlite && go test -race -v ./...'
+python3 probes/hermes-closure.py --observe python3 probes/check-completion.py
+python3 probes/hermes-closure.py --observe node --import tsx probes/check-session-format.mjs
 ```
 
-The SQLite probe starts the real TypeScript database/lock modules with a fresh `PI_CODING_AGENT_DIR` for each test. It never opens the package's default data root. The completion/session probes use a static provider that cannot contact a paid endpoint. Temporary processes and directories are cleaned up.
+The SQLite probe starts the real TypeScript database/lock modules with a fresh `PI_CODING_AGENT_DIR` for each test. It never opens the package's default data root. The completion/session probes use a static provider that cannot contact a paid endpoint. The observation wrapper supplies disposable home/configuration roots, omits inherited credentials, disables Go dependency downloads and prints the verified closure digest before the command's output. Temporary processes and directories are cleaned up. Direct, unwrapped legacy probe output is not closure-bound acceptance evidence.
 
-The captured surface is generated; regenerate it with `probes/capture-hermes.py`, not by hand. Capture refuses a source-tree or retained-patch mismatch before starting PiG. A changed source fingerprint needs a deliberate baseline review. The source-only check starts no PiG process. The five source-verification tests use copied package source in temporary roots and reject changed, added, removed and symlinked source files.
+The captured surface is generated; regenerate it with `probes/capture-hermes.py`, not by hand. Full capture now verifies the installed executable closure before starting registration and retains its digest in the surface. The source-only check starts no PiG process. The five existing source-verification tests use copied source in temporary roots and reject changed, added, removed and symlinked files; normal package checks run them against reconstructed source without requiring a personal installation.
 
-The [baseline manifest](hermes-baseline.json) pins the upstream archive SHA-256, exact retained patch and a digest of sorted relative-path/file-hash pairs for `src/`, `scripts/`, `docs/`, `LICENSE`, `README.md` and `package.json`. The [patch](../../patches/hermes-0.9.11-async-integrity.patch) changes only `src/index.ts` and `src/store/db.ts`; it retains the existing worker-based integrity scan and shutdown wait, not a new live-installation change. All 92 packaged files, including both changed files, are fingerprinted in the generated surface. The declared upstream commit is provenance metadata backed by reconstruction, not a claim that a version string proves source identity.
+The [source manifest](hermes-baseline.json) pins the public upstream archive SHA-256, exact retained patch and a digest of sorted relative-path/file-hash pairs for `src/`, `scripts/`, `docs/`, `LICENSE`, `README.md` and `package.json`. The [retained archive](hermes-upstream-0.9.11.tar.gz) has that exact public digest. `--check` extracts only the packaged source to a disposable root, applies the [patch](../../patches/hermes-0.9.11-async-integrity.patch) with zero fuzz, and verifies all 92 files. No dependency installation, substitution, network access or memory database is involved. The patch retains the existing worker-based integrity scan and shutdown wait. The declared upstream commit is backed by reconstruction, not merely a version string.
 
-To reconstruct source independently, run this disposable check from the repository root. It downloads public source only and neither installs dependencies nor opens a memory database:
+## Frozen executable closure
+
+The generated [executable manifest](hermes-closure.json) and its [SHA-256 receipt](hermes-closure.sha256) are distinct from the source fingerprints. They retain:
+
+- The Hermes-reachable npm dependency/peer graph, exact versions, public registry URLs/integrities and installed file digests plus owner/group/other execute bits, with the same permission-aware fingerprints for the separately resolved `tsx` probe loader, its platform dependency, the staged SDK and the Node bridge. Unrelated host packages and the personal installation's root lockfile are not copied.
+- PiG, Node, npm and Go executable versions/file digests; the complete recursive Nix store graph with NAR hashes; the staged SDK identity and all file digests; the complete PiG Node bridge and bundled package metadata. Hermes peers are supplied by that bridge, not fictitious npm peer installations.
+- TypeScript SQLite 3.53.4 and Go SQLite 3.53.2, their exact source IDs, Node ABI/runtime versions, SQLite compile options and the actually loaded `better-sqlite3` native binary digest. Go module versions/sums and probe module-file digests are retained separately.
+- Synthetic fixture hashes and the isolated, provider-free capture configuration. Provenance contains no home paths, personal configuration, credentials, memory or session content. Nix store paths identify public runtime artifacts, not personal roots.
+
+`npm test` and the Nix package check always run `--check`: verify the retained closure receipt, source/archive/patch/fixture/module provenance, all retained tree fingerprints, and the generated registration's closure/source linkage. When `HERMES_PACKAGE` is set, `npm test` also runs `--verify-installed`, comparing the actual dependency graph/bytes, freshly staged SDK/bridge and queried SQLite identities. An artifact-only pass does **not** claim the installed runtime was checked.
+
+Installed verification is intentionally specific to this observed Linux arm64 Nix corpus. It verifies actual recursive Nix store contents (`nix store verify --no-trust --recursive`) and cached Go module contents (`go mod verify`); it does not silently install missing packages, select newer versions or fall back to another runtime. Missing original runtime/dependencies or drift fails the executable check. Runtime bytes are not vendored here: restore the exact Nix paths/NAR identities and exact registry artifacts, then verify installed-byte equality before an observation. Source reconstruction is independently available offline from the retained archive and patch.
+
+To deliberately recapture after an approved baseline review (not to repair drift by substitution):
 
 ```sh
-tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
-python3 - "$tmp" <<'PY'
-import hashlib, io, json, sys, tarfile, urllib.request
-from pathlib import Path
-manifest = json.loads(Path('docs/compatibility/hermes-baseline.json').read_text())
-raw = urllib.request.urlopen(manifest['upstreamArchive']['url'], timeout=30).read()
-assert hashlib.sha256(raw).hexdigest() == manifest['upstreamArchive']['sha256']
-root = Path(sys.argv[1]).resolve() / 'source'
-root.mkdir()
-with tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz') as archive:
-    for member in archive.getmembers():
-        if not member.isfile() or '/' not in member.name:
-            continue
-        relative = member.name.split('/', 1)[1]
-        if relative not in manifest['sourceFiles'] and not any(relative.startswith(name + '/') for name in manifest['sourceRoots']):
-            continue
-        target = (root / relative).resolve()
-        assert target.is_relative_to(root)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(archive.extractfile(member).read())
-PY
-patch --batch --forward --fuzz=0 -d "$tmp/source" -p1 < patches/hermes-0.9.11-async-integrity.patch
-python3 probes/capture-hermes.py "$tmp/source" --verify-source-only
+python3 probes/hermes-closure.py --capture
+python3 probes/capture-hermes.py "$HERMES_PACKAGE" --output docs/compatibility/hermes-surface.json
+python3 probes/hermes-closure.py --check
 ```
 
-These hashes identify source, not the production dependency closure. H1 must separately retain the installed dependency graph/lock, PiG executable and staged SDK digests, runtime/SQLite versions, provider fixture and selected configuration with each behavior capture. Do not invent a historical dependency pin from a source manifest or claim the operation corpus is complete.
+These are new, reproducible observations, not an invented historical dependency pin. Retaining this closure does not establish a complete operation corpus, consumer inventory, performance baseline or native Hermes parity.
 
 The [consumer parity contract](../designs/hermes-parity.md) covers the runtime parser aliases and registration variants omitted by the default inventory. The [coordination table](../designs/shared-storage.md#coordination-identities) corrects the assumption that all callers use a single lock database. The existing lease probe checks a synthetic `mutation:fixture` key; it does not establish consolidation or recovery key/path parity.
 
@@ -91,4 +84,4 @@ A live, prompt-free `TestGetUsageAnswersWithKeyedWindows` invocation received a 
 
 ## Next checkpoint
 
-H1 still needs the consumer-derived operation/configuration/search corpus, retained dependency/runtime closure and matched synthetic performance baseline. H2 requires bounded publication/recovery modeling and real mixed-writer tests before storage acceptance. An unresolved frozen-writer counterexample blocks cutover; it does not authorize a native-only workaround or an unapproved TypeScript patch. See the [native Hermes contract](../designs/pig-hermes.md); there is no native replacement to activate yet.
+H1 still needs the consumer-derived operation/configuration/search corpus and matched synthetic performance baseline. H2 requires bounded publication/recovery modeling and real mixed-writer tests before storage acceptance. An unresolved frozen-writer counterexample blocks cutover; it does not authorize a native-only workaround or an unapproved TypeScript patch. See the [native Hermes contract](../designs/pig-hermes.md); there is no native replacement to activate yet.
