@@ -59,6 +59,10 @@
               npm run typecheck
               node --import tsx --test test/test-compaction-payload.mjs
               node --test test/test-usage.mjs test/test-docs.mjs
+              node --import tsx scripts/usage-reference.mjs --check
+              node --import tsx scripts/usage-billing-reference.mjs --check
+              node --import tsx scripts/usage-regional-reference.mjs --check
+              node --import tsx scripts/usage-consumer-reference.mjs --check
               (cd extensions/pig-status && go test ./... && go vet ./...)
               runHook postCheck
             '';

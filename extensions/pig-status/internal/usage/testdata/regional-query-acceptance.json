@@ -1,0 +1,3647 @@
+{
+  "version": "0.68.3",
+  "sources": [
+    {
+      "path": "node_modules/@narumitw/pi-usage/src/providers/minimax.ts",
+      "sha256": "3d3d4fe5664030e9706979abcd4e43573cb4770239dcb2600291a7bcfbf386cf"
+    },
+    {
+      "path": "node_modules/@narumitw/pi-usage/src/providers/moonshot.ts",
+      "sha256": "6d70618a41f6617015522acd5a4e991f3563f9a263ba3d26b701033bbe5f2482"
+    },
+    {
+      "path": "node_modules/@narumitw/pi-usage/src/providers/zai.ts",
+      "sha256": "20123d2a7b15f5c7db603748aac4821ad83c8b517fd4613b278ed77ba80f47ae"
+    },
+    {
+      "path": "node_modules/@narumitw/pi-usage/src/providers/zai-errors.ts",
+      "sha256": "57b06ab7cc12d80ce4d711b7ef26d4a28c931a9445cc2723a8bdc63fd67a0545"
+    },
+    {
+      "path": "node_modules/@narumitw/pi-usage/src/query.ts",
+      "sha256": "e4e72cb52e63ca65ae7d7cf89f8bccf15b43fc022024a432f209a90289643d6e"
+    }
+  ],
+  "fixtures": [
+    {
+      "provider": "minimax",
+      "name": "minimax:balance",
+      "base": "https://api.minimax.io/v1",
+      "kind": "account-balance",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.000000001",
+        "cash_balance": "-0.000000002",
+        "voucher_balance": "0",
+        "credit_balance": "2.000",
+        "owed_amount": "0.000000003"
+      },
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1800000000123,
+        "source": "minimax-account-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "MiniMax pay-as-you-go account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "12345678901234567890.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.000000002",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "credit-balance",
+            "label": "Credit balance",
+            "value": "2.000",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "owed-amount",
+            "label": "Owed amount",
+            "value": "0.000000003",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:count-directions",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:model-groups",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": " MiniMax\u001b[31m M2 ",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": "中文",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 3,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 3,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "minimax-m2-2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2-2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2-2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2-2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "quota:interval",
+            "label": "Rolling window",
+            "groupId": "quota",
+            "groupLabel": "中文",
+            "remaining": 100,
+            "unit": "percent",
+            "period": "unlimited",
+            "windowMinutes": 300
+          },
+          {
+            "id": "quota:weekly",
+            "label": "Weekly window",
+            "groupId": "quota",
+            "groupLabel": "中文",
+            "remaining": 100,
+            "unit": "percent",
+            "period": "unlimited",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:zero-count-percent",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 0,
+            "current_interval_usage_count": 0,
+            "current_interval_remaining_percent": 12.5,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 0,
+            "current_weekly_usage_count": 0,
+            "current_weekly_remaining_percent": 0,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 12.5,
+            "used": 87.5,
+            "limit": 0,
+            "unit": "percent",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 0,
+            "used": 100,
+            "limit": 0,
+            "unit": "percent",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:missing-percent-means-remaining",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 80,
+            "remaining": 20,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:balance-numeric-not-decimal",
+      "base": "https://api.minimax.io/v1",
+      "kind": "account-balance",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": 1,
+        "cash_balance": "-0.000000002",
+        "voucher_balance": "0",
+        "credit_balance": "2.000",
+        "owed_amount": "0.000000003"
+      },
+      "error": "MiniMax available balance was not a valid amount."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:balance-negative-available",
+      "base": "https://api.minimax.io/v1",
+      "kind": "account-balance",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "-1",
+        "cash_balance": "-0.000000002",
+        "voucher_balance": "0",
+        "credit_balance": "2.000",
+        "owed_amount": "0.000000003"
+      },
+      "error": "MiniMax available balance was not a valid amount."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:failed-success-code",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 1,
+          "status_msg": "raw-provider-canary fixture-secret"
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax usage response did not report success."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:no-rows",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": []
+      },
+      "error": "MiniMax Token Plan returned no quota rows."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:row-not-object",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          null
+        ]
+      },
+      "error": "MiniMax Token Plan quota row was not an object."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:counts-inconsistent",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 45,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:timestamps-reversed",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan Rolling window timestamps were reversed."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:unsupported-status",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 4,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan Rolling window status was unsupported."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:unsafe-integer",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 9007199254740992,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan current_interval_total_count was not a nonnegative safe integer."
+    },
+    {
+      "provider": "minimax",
+      "name": "minimax:invalid-boost",
+      "base": "https://api.minimax.io/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 10001
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan weekly boost was unreasonable."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:balance",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "account-balance",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.000000001",
+        "cash_balance": "-0.000000002",
+        "voucher_balance": "0",
+        "credit_balance": "2.000",
+        "owed_amount": "0.000000003"
+      },
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1800000000123,
+        "source": "minimax-account-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "MiniMax pay-as-you-go account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "12345678901234567890.000000001",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.000000002",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "credit-balance",
+            "label": "Credit balance",
+            "value": "2.000",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "owed-amount",
+            "label": "Owed amount",
+            "value": "0.000000003",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:count-directions",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:model-groups",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": " MiniMax\u001b[31m M2 ",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": "中文",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 3,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 3,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "minimax-m2-2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2-2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2-2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2-2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "quota:interval",
+            "label": "Rolling window",
+            "groupId": "quota",
+            "groupLabel": "中文",
+            "remaining": 100,
+            "unit": "percent",
+            "period": "unlimited",
+            "windowMinutes": 300
+          },
+          {
+            "id": "quota:weekly",
+            "label": "Weekly window",
+            "groupId": "quota",
+            "groupLabel": "中文",
+            "remaining": 100,
+            "unit": "percent",
+            "period": "unlimited",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:zero-count-percent",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 0,
+            "current_interval_usage_count": 0,
+            "current_interval_remaining_percent": 12.5,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 0,
+            "current_weekly_usage_count": 0,
+            "current_weekly_remaining_percent": 0,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 12.5,
+            "used": 87.5,
+            "limit": 0,
+            "unit": "percent",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 0,
+            "used": 100,
+            "limit": 0,
+            "unit": "percent",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:missing-percent-means-remaining",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1800000000123,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 80,
+            "remaining": 20,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1800018000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 150,
+            "limit": 200,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1800604800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:balance-numeric-not-decimal",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "account-balance",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": 1,
+        "cash_balance": "-0.000000002",
+        "voucher_balance": "0",
+        "credit_balance": "2.000",
+        "owed_amount": "0.000000003"
+      },
+      "error": "MiniMax available balance was not a valid amount."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:balance-negative-available",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "account-balance",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "-1",
+        "cash_balance": "-0.000000002",
+        "voucher_balance": "0",
+        "credit_balance": "2.000",
+        "owed_amount": "0.000000003"
+      },
+      "error": "MiniMax available balance was not a valid amount."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:failed-success-code",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 1,
+          "status_msg": "raw-provider-canary fixture-secret"
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax usage response did not report success."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:no-rows",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": []
+      },
+      "error": "MiniMax Token Plan returned no quota rows."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:row-not-object",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          null
+        ]
+      },
+      "error": "MiniMax Token Plan quota row was not an object."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:counts-inconsistent",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 45,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:timestamps-reversed",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan Rolling window timestamps were reversed."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:unsupported-status",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 4,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan Rolling window status was unsupported."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:unsafe-integer",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 9007199254740992,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan current_interval_total_count was not a nonnegative safe integer."
+    },
+    {
+      "provider": "minimax-cn",
+      "name": "minimax-cn:invalid-boost",
+      "base": "https://api.minimaxi.com/v1",
+      "kind": "token-plan",
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_total_count": 100,
+            "current_interval_usage_count": 20,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1800000000001,
+            "end_time": 1800018000999,
+            "current_weekly_total_count": 200,
+            "current_weekly_usage_count": 150,
+            "current_weekly_remaining_percent": 75,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1800000000001,
+            "weekly_end_time": 1800604800999,
+            "weekly_boost_permille": 10001
+          }
+        ]
+      },
+      "error": "MiniMax Token Plan weekly boost was unreasonable."
+    },
+    {
+      "provider": "zai",
+      "name": "zai:quota",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:current-plan",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "Expired",
+            "status": "INVALID",
+            "inCurrentPeriod": false
+          },
+          {
+            "productName": "Current Pro",
+            "status": "VALID",
+            "inCurrentPeriod": 1,
+            "nextRenewTime": 1800000000000
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Current Pro · renews 2027-01-15"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:legacy-plan-first",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "First",
+            "nextRenewTime": "2028-04-03T12:00:00Z"
+          },
+          {
+            "productName": "Second"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: First · renews 2028-04-03"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:inactive-plan-fallback",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "Inactive",
+            "status": "INVALID"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:invalid-renewal-fallback",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "Unusable",
+            "nextRenewTime": 100000000000000000000
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:percent-fallback-and-clamp",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": 150
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "percentage": 5,
+              "nextResetTime": 1001
+            }
+          ]
+        }
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "5h window",
+            "used": 100,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 300
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 5,
+            "remaining": 95,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 10080,
+            "resetsAt": 1
+          }
+        ],
+        "metrics": []
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:invalid-optional-plan",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "success": false,
+        "error": {
+          "code": 1000,
+          "message": "raw-provider-canary fixture-secret"
+        }
+      },
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:no-displayable",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            null,
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": -1
+            }
+          ]
+        }
+      },
+      "error": "Z.AI quota endpoint returned no displayable usage data.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:no-data",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "data": null
+      },
+      "error": "Z.AI quota response data was not an object.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:payload-error",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "success": false,
+        "code": 1308,
+        "message": "raw-provider-canary fixture-secret"
+      },
+      "error": "Z.AI 1308: Usage limit reached. Wait for the quota reset.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-known-code",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 403,
+      "raw": "{\"error\":{\"code\":1317,\"message\":\"raw-provider-canary fixture-secret\\u001b[31m\"}}",
+      "error": "Z.AI 1317: 7-day limit reached; insufficient balance for extra usage. Wait for reset.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-nested-missing-code",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 200,
+      "raw": "{\"code\":1003,\"error\":{\"message\":\"fixture-secret\"}}",
+      "error": "Z.AI 1003: Authentication token expired. Obtain a new token.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-nested-priority",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 500,
+      "raw": "{\"code\":1000,\"error\":{\"code\":1302}}",
+      "error": "Z.AI 1302: Request rate limit reached. Try again later.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-invalid-string-code",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 429,
+      "raw": "{\"success\":false,\"code\":\"01317\",\"message\":\"fixture-secret\"}",
+      "error": "Z.AI: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-out-of-range-code",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 400,
+      "raw": "{\"error\":{\"code\":10000}}",
+      "error": "Z.AI: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-http-fallback",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 401,
+      "raw": "{}",
+      "error": "Z.AI HTTP 401: Authentication failed. Check your API key.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-http-malformed",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 503,
+      "raw": "raw-provider-canary fixture-secret\u001b[31m",
+      "error": "Z.AI HTTP 503: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-success-malformed",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 200,
+      "raw": "raw-provider-canary fixture-secret\u001b[31m",
+      "error": "Z.AI: Invalid JSON response.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:error-unknown-numeric",
+      "base": "https://api.z.ai/v1",
+      "kind": "error",
+      "status": 500,
+      "raw": "{\"error\":{\"code\":9876}}",
+      "error": "Z.AI 9876: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:quota",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:current-plan",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "Expired",
+            "status": "INVALID",
+            "inCurrentPeriod": false
+          },
+          {
+            "productName": "Current Pro",
+            "status": "VALID",
+            "inCurrentPeriod": 1,
+            "nextRenewTime": 1800000000000
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Current Pro · renews 2027-01-15"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:legacy-plan-first",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "First",
+            "nextRenewTime": "2028-04-03T12:00:00Z"
+          },
+          {
+            "productName": "Second"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: First · renews 2028-04-03"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:inactive-plan-fallback",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "Inactive",
+            "status": "INVALID"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:invalid-renewal-fallback",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "data": [
+          {
+            "productName": "Unusable",
+            "nextRenewTime": 100000000000000000000
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:percent-fallback-and-clamp",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": 150
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "percentage": 5,
+              "nextResetTime": 1001
+            }
+          ]
+        }
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "5h window",
+            "used": 100,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 300
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 5,
+            "remaining": 95,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 10080,
+            "resetsAt": 1
+          }
+        ],
+        "metrics": []
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:invalid-optional-plan",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": true,
+        "code": 200,
+        "data": {
+          "level": "Quota Pro",
+          "limits": [
+            null,
+            {
+              "type": "IGNORED",
+              "unit": 3,
+              "percentage": 3
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 2.5,
+              "percentage": 12.5,
+              "nextResetTime": 1800000000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "number": 2,
+              "currentValue": 120,
+              "usage": 100,
+              "nextResetTime": 1800604800999
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 3,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "",
+                  "usage": 4
+                },
+                null
+              ]
+            }
+          ]
+        }
+      },
+      "plan": {
+        "success": false,
+        "error": {
+          "code": 1000,
+          "message": "raw-provider-canary fixture-secret"
+        }
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1800000000123,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "3h window",
+            "used": 12.5,
+            "remaining": 87.5,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 150,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 1800604800
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 3,
+            "remaining": 7,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Quota Pro"
+        ]
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:no-displayable",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            null,
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": -1
+            }
+          ]
+        }
+      },
+      "error": "Z.AI quota endpoint returned no displayable usage data.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:no-data",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "data": null
+      },
+      "error": "Z.AI quota response data was not an object.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:payload-error",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "success": false,
+        "code": 1308,
+        "message": "raw-provider-canary fixture-secret"
+      },
+      "error": "Z.AI 1308: Usage limit reached. Wait for the quota reset.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-known-code",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 403,
+      "raw": "{\"error\":{\"code\":1317,\"message\":\"raw-provider-canary fixture-secret\\u001b[31m\"}}",
+      "error": "Z.AI 1317: 7-day limit reached; insufficient balance for extra usage. Wait for reset.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-nested-missing-code",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 200,
+      "raw": "{\"code\":1003,\"error\":{\"message\":\"fixture-secret\"}}",
+      "error": "Z.AI 1003: Authentication token expired. Obtain a new token.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-nested-priority",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 500,
+      "raw": "{\"code\":1000,\"error\":{\"code\":1302}}",
+      "error": "Z.AI 1302: Request rate limit reached. Try again later.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-invalid-string-code",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 429,
+      "raw": "{\"success\":false,\"code\":\"01317\",\"message\":\"fixture-secret\"}",
+      "error": "Z.AI: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-out-of-range-code",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 400,
+      "raw": "{\"error\":{\"code\":10000}}",
+      "error": "Z.AI: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-http-fallback",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 401,
+      "raw": "{}",
+      "error": "Z.AI HTTP 401: Authentication failed. Check your API key.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-http-malformed",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 503,
+      "raw": "raw-provider-canary fixture-secret\u001b[31m",
+      "error": "Z.AI HTTP 503: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-success-malformed",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 200,
+      "raw": "raw-provider-canary fixture-secret\u001b[31m",
+      "error": "Z.AI: Invalid JSON response.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:error-unknown-numeric",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "error",
+      "status": 500,
+      "raw": "{\"error\":{\"code\":9876}}",
+      "error": "Z.AI 9876: API request failed.",
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:finite-hour-overflow",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 1.7976931348623157e+308,
+              "percentage": 25
+            }
+          ],
+          "account": "account-canary-89342",
+          "message": "raw-provider-canary fixture-secret\u001b[31m"
+        }
+      },
+      "nativeRefusal": true,
+      "upstream": {
+        "windowMinutes": "Infinity",
+        "serializedReport": {
+          "providerId": "zai",
+          "providerName": "Z.AI",
+          "capturedAt": 1800000000123,
+          "source": "zai-quota",
+          "semantics": {
+            "kind": "consumer-subscription",
+            "label": "GLM Coding Plan usage"
+          },
+          "buckets": [
+            {
+              "id": "five-hour",
+              "label": "Infinityh window",
+              "used": 25,
+              "remaining": 75,
+              "limit": 100,
+              "unit": "percent",
+              "windowMinutes": null
+            }
+          ],
+          "metrics": []
+        }
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai",
+      "name": "zai:finite-week-overflow",
+      "base": "https://api.z.ai/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 1.7976931348623157e+308,
+              "percentage": 25
+            }
+          ],
+          "account": "account-canary-89342",
+          "message": "raw-provider-canary fixture-secret\u001b[31m"
+        }
+      },
+      "nativeRefusal": true,
+      "upstream": {
+        "windowMinutes": "Infinity",
+        "serializedReport": {
+          "providerId": "zai",
+          "providerName": "Z.AI",
+          "capturedAt": 1800000000123,
+          "source": "zai-quota",
+          "semantics": {
+            "kind": "consumer-subscription",
+            "label": "GLM Coding Plan usage"
+          },
+          "buckets": [
+            {
+              "id": "weekly",
+              "label": "Weekly window",
+              "used": 25,
+              "remaining": 75,
+              "limit": 100,
+              "unit": "percent",
+              "windowMinutes": null
+            }
+          ],
+          "metrics": []
+        }
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:finite-hour-overflow",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 1.7976931348623157e+308,
+              "percentage": 25
+            }
+          ],
+          "account": "account-canary-89342",
+          "message": "raw-provider-canary fixture-secret\u001b[31m"
+        }
+      },
+      "nativeRefusal": true,
+      "upstream": {
+        "windowMinutes": "Infinity",
+        "serializedReport": {
+          "providerId": "zai-coding-cn",
+          "providerName": "Z.AI Coding CN",
+          "capturedAt": 1800000000123,
+          "source": "zai-quota",
+          "semantics": {
+            "kind": "consumer-subscription",
+            "label": "GLM Coding Plan usage"
+          },
+          "buckets": [
+            {
+              "id": "five-hour",
+              "label": "Infinityh window",
+              "used": 25,
+              "remaining": 75,
+              "limit": 100,
+              "unit": "percent",
+              "windowMinutes": null
+            }
+          ],
+          "metrics": []
+        }
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "zai-coding-cn",
+      "name": "zai-coding-cn:finite-week-overflow",
+      "base": "https://open.bigmodel.cn/v1",
+      "kind": "quota",
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 1.7976931348623157e+308,
+              "percentage": 25
+            }
+          ],
+          "account": "account-canary-89342",
+          "message": "raw-provider-canary fixture-secret\u001b[31m"
+        }
+      },
+      "nativeRefusal": true,
+      "upstream": {
+        "windowMinutes": "Infinity",
+        "serializedReport": {
+          "providerId": "zai-coding-cn",
+          "providerName": "Z.AI Coding CN",
+          "capturedAt": 1800000000123,
+          "source": "zai-quota",
+          "semantics": {
+            "kind": "consumer-subscription",
+            "label": "GLM Coding Plan usage"
+          },
+          "buckets": [
+            {
+              "id": "weekly",
+              "label": "Weekly window",
+              "used": 25,
+              "remaining": 75,
+              "limit": 100,
+              "unit": "percent",
+              "windowMinutes": null
+            }
+          ],
+          "metrics": []
+        }
+      },
+      "requestPaths": [
+        "/api/monitor/usage/quota/limit",
+        "/api/biz/subscription/list"
+      ],
+      "queryEvents": [
+        "guard",
+        "/api/monitor/usage/quota/limit",
+        "guard",
+        "/api/biz/subscription/list"
+      ]
+    },
+    {
+      "provider": "moonshotai",
+      "name": "moonshotai:provenance-control",
+      "base": "https://api.moonshot.ai/v1",
+      "kind": "balance",
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 1.25,
+          "voucher_balance": 0.25,
+          "cash_balance": -0.5
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai",
+        "providerName": "Moonshot AI",
+        "capturedAt": 1800000000123,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "1.25",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0.25",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.5",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "provider": "moonshotai-cn",
+      "name": "moonshotai-cn:provenance-control",
+      "base": "https://api.moonshot.cn/v1",
+      "kind": "balance",
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 1.25,
+          "voucher_balance": 0.25,
+          "cash_balance": -0.5
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai-cn",
+        "providerName": "Moonshot AI CN",
+        "capturedAt": 1800000000123,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "1.25",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0.25",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.5",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    }
+  ]
+}

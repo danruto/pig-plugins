@@ -1,0 +1,1491 @@
+{
+  "upstream": {
+    "name": "@narumitw/pi-usage",
+    "version": "0.68.3",
+    "hashes": {
+      "src/providers/baseten.ts": "2ec39d6a52e806e58c9bf9d05b9a9a78d50137b36e3d8c5d22517e44369bcc0c",
+      "src/providers/openrouter.ts": "fc4174c420cdd64b36b83c947cf018715446e5f558d66c00214c8a5dcc0045b1",
+      "src/providers/fireworks.ts": "014703a5b95d09229f9693a06a60dc25b75cdacd16692b6d6af1cbe49694192c",
+      "src/query.ts": "e4e72cb52e63ca65ae7d7cf89f8bccf15b43fc022024a432f209a90289643d6e",
+      "src/types.ts": "b2ee986938eadfbee7d156d536b346f2d5ab9ab731d889ce1257b7791ed1eba7",
+      "src/core.ts": "7efc37e7c62d8cd832a85af95b09598cd4756226f8e1c5250d7f9082d8a80d15"
+    }
+  },
+  "fixtures": [
+    {
+      "name": "baseten:exact-decimals",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": "12345678901234567890.000000001",
+          "credits_used": "2.500",
+          "subtotal": "0.000000001"
+        },
+        "dedicated_usage": {
+          "total": 10
+        },
+        "training_usage": {
+          "total": 20
+        }
+      },
+      "expected": {
+        "providerId": "baseten",
+        "providerName": "Baseten",
+        "capturedAt": 1735776000000,
+        "source": "baseten-billing-usage-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Organization Model APIs spend"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "gross-usage",
+            "label": "Gross usage",
+            "value": "12345678901234567890.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "credits-used",
+            "label": "Credits used",
+            "value": "2.500",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "net-subtotal",
+            "label": "Net subtotal",
+            "value": "0.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "baseten:numbers",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": 1.25,
+          "credits_used": 0,
+          "subtotal": 0.000001
+        },
+        "dedicated_usage": {
+          "total": 10
+        },
+        "training_usage": {
+          "total": 20
+        }
+      },
+      "expected": {
+        "providerId": "baseten",
+        "providerName": "Baseten",
+        "capturedAt": 1735776000000,
+        "source": "baseten-billing-usage-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Organization Model APIs spend"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "gross-usage",
+            "label": "Gross usage",
+            "value": "1.25",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "credits-used",
+            "label": "Credits used",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "net-subtotal",
+            "label": "Net subtotal",
+            "value": "0.000001",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "baseten:missing",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "dedicated_usage": {
+          "total": 10
+        },
+        "training_usage": {
+          "total": 20
+        }
+      },
+      "expected": {
+        "providerId": "baseten",
+        "providerName": "Baseten",
+        "capturedAt": 1735776000000,
+        "source": "baseten-billing-usage-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Organization Model APIs spend"
+        },
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "Baseten returned no Model APIs usage for the last 30 days."
+        ]
+      }
+    },
+    {
+      "name": "baseten:null",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": null,
+        "dedicated_usage": {
+          "total": 10
+        },
+        "training_usage": {
+          "total": 20
+        }
+      },
+      "expected": {
+        "providerId": "baseten",
+        "providerName": "Baseten",
+        "capturedAt": 1735776000000,
+        "source": "baseten-billing-usage-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Organization Model APIs spend"
+        },
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "Baseten returned no Model APIs usage for the last 30 days."
+        ]
+      }
+    },
+    {
+      "name": "baseten:bad-object",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": [],
+        "dedicated_usage": {
+          "total": 10
+        },
+        "training_usage": {
+          "total": 20
+        }
+      },
+      "error": "Baseten Model APIs usage was not an object."
+    },
+    {
+      "name": "baseten:negative",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": -1,
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:signed-zero",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": "-0",
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:exponent",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": 1e-7,
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:leading-zero",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": "01",
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:boolean",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": true,
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:long",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": "11111111111111111111111111111111111111111111111111111111111111111",
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:missing-total",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "credits_used": "0",
+          "subtotal": "1"
+        }
+      },
+      "error": "Baseten gross usage was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:bad-credits_used",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": "10",
+          "credits_used": null,
+          "subtotal": "9"
+        }
+      },
+      "error": "Baseten credits used was not a valid nonnegative amount."
+    },
+    {
+      "name": "baseten:bad-subtotal",
+      "providerID": "baseten",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "model_apis_usage": {
+          "total": "10",
+          "credits_used": "1",
+          "subtotal": null
+        }
+      },
+      "error": "Baseten net subtotal was not a valid nonnegative amount."
+    },
+    {
+      "name": "openrouter:limit-and-spend",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limit": 10,
+          "limit_remaining": 4,
+          "limit_reset": " daily\nwindow ",
+          "usage_daily": 1,
+          "usage_weekly": 2,
+          "usage_monthly": 3,
+          "usage": 6,
+          "label": "\u001b[31mSynthetic\u001b[0m\nkey",
+          "is_free_tier": true
+        }
+      },
+      "expected": {
+        "providerId": "openrouter",
+        "providerName": "OpenRouter",
+        "capturedAt": 1735776000000,
+        "source": "openrouter-key",
+        "semantics": {
+          "kind": "api-key",
+          "label": "API-key spend limits"
+        },
+        "accountLabel": "Synthetic key",
+        "buckets": [
+          {
+            "id": "key-limit",
+            "label": "Key limit",
+            "used": 6,
+            "remaining": 4,
+            "limit": 10,
+            "unit": "usd",
+            "period": "daily window"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "usage-daily",
+            "label": "Usage today",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "usage-weekly",
+            "label": "Usage this week",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "usage-monthly",
+            "label": "Usage this month",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "usage-total",
+            "label": "All-time usage",
+            "value": 6,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Free-tier API key"
+        ]
+      }
+    },
+    {
+      "name": "openrouter:uncapped",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limit": null,
+          "usage": 0
+        }
+      },
+      "expected": {
+        "providerId": "openrouter",
+        "providerName": "OpenRouter",
+        "capturedAt": 1735776000000,
+        "source": "openrouter-key",
+        "semantics": {
+          "kind": "api-key",
+          "label": "API-key spend limits"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "usage-total",
+            "label": "All-time usage",
+            "value": 0,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "No per-key spend cap"
+        ]
+      }
+    },
+    {
+      "name": "openrouter:unknown-cap",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "usage_daily": 0.000001
+        }
+      },
+      "expected": {
+        "providerId": "openrouter",
+        "providerName": "OpenRouter",
+        "capturedAt": 1735776000000,
+        "source": "openrouter-key",
+        "semantics": {
+          "kind": "api-key",
+          "label": "API-key spend limits"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "usage-daily",
+            "label": "Usage today",
+            "value": 0.000001,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Per-key spend cap unavailable"
+        ]
+      }
+    },
+    {
+      "name": "openrouter:unknown-remaining",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limit": 10,
+          "limit_remaining": "4",
+          "usage": "6"
+        }
+      },
+      "expected": {
+        "providerId": "openrouter",
+        "providerName": "OpenRouter",
+        "capturedAt": 1735776000000,
+        "source": "openrouter-key",
+        "semantics": {
+          "kind": "api-key",
+          "label": "API-key spend limits"
+        },
+        "buckets": [
+          {
+            "id": "key-limit",
+            "label": "Key limit",
+            "limit": 10,
+            "unit": "usd"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "openrouter:remaining-over-limit",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limit": 0,
+          "limit_remaining": 1
+        }
+      },
+      "expected": {
+        "providerId": "openrouter",
+        "providerName": "OpenRouter",
+        "capturedAt": 1735776000000,
+        "source": "openrouter-key",
+        "semantics": {
+          "kind": "api-key",
+          "label": "API-key spend limits"
+        },
+        "buckets": [
+          {
+            "id": "key-limit",
+            "label": "Key limit",
+            "used": 0,
+            "remaining": 1,
+            "limit": 0,
+            "unit": "usd"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "openrouter:invalid-optionals",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limit": -1,
+          "usage": 3,
+          "usage_daily": -1,
+          "usage_weekly": "2",
+          "usage_monthly": null,
+          "is_free_tier": "true",
+          "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "expected": {
+        "providerId": "openrouter",
+        "providerName": "OpenRouter",
+        "capturedAt": 1735776000000,
+        "source": "openrouter-key",
+        "semantics": {
+          "kind": "api-key",
+          "label": "API-key spend limits"
+        },
+        "accountLabel": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "usage-total",
+            "label": "All-time usage",
+            "value": 3,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Per-key spend cap unavailable"
+        ]
+      }
+    },
+    {
+      "name": "openrouter:missing-data",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "error": "OpenRouter key response data was not an object."
+    },
+    {
+      "name": "openrouter:bad-data",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": []
+      },
+      "error": "OpenRouter key response data was not an object."
+    },
+    {
+      "name": "openrouter:no-displayable",
+      "providerID": "openrouter",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limit": null,
+          "usage": "1"
+        }
+      },
+      "error": "OpenRouter key response returned no displayable usage data."
+    },
+    {
+      "name": "fireworks:currencies-series-exact",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "EUR",
+              "units": "1",
+              "nanos": 500000001
+            },
+            "series": "TRAINING"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "9223372036854775807",
+              "nanos": 999999999
+            },
+            "series": "SERVERLESS"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "9223372036854775807",
+              "nanos": 999999999
+            },
+            "series": "SERVERLESS"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "EUR",
+              "units": "-1",
+              "nanos": -500000000
+            },
+            "series": "DEDICATED_DEPLOYMENT"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "-9223372036854775808",
+              "nanos": -999999999
+            },
+            "series": "TRAINING"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "JPY"
+            }
+          },
+          {
+            "totalCost": {
+              "currencyCode": "EUR",
+              "units": 0,
+              "nanos": -1
+            },
+            "series": "FUTURE_SERIES"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "0002",
+              "nanos": "000000001"
+            },
+            "series": null
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "expected": {
+        "providerId": "fireworks",
+        "providerName": "Fireworks",
+        "capturedAt": 1735776000000,
+        "source": "fireworks-billing-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Fireworks API spend"
+        },
+        "accountLabel": "synthetic-account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "eur-total",
+            "label": "Total spend",
+            "value": "0",
+            "unit": "currency",
+            "currency": "EUR"
+          },
+          {
+            "id": "eur-dedicated",
+            "label": "Dedicated deployments",
+            "value": "-1.5",
+            "unit": "currency",
+            "currency": "EUR"
+          },
+          {
+            "id": "eur-training",
+            "label": "Training",
+            "value": "1.500000001",
+            "unit": "currency",
+            "currency": "EUR"
+          },
+          {
+            "id": "eur-other",
+            "label": "Other",
+            "value": "-0.000000001",
+            "unit": "currency",
+            "currency": "EUR"
+          },
+          {
+            "id": "usd-total",
+            "label": "Total spend",
+            "value": "9223372036854775809",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-serverless",
+            "label": "Serverless",
+            "value": "18446744073709551615.999999998",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-training",
+            "label": "Training",
+            "value": "-9223372036854775808.999999999",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-other",
+            "label": "Other",
+            "value": "2.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "jpy-total",
+            "label": "Total spend",
+            "value": "0",
+            "unit": "currency",
+            "currency": "JPY"
+          },
+          {
+            "id": "jpy-other",
+            "label": "Other",
+            "value": "0",
+            "unit": "currency",
+            "currency": "JPY"
+          }
+        ],
+        "notes": [
+          "Rated line items may differ from the final invoice once credits or adjustments are applied."
+        ]
+      }
+    },
+    {
+      "name": "fireworks:zero-sum-preserves-series",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": 0,
+              "nanos": 1
+            },
+            "series": "SERVERLESS"
+          },
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": 0,
+              "nanos": -1
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "expected": {
+        "providerId": "fireworks",
+        "providerName": "Fireworks",
+        "capturedAt": 1735776000000,
+        "source": "fireworks-billing-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Fireworks API spend"
+        },
+        "accountLabel": "synthetic-account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "usd-total",
+            "label": "Total spend",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-serverless",
+            "label": "Serverless",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ],
+        "notes": [
+          "Rated line items may differ from the final invoice once credits or adjustments are applied."
+        ]
+      }
+    },
+    {
+      "name": "fireworks:negative-fraction",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "0",
+              "nanos": "-100000001"
+            },
+            "series": "TRAINING"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "expected": {
+        "providerId": "fireworks",
+        "providerName": "Fireworks",
+        "capturedAt": 1735776000000,
+        "source": "fireworks-billing-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Fireworks API spend"
+        },
+        "accountLabel": "synthetic-account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "usd-total",
+            "label": "Total spend",
+            "value": "-0.100000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-training",
+            "label": "Training",
+            "value": "-0.100000001",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ],
+        "notes": [
+          "Rated line items may differ from the final invoice once credits or adjustments are applied."
+        ]
+      }
+    },
+    {
+      "name": "fireworks:empty",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "accountID": "synthetic-account",
+      "expected": {
+        "providerId": "fireworks",
+        "providerName": "Fireworks",
+        "capturedAt": 1735776000000,
+        "source": "fireworks-billing-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Fireworks API spend"
+        },
+        "accountLabel": "synthetic-account",
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "Rated line items may differ from the final invoice once credits or adjustments are applied.",
+          "Fireworks returned no rated line items for the last 30 days."
+        ]
+      }
+    },
+    {
+      "name": "fireworks:empty-array",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": []
+      },
+      "accountID": "synthetic-account",
+      "expected": {
+        "providerId": "fireworks",
+        "providerName": "Fireworks",
+        "capturedAt": 1735776000000,
+        "source": "fireworks-billing-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Fireworks API spend"
+        },
+        "accountLabel": "synthetic-account",
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "Rated line items may differ from the final invoice once credits or adjustments are applied.",
+          "Fireworks returned no rated line items for the last 30 days."
+        ]
+      }
+    },
+    {
+      "name": "fireworks:null-lines",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": null
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing summary lineItems was not an array."
+    },
+    {
+      "name": "fireworks:bad-lines",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": {}
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing summary lineItems was not an array."
+    },
+    {
+      "name": "fireworks:bad-row",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          null
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item was not an object."
+    },
+    {
+      "name": "fireworks:bad-money",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": []
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost was not a money object."
+    },
+    {
+      "name": "fireworks:bad-series",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "0",
+              "nanos": 0
+            },
+            "series": 5
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item series was invalid."
+    },
+    {
+      "name": "fireworks:currency-case",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "usd",
+              "units": "1",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code."
+    },
+    {
+      "name": "fireworks:currency-long",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USDX",
+              "units": "1",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code."
+    },
+    {
+      "name": "fireworks:currency-missing",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "units": "1",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code."
+    },
+    {
+      "name": "fireworks:null-units",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": null,
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:fractional-units",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": 1.5,
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:unsafe-number",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": 9007199254740992,
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:safe-number",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": 9007199254740991,
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "expected": {
+        "providerId": "fireworks",
+        "providerName": "Fireworks",
+        "capturedAt": 1735776000000,
+        "source": "fireworks-billing-summary",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Fireworks API spend"
+        },
+        "accountLabel": "synthetic-account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "usd-total",
+            "label": "Total spend",
+            "value": "9007199254740991",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-serverless",
+            "label": "Serverless",
+            "value": "9007199254740991",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ],
+        "notes": [
+          "Rated line items may differ from the final invoice once credits or adjustments are applied."
+        ]
+      }
+    },
+    {
+      "name": "fireworks:int64-overflow",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "9223372036854775808",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units exceeded the int64 range."
+    },
+    {
+      "name": "fireworks:int64-underflow",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "-9223372036854775809",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units exceeded the int64 range."
+    },
+    {
+      "name": "fireworks:long-units",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "000000000000000000000",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:units-plus",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "+1",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:units-whitespace",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": " 1",
+              "nanos": 0
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:null-nanos",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "1",
+              "nanos": null
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost nano units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:nanos-upper",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "1",
+              "nanos": 1000000000
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost nano units exceeded the Money range."
+    },
+    {
+      "name": "fireworks:nanos-lower",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "1",
+              "nanos": -1000000000
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost nano units exceeded the Money range."
+    },
+    {
+      "name": "fireworks:long-nanos",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "1",
+              "nanos": "000000000000"
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost nano units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:nanos-fraction",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "1",
+              "nanos": 0.1
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost nano units was not a bounded integer."
+    },
+    {
+      "name": "fireworks:mixed-signs",
+      "providerID": "fireworks",
+      "kind": "report",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "lineItems": [
+          {
+            "totalCost": {
+              "currencyCode": "USD",
+              "units": "1",
+              "nanos": -1
+            },
+            "series": "SERVERLESS"
+          }
+        ]
+      },
+      "accountID": "synthetic-account",
+      "error": "Fireworks billing line item total cost mixed unit and nano signs."
+    },
+    {
+      "name": "fireworks:accounts-ordered",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": [
+          {
+            "name": "accounts/one._~-2"
+          },
+          {
+            "name": "accounts/Two"
+          }
+        ]
+      },
+      "expected": [
+        "one._~-2",
+        "Two"
+      ]
+    },
+    {
+      "name": "fireworks:accounts-empty",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": []
+      },
+      "expected": []
+    },
+    {
+      "name": "fireworks:accounts-missing",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "error": "Fireworks accounts response did not contain an accounts array."
+    },
+    {
+      "name": "fireworks:accounts-bad-array",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": null
+      },
+      "error": "Fireworks accounts response did not contain an accounts array."
+    },
+    {
+      "name": "fireworks:accounts-bad-row",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": [
+          null
+        ]
+      },
+      "error": "Fireworks accounts response row was not an object."
+    },
+    {
+      "name": "fireworks:accounts-missing-name",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": [
+          {}
+        ]
+      },
+      "error": "Fireworks accounts response omitted the account resource name."
+    },
+    {
+      "name": "fireworks:accounts-unsafe-name",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": [
+          {
+            "name": "accounts/../other"
+          }
+        ]
+      },
+      "error": "Fireworks accounts response returned an unsafe account resource name."
+    },
+    {
+      "name": "fireworks:accounts-wrong-prefix",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": [
+          {
+            "name": "projects/account"
+          }
+        ]
+      },
+      "error": "Fireworks accounts response returned an unsafe account resource name."
+    },
+    {
+      "name": "fireworks:accounts-duplicate",
+      "providerID": "fireworks",
+      "kind": "accounts",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "accounts": [
+          {
+            "name": "accounts/synthetic-account"
+          },
+          {
+            "name": "accounts/synthetic-account"
+          }
+        ]
+      },
+      "error": "Fireworks accounts response repeated synthetic-account.",
+      "nativeError": "Fireworks accounts response repeated an account."
+    }
+  ]
+}

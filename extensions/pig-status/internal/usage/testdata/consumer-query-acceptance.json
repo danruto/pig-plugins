@@ -1,0 +1,3661 @@
+{
+  "source": "@narumitw/pi-usage@0.68.3 actual query adapters and provider normalizers",
+  "scheduled": [
+    "baseten",
+    "command-code",
+    "deepseek",
+    "fireworks",
+    "github-copilot",
+    "kimi-coding",
+    "minimax",
+    "minimax-cn",
+    "moonshotai",
+    "moonshotai-cn",
+    "openai",
+    "openai-codex",
+    "opencode-go",
+    "openrouter",
+    "vercel-ai-gateway",
+    "zai",
+    "zai-coding-cn"
+  ],
+  "menuOnly": "xai",
+  "fixtures": [
+    {
+      "provider": "command-code",
+      "name": "command-code:normal",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.75,
+            "remaining": 15.75,
+            "limit": 20.5,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1801440000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "opencode-go",
+      "name": "opencode-go:normal",
+      "base": "https://opencode.ai/zen/go/v1",
+      "routes": {
+        "/zen/go/v1/usage": {
+          "usage": {
+            "rolling": {
+              "status": "ok",
+              "percent": 22.5,
+              "resetsAt": "2027-02-30T24:00:00Z"
+            },
+            "weekly": {
+              "status": "rate-limited",
+              "percent": 123,
+              "resetsAt": "1969-12-31T23:59:59.999Z"
+            },
+            "monthly": {
+              "status": "temporarily\u001b[31m unavailable\n"
+            }
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1800000000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 22.5,
+            "remaining": 77.5,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1804032000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 123,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": -1
+          }
+        ],
+        "metrics": [],
+        "notes": [
+          "Monthly window unavailable (temporarily unavailable)."
+        ]
+      },
+      "wires": [
+        {
+          "host": "opencode.ai",
+          "path": "/zen/go/v1/usage",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "kimi-coding",
+      "name": "kimi-coding:normal",
+      "base": "https://api.kimi.com/coding",
+      "routes": {
+        "/coding/v1/usages": {
+          "usage": {
+            "limit": "100",
+            "remaining": "63",
+            "resetTime": "2027-02-28T10:30:00+02:00"
+          },
+          "limits": [
+            {
+              "name": "Five hour",
+              "window": {
+                "duration": 5,
+                "timeUnit": "TIME_UNIT_HOUR"
+              },
+              "detail": {
+                "limit": "20"
+              }
+            },
+            {
+              "window": {
+                "duration": "1",
+                "timeUnit": "TIME_UNIT_DAY"
+              },
+              "detail": {
+                "limit": 30,
+                "used": 4
+              }
+            }
+          ],
+          "boosterWallet": {
+            "balance": {
+              "type": "BOOSTER",
+              "amount": "1250000000",
+              "amountLeft": "1"
+            },
+            "monthlyChargeLimit": {
+              "currency": "usd",
+              "priceInCents": "1234"
+            },
+            "monthlyUsed": {
+              "currency": "USD",
+              "priceInCents": "17"
+            },
+            "monthlyChargeLimitEnabled": true
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1800000000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five hour",
+            "used": 0,
+            "remaining": 20,
+            "limit": 20,
+            "unit": "count",
+            "windowMinutes": 300
+          },
+          {
+            "id": "daily",
+            "label": "1d window",
+            "used": 4,
+            "remaining": 26,
+            "limit": 30,
+            "unit": "count",
+            "windowMinutes": 1440
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 37,
+            "remaining": 63,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1803803400
+          }
+        ],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 12.5,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.17,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 12.34,
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.kimi.com",
+          "path": "/coding/v1/usages",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:normal",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": "SuperGrok"
+        },
+        "/v1/billing": {
+          "config": {
+            "monthlyLimit": {
+              "val": 10000
+            },
+            "used": {
+              "val": 1250
+            },
+            "onDemandCap": {
+              "val": 300
+            },
+            "onDemandUsed": {
+              "val": 450
+            },
+            "prepaidBalance": {
+              "val": -23
+            },
+            "currentPeriod": {
+              "type": "USAGE_PERIOD_TYPE_WEEKLY",
+              "start": "2027-01-01T00:00:00Z",
+              "end": "2027-01-08T00:00:00Z"
+            }
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1800000000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "limit": 100,
+            "used": 12.5,
+            "remaining": 87.5,
+            "unit": "usd",
+            "period": "Weekly",
+            "resetsAt": 1799366400
+          },
+          {
+            "id": "on-demand",
+            "label": "On-demand usage",
+            "limit": 3,
+            "used": 4.5,
+            "remaining": -1.5,
+            "unit": "usd"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "prepaid-balance",
+            "label": "Prepaid balance",
+            "value": -0.23,
+            "unit": "usd"
+          },
+          {
+            "id": "subscription-tier",
+            "label": "Plan tier",
+            "value": "SuperGrok"
+          }
+        ]
+      },
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:personal-invalid-org",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "name": "Personal"
+          },
+          "org": {
+            "id": "../bad"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual_custom-tier",
+            "status": "trial",
+            "currentPeriodStart": " "
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 0,
+          "totalTokens": 333
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Personal",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 0,
+            "remaining": 15.75,
+            "limit": 15.75,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "Custom tier (trial)"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 333,
+            "unit": "count"
+          }
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:unlimited-credit-metric",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 0,
+            "freeCredits": 2
+          },
+          "windowLimits": {
+            "limited": false
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {}
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 2,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Rolling 5-hour and weekly limits are not enabled for this plan."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:malformed-account",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {},
+          "org": null
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-credits-http",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/credits": "http"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "period-cost",
+            "label": "Cost this billing period",
+            "value": 4.75,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-credits-json",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/credits": "json"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "period-cost",
+            "label": "Cost this billing period",
+            "value": 4.75,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-credits-shape",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/credits": "shape"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "period-cost",
+            "label": "Cost this billing period",
+            "value": 4.75,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-credits-transport",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/credits": "transport"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "period-cost",
+            "label": "Cost this billing period",
+            "value": 4.75,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-credits-overflow",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/credits": "overflow"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "period-cost",
+            "label": "Cost this billing period",
+            "value": 4.75,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-subscriptions-http",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/subscriptions": "http"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.75,
+            "remaining": 15.75,
+            "limit": 20.5,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code plan details were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-subscriptions-json",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/subscriptions": "json"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.75,
+            "remaining": 15.75,
+            "limit": 20.5,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code plan details were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-subscriptions-shape",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/subscriptions": "shape"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.75,
+            "remaining": 15.75,
+            "limit": 20.5,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code plan details were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-subscriptions-transport",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/subscriptions": "transport"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.75,
+            "remaining": 15.75,
+            "limit": 20.5,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code plan details were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-subscriptions-overflow",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/billing/subscriptions": "overflow"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.75,
+            "remaining": 15.75,
+            "limit": 20.5,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 17,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 111,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 222,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code plan details were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-summary-http",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/usage/summary": "http"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 15.75,
+            "unit": "usd"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Command Code billing-period usage was unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-summary-json",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/usage/summary": "json"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 15.75,
+            "unit": "usd"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Command Code billing-period usage was unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-summary-shape",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/usage/summary": "shape"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 15.75,
+            "unit": "usd"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Command Code billing-period usage was unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-summary-transport",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/usage/summary": "transport"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 15.75,
+            "unit": "usd"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Command Code billing-period usage was unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "command-code",
+      "name": "command-code:optional-summary-overflow",
+      "base": "https://api.commandcode.ai/v1",
+      "routes": {
+        "/alpha/whoami": {
+          "user": {
+            "userName": "Synthetic User"
+          },
+          "org": {
+            "id": "org_15.safe"
+          }
+        },
+        "/alpha/billing/credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 3,
+            "freeCredits": 0.25
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 8,
+              "cap": 10,
+              "resetAt": "1800000000123"
+            },
+            "weekly": {
+              "used": 27,
+              "cap": 20,
+              "resetAt": 1800000000
+            }
+          }
+        },
+        "/alpha/billing/subscriptions": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodStart": " 2027-01-01T00:00:00Z ",
+            "currentPeriodEnd": "2027-02-01T00:00:00Z"
+          }
+        },
+        "/alpha/usage/summary": {
+          "totalCost": 4.75,
+          "totalCount": 17,
+          "totalTokensIn": 111,
+          "totalTokensOut": 222
+        }
+      },
+      "failures": {
+        "/alpha/usage/summary": "overflow"
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1800000000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic User",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 8,
+            "remaining": 2,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1800000000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 27,
+            "remaining": 0,
+            "limit": 20,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1800000000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 15.75,
+            "unit": "usd"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 3,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 0.25,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Command Code billing-period usage was unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/whoami",
+          "query": {}
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/credits",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/billing/subscriptions",
+          "query": {
+            "orgId": "org_15.safe"
+          }
+        },
+        {
+          "host": "api.commandcode.ai",
+          "path": "/alpha/usage/summary",
+          "query": {
+            "orgId": "org_15.safe",
+            "since": "2027-01-01T00:00:00Z"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "opencode-go",
+      "name": "opencode-go:malformed-all",
+      "base": "https://opencode.ai/zen/go/v1",
+      "routes": {
+        "/zen/go/v1/usage": {
+          "usage": {
+            "rolling": {
+              "status": "ok",
+              "percent": "42"
+            },
+            "weekly": {
+              "status": "ok",
+              "percent": -1
+            }
+          }
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "opencode.ai",
+          "path": "/zen/go/v1/usage",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "opencode-go",
+      "name": "opencode-go:missing-and-invalid-dates",
+      "base": "https://opencode.ai/zen/go/v1",
+      "routes": {
+        "/zen/go/v1/usage": {
+          "usage": {
+            "monthly": {
+              "status": "ok",
+              "percent": 0,
+              "resetsAt": "not-a-date"
+            }
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1800000000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 0,
+            "remaining": 100,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      },
+      "wires": [
+        {
+          "host": "opencode.ai",
+          "path": "/zen/go/v1/usage",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "kimi-coding",
+      "name": "kimi-coding:ratios-and-invalid-wallet",
+      "base": "https://api.kimi.com/coding",
+      "routes": {
+        "/coding/v1/usages": {
+          "usages": {
+            "limit_5h": {
+              "used_ratio": 0.25,
+              "reset_time": "2027-02-30T00:00:00Z"
+            },
+            "limit_week": {
+              "used_ratio": 0
+            },
+            "limit_month_total": {
+              "used_ratio": 1,
+              "reset_time": "2027-03-01T00:00:00Z"
+            }
+          },
+          "boosterWallet": {
+            "balance": {
+              "type": "BOOSTER",
+              "amount": "1250000000",
+              "amountLeft": "1"
+            },
+            "monthlyChargeLimit": {
+              "currency": "usd",
+              "priceInCents": "1234"
+            },
+            "monthlyUsed": {
+              "priceInCents": 1,
+              "currency": "EUR"
+            },
+            "monthlyChargeLimitEnabled": true
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1800000000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 25,
+            "remaining": 75,
+            "unit": "percent",
+            "windowMinutes": 300
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 100,
+            "unit": "percent",
+            "windowMinutes": 10080
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 100,
+            "remaining": 0,
+            "unit": "percent",
+            "resetsAt": 1803859200
+          }
+        ],
+        "metrics": []
+      },
+      "wires": [
+        {
+          "host": "api.kimi.com",
+          "path": "/coding/v1/usages",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "kimi-coding",
+      "name": "kimi-coding:duplicates-suppress-ratio",
+      "base": "https://api.kimi.com/coding",
+      "routes": {
+        "/coding/v1/usages": {
+          "usage": {
+            "limit": 10,
+            "used": "bad"
+          },
+          "limits": [
+            {
+              "window": {
+                "duration": 5,
+                "timeUnit": "TIME_UNIT_HOUR"
+              },
+              "detail": {
+                "limit": 20
+              }
+            },
+            {
+              "window": {
+                "duration": 300,
+                "timeUnit": "TIME_UNIT_MINUTE"
+              },
+              "detail": {
+                "limit": 20,
+                "used": 1
+              }
+            }
+          ],
+          "usages": {
+            "limit_5h": {
+              "used_ratio": 0.5
+            },
+            "limit_week": {
+              "used_ratio": 0.7
+            },
+            "limit_month_total": {
+              "used_ratio": 0.3
+            }
+          },
+          "booster_wallet": {
+            "balance": {
+              "type": "BOOSTER",
+              "amount": "1250000000",
+              "amountLeft": "1"
+            },
+            "monthlyChargeLimit": {
+              "currency": "usd",
+              "priceInCents": "1234"
+            },
+            "monthlyUsed": {
+              "currency": "USD",
+              "priceInCents": "17"
+            },
+            "monthlyChargeLimitEnabled": false
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1800000000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 30,
+            "remaining": 70,
+            "unit": "percent"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 12.5,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.17,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": "unlimited",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ],
+        "notes": [
+          "Unsupported, malformed, or duplicate plan windows were unavailable."
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.kimi.com",
+          "path": "/coding/v1/usages",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "kimi-coding",
+      "name": "kimi-coding:wallet-rounding",
+      "base": "https://api.kimi.com/coding",
+      "routes": {
+        "/coding/v1/usages": {
+          "boosterWallet": {
+            "balance": {
+              "type": "BOOSTER",
+              "amount": "1500000",
+              "amountLeft": "1499999"
+            },
+            "monthlyChargeLimit": {
+              "currency": "usd",
+              "priceInCents": "1234"
+            },
+            "monthlyUsed": {
+              "currency": "USD",
+              "priceInCents": "17"
+            },
+            "monthlyChargeLimitEnabled": true
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1800000000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.17,
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 12.34,
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      },
+      "wires": [
+        {
+          "host": "api.kimi.com",
+          "path": "/coding/v1/usages",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "kimi-coding",
+      "name": "kimi-coding:malformed-all",
+      "base": "https://api.kimi.com/coding",
+      "routes": {
+        "/coding/v1/usages": {
+          "usage": {
+            "limit": 10,
+            "used": null
+          },
+          "limits": "bad",
+          "usages": []
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "api.kimi.com",
+          "path": "/coding/v1/usages",
+          "query": {}
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:preferred-percent",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": null
+        },
+        "/v1/billing": {
+          "config": {
+            "creditUsagePercent": 30.25,
+            "monthlyLimit": "ignored",
+            "used": {
+              "val": 1.5
+            },
+            "billingPeriodStart": "2027-01-01",
+            "billingPeriodEnd": "2027-02-01"
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1800000000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "used": 30.25,
+            "remaining": 69.75,
+            "unit": "percent",
+            "period": "Monthly",
+            "resetsAt": 1801440000
+          }
+        ],
+        "metrics": []
+      },
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:no-config",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15"
+        },
+        "/v1/billing": {
+          "config": null
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1800000000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "No xAI consumer billing configuration is available for this account."
+        ]
+      },
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:empty-config",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15"
+        },
+        "/v1/billing": {
+          "config": {}
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1800000000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "The xAI consumer billing response contained no displayable usage fields."
+        ]
+      },
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:zero-wrapper-period",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": "SuperGrok"
+        },
+        "/v1/billing": {
+          "config": {
+            "monthlyLimit": {},
+            "used": {
+              "val": -101
+            },
+            "currentPeriod": {
+              "type": "USAGE_PERIOD_TYPE_CUSTOM_PERIOD",
+              "end": "1969-12-31T23:59:59.999Z"
+            }
+          }
+        }
+      },
+      "failures": {},
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1800000000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "limit": 0,
+            "used": -1.01,
+            "remaining": 1.01,
+            "unit": "usd",
+            "period": "CUSTOM PERIOD",
+            "resetsAt": -1
+          }
+        ],
+        "metrics": [
+          {
+            "id": "subscription-tier",
+            "label": "Plan tier",
+            "value": "SuperGrok"
+          }
+        ]
+      },
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:bad-cents",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": "SuperGrok"
+        },
+        "/v1/billing": {
+          "config": {
+            "used": {
+              "val": 1.5
+            }
+          }
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:bad-percent",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": "SuperGrok"
+        },
+        "/v1/billing": {
+          "config": {
+            "creditUsagePercent": 101
+          }
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:bad-period",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": "SuperGrok"
+        },
+        "/v1/billing": {
+          "config": {
+            "currentPeriod": []
+          }
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    },
+    {
+      "provider": "xai",
+      "name": "xai:bad-tier",
+      "base": "https://api.x.ai/v1",
+      "routes": {
+        "/v1/user": {
+          "userId": "canonical.user-15",
+          "subscriptionTier": 4
+        },
+        "/v1/billing": {
+          "config": {
+            "monthlyLimit": {
+              "val": 10000
+            },
+            "used": {
+              "val": 1250
+            },
+            "onDemandCap": {
+              "val": 300
+            },
+            "onDemandUsed": {
+              "val": 450
+            },
+            "prepaidBalance": {
+              "val": -23
+            },
+            "currentPeriod": {
+              "type": "USAGE_PERIOD_TYPE_WEEKLY",
+              "start": "2027-01-01T00:00:00Z",
+              "end": "2027-01-08T00:00:00Z"
+            }
+          }
+        }
+      },
+      "failures": {},
+      "refused": true,
+      "wires": [
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/user",
+          "query": {
+            "include": "subscription"
+          }
+        },
+        {
+          "host": "cli-chat-proxy.grok.com",
+          "path": "/v1/billing",
+          "query": {
+            "format": "credits"
+          }
+        }
+      ]
+    }
+  ]
+}

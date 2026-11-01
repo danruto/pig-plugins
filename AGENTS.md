@@ -6,6 +6,7 @@ Owned PiG plugins live here. This package targets PiG only; do not add Pi adapte
 - `extensions/pig-status-usage.ts` composes the pinned upstream usage backend with `status/usage.ts`.
 - Go-only status is the target, not the current runtime. Read `docs/designs/native-usage.md` before replacing the collector; retain its complete provider and command behavior until the native parity gates pass.
 - `probes/` contains compatibility experiments, not installed extensions.
+- Port usage directly from the pinned open-source backend, module by module. Reuse useful fixtures and compare representative outputs; exhaustive branch capture and the historical pending ledger are not implementation or cutover gates. Keep `npm run test:usage-baseline` optional.
 - Native Hermes is planned, not implemented. Read `docs/designs/pig-hermes.md` and the generated public-surface capture before starting it. Never register a partial replacement as full parity.
 
 ## Checks

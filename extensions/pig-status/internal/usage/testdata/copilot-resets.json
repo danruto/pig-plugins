@@ -1,0 +1,500 @@
+{
+  "upstream": {
+    "name": "@narumitw/pi-usage",
+    "version": "0.68.3",
+    "sha256": "b93abe83ba94f07c1e1c4fbbbb0f596b6dd69149b56e19004b0b193812c19b45"
+  },
+  "fixtures": [
+    {
+      "name": "rfc1123:UTC",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 UTC"
+      },
+      "resetsAt": 1738368000
+    },
+    {
+      "name": "rfc1123:GMT",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 GMT"
+      },
+      "resetsAt": 1738368000
+    },
+    {
+      "name": "rfc1123:EST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 EST"
+      },
+      "resetsAt": 1738386000
+    },
+    {
+      "name": "rfc1123:EDT",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 EDT"
+      },
+      "resetsAt": 1738382400
+    },
+    {
+      "name": "rfc1123:CST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 CST"
+      },
+      "resetsAt": 1738389600
+    },
+    {
+      "name": "rfc1123:CDT",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 CDT"
+      },
+      "resetsAt": 1738386000
+    },
+    {
+      "name": "rfc1123:MST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 MST"
+      },
+      "resetsAt": 1738393200
+    },
+    {
+      "name": "rfc1123:MDT",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 MDT"
+      },
+      "resetsAt": 1738389600
+    },
+    {
+      "name": "rfc1123:PST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 PST"
+      },
+      "resetsAt": 1738396800
+    },
+    {
+      "name": "rfc1123:PDT",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 PDT"
+      },
+      "resetsAt": 1738393200
+    },
+    {
+      "name": "rfc1123:XYZ",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 XYZ"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "rfc1123:CEST",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 CEST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "rfc1123:ABCDT",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 ABCDT"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "rfc1123:ChST",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 ChST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "rfc1123:MeST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 MeST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "rfc1123:GMT+1",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 GMT+1"
+      },
+      "resetsAt": 1738364400
+    },
+    {
+      "name": "rfc1123:GMT-5",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 GMT-5"
+      },
+      "resetsAt": 1738386000
+    },
+    {
+      "name": "rfc1123:GMT+0001",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 GMT+0001"
+      },
+      "resetsAt": 1738367940
+    },
+    {
+      "name": "rfc1123:GMT-001",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 GMT-001"
+      },
+      "resetsAt": 1738368060
+    },
+    {
+      "name": "rfc1123:GMT+0",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 GMT+0"
+      },
+      "resetsAt": 1738368000
+    },
+    {
+      "name": "summer:EST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Tue, 01 Jul 2025 00:00:00 EST"
+      },
+      "resetsAt": 1751346000
+    },
+    {
+      "name": "summer:EDT",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Tue, 01 Jul 2025 00:00:00 EDT"
+      },
+      "resetsAt": 1751342400
+    },
+    {
+      "name": "summer:PST",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Tue, 01 Jul 2025 00:00:00 PST"
+      },
+      "resetsAt": 1751356800
+    },
+    {
+      "name": "summer:PDT",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Tue, 01 Jul 2025 00:00:00 PDT"
+      },
+      "resetsAt": 1751353200
+    },
+    {
+      "name": "premium:preferred-valid",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 CST",
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 PST"
+      },
+      "resetsAt": 1738389600
+    },
+    {
+      "name": "free:preferred-valid",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 CST",
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 PST"
+      },
+      "resetsAt": 1738389600
+    },
+    {
+      "name": "premium:preferred-invalid",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 XYZ",
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 EST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "free:preferred-invalid",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 XYZ",
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 EST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "premium:empty-first",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": " \n ",
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 MST"
+      },
+      "resetsAt": 1738393200
+    },
+    {
+      "name": "free:empty-first",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": " \n ",
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 MST"
+      },
+      "resetsAt": 1738393200
+    },
+    {
+      "name": "premium:invalid-second",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 ABCDT",
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 PST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "free:invalid-second",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date": "Sat, 01 Feb 2025 00:00:00 ABCDT",
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 PST"
+      },
+      "resetsAt": null
+    },
+    {
+      "name": "premium:nonstring-first",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": 1,
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 PDT"
+      },
+      "resetsAt": 1738393200
+    },
+    {
+      "name": "free:nonstring-first",
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "quota_reset_date_utc": 1,
+        "limited_user_reset_date": "Sat, 01 Feb 2025 00:00:00 PDT"
+      },
+      "resetsAt": 1738393200
+    },
+    {
+      "name": "numeric-offset",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "Sat, 01 Feb 2025 00:00:00 -0500"
+      },
+      "resetsAt": 1738386000
+    },
+    {
+      "name": "iso",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "2025-02-01T00:00:00Z"
+      },
+      "resetsAt": 1738368000
+    },
+    {
+      "name": "long-month",
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        },
+        "quota_reset_date_utc": "February 1, 2025 00:00:00 GMT"
+      },
+      "resetsAt": 1738368000
+    }
+  ]
+}

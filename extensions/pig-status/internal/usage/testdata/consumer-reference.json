@@ -1,0 +1,4984 @@
+{
+  "upstream": {
+    "name": "@narumitw/pi-usage",
+    "version": "0.68.3",
+    "hashes": {
+      "src/providers/command-code.ts": "baa32852339083850faf44f0b05c3bafa4cdf8d92a36b22e46b94002b4186d31",
+      "src/providers/opencode-zen.ts": "fe12e4ba8f275fb088107d6850e8f95499ee986131c7732fbf5f227b45a502ef",
+      "src/providers/kimi-coding.ts": "62a675d812755261cdbd6871dad49f197e0fabf15dbede64e9cc3cb93900cdb2",
+      "src/providers/xai.ts": "b7f7003b189b10aafee935cfa122d599509d262bbc42a328212458328c462474",
+      "src/query.ts": "e4e72cb52e63ca65ae7d7cf89f8bccf15b43fc022024a432f209a90289643d6e",
+      "src/usage.ts": "72214a4df9a52913c47bafa9c6d416a76b0bcde63e616d6b2a464b2e7eb588f0",
+      "src/usage-helpers.ts": "32eff9f20b3c23a7597a4f2da7d0c574914a2cc428e44d26d7ab4b6679014263",
+      "src/core.ts": "7efc37e7c62d8cd832a85af95b09598cd4756226f8e1c5250d7f9082d8a80d15",
+      "src/types.ts": "b2ee986938eadfbee7d156d536b346f2d5ab9ab731d889ce1257b7791ed1eba7"
+    }
+  },
+  "fixtures": [
+    {
+      "name": "command-code:normal",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodEnd": "2025-02-01T01:00:00+01:00"
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "GOAT (active)"
+          },
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "command-code:nonfinite-credit-total",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 1e+308,
+            "purchasedCredits": 1e+308
+          }
+        },
+        "usage": {
+          "totalCost": 1
+        }
+      },
+      "nativeError": "Command Code credit total was not finite.",
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 1,
+            "remaining": null,
+            "limit": null,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 1e+308,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Command Code plan details were unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:optional-failures",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "usage": {
+          "totalCost": 1,
+          "totalTokensIn": 3,
+          "totalTokensOut": 4
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "period-cost",
+            "label": "Cost this billing period",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 3,
+            "unit": "count"
+          },
+          {
+            "id": "tokens-out",
+            "label": "Output tokens",
+            "value": 4,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code plan details were unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:plan-only",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "name": "Fallback"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual_new__plan",
+            "status": " trial "
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Fallback",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "New plan (trial)"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:credits-only",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 0,
+            "freeCredits": -1
+          },
+          "windowLimits": {
+            "limited": false,
+            "fiveHour": {
+              "used": "1",
+              "cap": 10
+            }
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "monthly-credits",
+            "label": "Monthly credits remaining",
+            "value": 0,
+            "unit": "usd"
+          }
+        ],
+        "notes": [
+          "Rolling 5-hour and weekly limits are not enabled for this plan.",
+          "Command Code plan details were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:empty-data",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        }
+      },
+      "error": "Command Code usage response returned no displayable usage data."
+    },
+    {
+      "name": "command-code:unsafe-account",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31m"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-goat",
+            "status": "active",
+            "currentPeriodEnd": "2025-02-01T01:00:00+01:00"
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        }
+      },
+      "error": "Command Code account response omitted a safe account name."
+    },
+    {
+      "name": "command-code:malformed-optionals",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": [],
+        "subscription": {
+          "data": {}
+        },
+        "usage": {
+          "totalCost": -1,
+          "totalTokens": "1",
+          "totalTokensIn": 0
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "tokens-in",
+            "label": "Input tokens",
+            "value": 0,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable."
+        ]
+      }
+    },
+    {
+      "name": "opencode-go:normal",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 25,
+            "resetsAt": "2025-01-02T03:04:05.999Z"
+          },
+          "weekly": {
+            "status": "rate-limited",
+            "percent": 150
+          },
+          "monthly": {
+            "status": "\u001b[31munavailable\u001b[0m\nnow"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735787045
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 150,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": [],
+        "notes": [
+          "Monthly window unavailable (unavailable now)."
+        ]
+      }
+    },
+    {
+      "name": "opencode-go:no-display",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": "1"
+          },
+          "weekly": {
+            "status": "error"
+          },
+          "monthly": null
+        }
+      },
+      "error": "OpenCode Zen usage endpoint returned no displayable usage data."
+    },
+    {
+      "name": "opencode-go:invalid-root",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "error": "OpenCode Zen usage response was not an object."
+    },
+    {
+      "name": "kimi-coding:normal",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": "100",
+          "remaining": "70",
+          "resetTime": "2025-01-02T03:04:05.999+01:00"
+        },
+        "limits": [
+          {
+            "name": "\u001b[31mCustom\u001b[0m\nFive",
+            "window": {
+              "duration": "5",
+              "timeUnit": "TIME_UNIT_HOUR"
+            },
+            "detail": {
+              "limit": "10"
+            }
+          },
+          {
+            "window": {
+              "duration": 1,
+              "timeUnit": "TIME_UNIT_DAY"
+            },
+            "detail": {
+              "limit": 5,
+              "used": 7
+            }
+          }
+        ],
+        "usages": {
+          "limit_5h": {
+            "used_ratio": 0.9
+          },
+          "limit_week": {
+            "used_ratio": 0.9
+          },
+          "limit_month_total": {
+            "used_ratio": 0.25,
+            "reset_time": "2025-02-01T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Custom Five",
+            "used": 0,
+            "remaining": 10,
+            "limit": 10,
+            "unit": "count",
+            "windowMinutes": 300
+          },
+          {
+            "id": "daily",
+            "label": "1d window",
+            "used": 7,
+            "remaining": 0,
+            "limit": 5,
+            "unit": "count",
+            "windowMinutes": 1440
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 30,
+            "remaining": 70,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1735783445
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 25,
+            "remaining": 75,
+            "unit": "percent",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:ratio-only",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usages": {
+          "limit_5h": {
+            "used_ratio": 0
+          },
+          "limit_week": {
+            "used_ratio": 1
+          },
+          "limit_month_total": {
+            "used_ratio": 0.4
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 0,
+            "remaining": 100,
+            "unit": "percent",
+            "windowMinutes": 300
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 100,
+            "remaining": 0,
+            "unit": "percent",
+            "windowMinutes": 10080
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 40,
+            "remaining": 60,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:duplicates-suppress-ratio",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 100,
+          "used": null
+        },
+        "limits": [
+          {
+            "name": "\u001b[31mCustom\u001b[0m\nFive",
+            "window": {
+              "duration": "5",
+              "timeUnit": "TIME_UNIT_HOUR"
+            },
+            "detail": {
+              "limit": "10"
+            }
+          },
+          {
+            "window": {
+              "duration": 1,
+              "timeUnit": "TIME_UNIT_DAY"
+            },
+            "detail": {
+              "limit": 5,
+              "used": 7
+            }
+          },
+          {
+            "name": "\u001b[31mCustom\u001b[0m\nFive",
+            "window": {
+              "duration": "5",
+              "timeUnit": "TIME_UNIT_HOUR"
+            },
+            "detail": {
+              "limit": "10"
+            }
+          }
+        ],
+        "usages": {
+          "limit_5h": {
+            "used_ratio": 0.9
+          },
+          "limit_week": {
+            "used_ratio": 0.9
+          },
+          "limit_month_total": {
+            "used_ratio": 0.25,
+            "reset_time": "2025-02-01T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "daily",
+            "label": "1d window",
+            "used": 7,
+            "remaining": 0,
+            "limit": 5,
+            "unit": "count",
+            "windowMinutes": 1440
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 25,
+            "remaining": 75,
+            "unit": "percent",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": [],
+        "notes": [
+          "Unsupported, malformed, or duplicate plan windows were unavailable."
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:malformed-rows",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "limits": [
+          null,
+          {
+            "window": {
+              "duration": 1.5,
+              "timeUnit": "TIME_UNIT_HOUR"
+            }
+          },
+          {
+            "window": {
+              "duration": 2,
+              "timeUnit": "TIME_UNIT_MINUTE"
+            },
+            "detail": {
+              "limit": "10",
+              "used": " 2"
+            }
+          }
+        ],
+        "usages": {
+          "limit_week": {
+            "used_ratio": 0.25
+          },
+          "limit_month_total": {
+            "used_ratio": -1
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "unit": "percent",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": [],
+        "notes": [
+          "Unsupported, malformed, or duplicate plan windows were unavailable."
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:wallet-only",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 10,
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:legacy-wallet-unlimited",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "booster_wallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "invalid"
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": false
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": "unlimited",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:wallet-currency-mismatch",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": "100",
+          "remaining": "70",
+          "resetTime": "2025-01-02T03:04:05.999+01:00"
+        },
+        "limits": [
+          {
+            "name": "\u001b[31mCustom\u001b[0m\nFive",
+            "window": {
+              "duration": "5",
+              "timeUnit": "TIME_UNIT_HOUR"
+            },
+            "detail": {
+              "limit": "10"
+            }
+          },
+          {
+            "window": {
+              "duration": 1,
+              "timeUnit": "TIME_UNIT_DAY"
+            },
+            "detail": {
+              "limit": 5,
+              "used": 7
+            }
+          }
+        ],
+        "usages": {
+          "limit_5h": {
+            "used_ratio": 0.9
+          },
+          "limit_week": {
+            "used_ratio": 0.9
+          },
+          "limit_month_total": {
+            "used_ratio": 0.25,
+            "reset_time": "2025-02-01T00:00:00Z"
+          }
+        },
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "USD"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Custom Five",
+            "used": 0,
+            "remaining": 10,
+            "limit": 10,
+            "unit": "count",
+            "windowMinutes": 300
+          },
+          {
+            "id": "daily",
+            "label": "1d window",
+            "used": 7,
+            "remaining": 0,
+            "limit": 5,
+            "unit": "count",
+            "windowMinutes": 1440
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 30,
+            "remaining": 70,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1735783445
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly window",
+            "used": 25,
+            "remaining": 75,
+            "unit": "percent",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:empty",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+    },
+    {
+      "name": "kimi-coding:date-leap",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "2024-02-29T00:00:00Z"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1709164800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:date-invalid-day",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "2025-02-29T00:00:00Z"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:date-invalid-hour",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "2025-01-01T24:00:00Z"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:date-pre-epoch",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "1969-12-31T23:59:59Z"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:date-offset",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "2025-01-02T03:04:05+23:59"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1735700705
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:money-499999",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": 499999,
+            "amountLeft": 499999
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 10,
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:money-1499999",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": 1499999,
+            "amountLeft": 1499999
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 10,
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:money-1500000",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": 1500000,
+            "amountLeft": 1500000
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 10,
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:money-1500001",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": 1500001,
+            "amountLeft": 1500001
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 10,
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:money-9007199254740991",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": 9007199254740991,
+            "amountLeft": 9007199254740991
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": "1000",
+            "currency": "cny"
+          },
+          "monthlyUsed": {
+            "priceInCents": 125,
+            "currency": "CNY"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 90071992.55,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 90071992.55,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 1.25,
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 10,
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:normal",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "creditUsagePercent": 25.5,
+          "monthlyLimit": "ignored",
+          "currentPeriod": {
+            "type": "USAGE_PERIOD_TYPE_WEEKLY",
+            "start": "2025-01-01T00:00:00Z",
+            "end": "2025-01-08T00:00:00Z"
+          },
+          "onDemandCap": {
+            "val": 1000
+          },
+          "onDemandUsed": {
+            "val": 1200
+          },
+          "prepaidBalance": {
+            "val": -123
+          }
+        }
+      },
+      "tier": "\u001b[31mSynthetic\u001b[0m\nTier",
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "used": 25.5,
+            "remaining": 74.5,
+            "unit": "percent",
+            "period": "Weekly",
+            "resetsAt": 1736294400
+          },
+          {
+            "id": "on-demand",
+            "label": "On-demand usage",
+            "limit": 10,
+            "used": 12,
+            "remaining": -2,
+            "unit": "usd"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "prepaid-balance",
+            "label": "Prepaid balance",
+            "value": -1.23,
+            "unit": "usd"
+          },
+          {
+            "id": "subscription-tier",
+            "label": "Plan tier",
+            "value": "Synthetic Tier"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:legacy-cents",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "monthlyLimit": {},
+          "used": {
+            "val": -5
+          },
+          "billingPeriodStart": "2025-01-01",
+          "billingPeriodEnd": "2025-02-01"
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "limit": 0,
+            "used": -0.05,
+            "remaining": 0.05,
+            "unit": "usd",
+            "period": "Monthly",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "xai:period-only",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "type": "USAGE_PERIOD_TYPE_CUSTOM_PERIOD",
+            "end": "2025-01-02T01:02:03.999Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "period": "CUSTOM PERIOD",
+            "resetsAt": 1735779723
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "xai:null-config",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": null
+      },
+      "tier": "Basic",
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "subscription-tier",
+            "label": "Plan tier",
+            "value": "Basic"
+          }
+        ],
+        "notes": [
+          "No xAI consumer billing configuration is available for this account."
+        ]
+      }
+    },
+    {
+      "name": "xai:empty-config",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {}
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [],
+        "metrics": [],
+        "notes": [
+          "The xAI consumer billing response contained no displayable usage fields."
+        ]
+      }
+    },
+    {
+      "name": "xai:config-shape",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": []
+      },
+      "error": "xAI billing response config was not an object or null."
+    },
+    {
+      "name": "xai:period-shape",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": []
+        }
+      },
+      "error": "xAI billing currentPeriod was not an object or null."
+    },
+    {
+      "name": "xai:unsafe-cents",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "used": {
+            "val": 9007199254740992
+          }
+        }
+      },
+      "error": "xAI billing used.val was not a safe signed integer."
+    },
+    {
+      "name": "xai:null-cents",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "used": {
+            "val": null
+          }
+        }
+      },
+      "error": "xAI billing used.val was not a safe signed integer."
+    },
+    {
+      "name": "xai:bad-percent",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "creditUsagePercent": 101
+        }
+      },
+      "error": "xAI billing creditUsagePercent was outside 0–100."
+    },
+    {
+      "name": "xai:string-cents",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "prepaidBalance": {
+            "val": "100"
+          }
+        }
+      },
+      "error": "xAI billing prepaidBalance.val was not a safe signed integer."
+    },
+    {
+      "name": "xai:invalid-date",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "billingPeriodEnd": "invalid"
+        }
+      },
+      "error": "xAI billing billingPeriodEnd was invalid."
+    },
+    {
+      "name": "xai:tier-too-long",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": null
+      },
+      "tier": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+      "error": "xAI subscription tier was not a bounded string or null."
+    },
+    {
+      "name": "command-code:unicode-plan-individual-ßpecial",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-ßpecial"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "SSpecial"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:unicode-plan-individual-ﬃle",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-ﬃle"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "FFIle"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:unicode-plan-individual-ŉew",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-ŉew"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "ʼNew"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:unicode-plan-individual-ΐota",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-ΐota"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "Ϊ́ota"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:unicode-plan-individual-𐐨plan",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-𐐨plan"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "𐐨plan"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:unicode-plan-individual-éclair",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-éclair"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "Éclair"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "command-code:unicode-plan-individual-ﬄaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "subscription": {
+          "data": {
+            "planId": "individual-ﬄaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan",
+            "label": "Plan",
+            "value": "FFLaaaaaaaaaaaaaaaaaaaaaaaaaaa…"
+          }
+        ],
+        "notes": [
+          "Command Code credits were unavailable.",
+          "Command Code billing-period usage was unavailable."
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:unicode-currency-ßd",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "ßd"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "SSD"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "SSD"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "SSD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:unicode-currency-ﬃ",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "ﬃ"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFI"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "FFI"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFI"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:unicode-currency-ﬄ",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "ﬄ"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFL"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "FFL"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFL"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:unicode-currency-ſd",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "ſd"
+          }
+        }
+      },
+      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+    },
+    {
+      "name": "kimi-coding:unicode-currency-ßdd",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "ßdd"
+          }
+        }
+      },
+      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+    },
+    {
+      "name": "kimi-coding:unicode-currency-éur",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "éur"
+          }
+        }
+      },
+      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+    },
+    {
+      "name": "kimi-coding:expanded-limit-currency",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "boosterWallet": {
+          "balance": {
+            "type": "BOOSTER",
+            "amount": "1500000",
+            "amountLeft": "1"
+          },
+          "monthlyChargeLimit": {
+            "priceInCents": 1,
+            "currency": "ﬃ"
+          },
+          "monthlyUsed": {
+            "priceInCents": 1,
+            "currency": "ffi"
+          },
+          "monthlyChargeLimitEnabled": true
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "booster-balance",
+            "label": "Balance",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFI"
+          },
+          {
+            "id": "booster-total",
+            "label": "Total balance",
+            "value": 0.02,
+            "unit": "currency",
+            "currency": "FFI"
+          },
+          {
+            "id": "booster-monthly-used",
+            "label": "Used this month",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFI"
+          },
+          {
+            "id": "booster-monthly-limit",
+            "label": "Monthly limit",
+            "value": 0.01,
+            "unit": "currency",
+            "currency": "FFI"
+          }
+        ]
+      }
+    },
+    {
+      "name": "kimi-coding:strict-date-2025-01-01\n00:00:00Z",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "2025-01-01\n00:00:00Z"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "kimi-coding:strict-date-\u001b[31m2025-01-01T00:00:00Z\u001b[0m",
+      "providerID": "kimi-coding",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "limit": 1,
+          "resetTime": "\u001b[31m2025-01-01T00:00:00Z\u001b[0m"
+        }
+      },
+      "expected": {
+        "providerId": "kimi-coding",
+        "providerName": "Kimi For Coding",
+        "capturedAt": 1735776000000,
+        "source": "kimi-managed-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Kimi Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 0,
+            "remaining": 1,
+            "limit": 1,
+            "unit": "count",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-2025-01-01 00:00:00Z",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "2025-01-01 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-2025-01-01 00:00:00Z",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "2025-01-01 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date- 2025-01-01T00:00:00Z ",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": " 2025-01-01T00:00:00Z "
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date- 2025-01-01T00:00:00Z ",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": " 2025-01-01T00:00:00Z "
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date- 2025-01-01T00:00:00Z ",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": " 2025-01-01T00:00:00Z "
+          }
+        }
+      },
+      "error": "xAI billing currentPeriod.end was invalid."
+    },
+    {
+      "name": "opencode-go:date-2025-02-30T00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-02-30T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1740873600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-2025-02-30T00:00:00Z",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "2025-02-30T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1740873600
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-2025-02-30T00:00:00Z",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "2025-02-30T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": 1740873600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01T24:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01T24:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735776000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-2025-01-01T24:00:00Z",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "2025-01-01T24:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1735776000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-2025-01-01T24:00:00Z",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "2025-01-01T24:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": 1735776000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-1969-12-31T23:59:59.999Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "1969-12-31T23:59:59.999Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": -1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-1969-12-31T23:59:59.999Z",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "1969-12-31T23:59:59.999Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": -1
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-1969-12-31T23:59:59.999Z",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "1969-12-31T23:59:59.999Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": -1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-+010000-01-01T00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "+010000-01-01T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 253402300800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-+010000-01-01T00:00:00Z",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "+010000-01-01T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 253402300800
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-+010000-01-01T00:00:00Z",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "+010000-01-01T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": 253402300800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-Wed, 01 Jan 2025 00:00:00 GMT",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "Wed, 01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-Wed, 01 Jan 2025 00:00:00 GMT",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "Wed, 01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-Wed, 01 Jan 2025 00:00:00 GMT",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "Wed, 01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-\u001b[31m2025-01-01\u001b[0m",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "\u001b[31m2025-01-01\u001b[0m"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-\u001b[31m2025-01-01\u001b[0m",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "\u001b[31m2025-01-01\u001b[0m"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-\u001b[31m2025-01-01\u001b[0m",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "\u001b[31m2025-01-01\u001b[0m"
+          }
+        }
+      },
+      "error": "xAI billing currentPeriod.end was invalid."
+    },
+    {
+      "name": "opencode-go:date-2025-01-01\n00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01\n00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "command-code:date-2025-01-01\n00:00:00Z",
+      "providerID": "command-code",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "account": {
+          "user": {
+            "userName": "\u001b[31mSynthetic\u001b[0m\nAccount"
+          },
+          "org": {
+            "id": "synthetic-org"
+          }
+        },
+        "credits": {
+          "credits": {
+            "monthlyCredits": 12.5,
+            "purchasedCredits": 2,
+            "freeCredits": 1
+          },
+          "windowLimits": {
+            "limited": true,
+            "fiveHour": {
+              "used": 2.5,
+              "cap": 10,
+              "resetAt": 1735776000999
+            },
+            "weekly": {
+              "used": 40,
+              "cap": 30,
+              "resetAt": "1735776001"
+            }
+          }
+        },
+        "usage": {
+          "totalCost": 4.5,
+          "totalCount": 0,
+          "totalTokens": 1234
+        },
+        "subscription": {
+          "data": {
+            "currentPeriodEnd": "2025-01-01\n00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "command-code",
+        "providerName": "Command Code",
+        "capturedAt": 1735776000000,
+        "source": "command-code-alpha-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "Command Code plan credits and rolling limits"
+        },
+        "accountLabel": "Synthetic Account",
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Five-hour window",
+            "used": 2.5,
+            "remaining": 7.5,
+            "limit": 10,
+            "unit": "usd",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 40,
+            "remaining": 0,
+            "limit": 30,
+            "unit": "usd",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776001
+          },
+          {
+            "id": "monthly",
+            "label": "Monthly credits",
+            "used": 4.5,
+            "remaining": 15.5,
+            "limit": 20,
+            "unit": "usd",
+            "period": "billing-period",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": [
+          {
+            "id": "purchased-credits",
+            "label": "Purchased credits remaining",
+            "value": 2,
+            "unit": "usd"
+          },
+          {
+            "id": "free-credits",
+            "label": "Free credits remaining",
+            "value": 1,
+            "unit": "usd"
+          },
+          {
+            "id": "requests",
+            "label": "Requests this period",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "tokens",
+            "label": "Tokens this period",
+            "value": 1234,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "xai:date-2025-01-01\n00:00:00Z",
+      "providerID": "xai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "config": {
+          "currentPeriod": {
+            "end": "2025-01-01\n00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "xai",
+        "providerName": "xAI",
+        "capturedAt": 1735776000000,
+        "source": "cli-chat-proxy.grok.com consumer billing",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "xAI consumer subscription usage"
+        },
+        "buckets": [
+          {
+            "id": "included-allowance",
+            "label": "Included allowance",
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01\t 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01\t 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-0100:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-0100:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date- 2025-01-01 00:00:00Z ",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": " 2025-01-01 00:00:00Z "
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01\nT00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01\nT00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01T24:00:00.0001Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01T24:00:00.0001Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-+275760-09-13T00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "+275760-09-13T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 8640000000000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-+275760-09-13T00:00:00.001Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "+275760-09-13T00:00:00.001Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01T00:00:00.9999Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01T00:00:00.9999Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01 00:00:00+24:00",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01 00:00:00+24:00"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735603200
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-0025-01-01 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "0025-01-01 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-0050-01-01 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "0050-01-01 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": -631152000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-0001-02-03 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "0001-02-03 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1041465600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date--000000-02-03T00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "-000000-02-03T00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date--000000-02-03 00:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "-000000-02-03 00:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 981158400
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-Wed, 01 Jan 2025 00:00:00 EST",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "Wed, 01 Jan 2025 00:00:00 EST"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735707600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-January 1, 2025 00:00:00 GMT",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "January 1, 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-Wed,\n01 Jan 2025 00:00:00 GMT",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "Wed,\n01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-Wed, 01 Jan 2025 00:00:00 GMT",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "Wed, 01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-Wed,01 Jan 2025 00:00:00 GMT",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "Wed,01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-Wed,\u001b[31m01 Jan 2025 00:00:00 GMT",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "Wed,\u001b[31m01 Jan 2025 00:00:00 GMT"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "opencode-go:date-2025-01-01\u000001:00:00Z",
+      "providerID": "opencode-go",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "usage": {
+          "rolling": {
+            "status": "ok",
+            "percent": 1,
+            "resetsAt": "2025-01-01\u000001:00:00Z"
+          }
+        }
+      },
+      "expected": {
+        "providerId": "opencode-go",
+        "providerName": "OpenCode Go",
+        "capturedAt": 1735776000000,
+        "source": "opencode-zen-usage",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "OpenCode Zen plan usage"
+        },
+        "buckets": [
+          {
+            "id": "rolling",
+            "label": "Rolling window",
+            "used": 1,
+            "remaining": 99,
+            "limit": 100,
+            "unit": "percent",
+            "resetsAt": 1735689600
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "xai:auth-normal",
+      "kind": "auth",
+      "effective": {
+        "apiKey": "synthetic-access"
+      },
+      "candidates": [
+        {
+          "type": "oauth",
+          "access": "synthetic-access",
+          "refresh": "synthetic-refresh",
+          "expires": 1735776010000
+        }
+      ],
+      "expected": "Bearer synthetic-access"
+    },
+    {
+      "name": "xai:auth-duplicates",
+      "kind": "auth",
+      "effective": {
+        "apiKey": "synthetic-access"
+      },
+      "candidates": [
+        {
+          "type": "oauth",
+          "access": "synthetic-access",
+          "refresh": "synthetic-refresh",
+          "expires": 1735776010000
+        },
+        {
+          "type": "oauth",
+          "access": "synthetic-access",
+          "refresh": "synthetic-refresh",
+          "expires": 1735776010000
+        }
+      ],
+      "error": "Multiple OAuth credentials match the active xAI runtime account."
+    },
+    {
+      "name": "xai:auth-incomplete",
+      "kind": "auth",
+      "effective": {
+        "apiKey": "synthetic-access"
+      },
+      "candidates": [
+        {
+          "type": "oauth",
+          "access": "synthetic-access",
+          "refresh": "",
+          "expires": 1735776010000
+        }
+      ],
+      "error": "The matching xAI OAuth credential was incomplete."
+    },
+    {
+      "name": "xai:auth-mismatch",
+      "kind": "auth",
+      "effective": {
+        "apiKey": "synthetic-access"
+      },
+      "candidates": [
+        {
+          "type": "oauth",
+          "access": "other",
+          "refresh": "synthetic-refresh",
+          "expires": 1735776010000
+        }
+      ],
+      "error": "The active xAI runtime account does not match Pi's stored OAuth account."
+    },
+    {
+      "name": "xai:auth-api-key",
+      "kind": "auth",
+      "effective": {
+        "apiKey": "api-key"
+      },
+      "candidates": [],
+      "error": "xAI consumer usage requires the OAuth subscription account configured through Pi /login; XAI_API_KEY users can review API spend at console.x.ai."
+    },
+    {
+      "name": "xai:auth-bearer-override",
+      "kind": "auth",
+      "effective": {
+        "apiKey": "wrong",
+        "headers": {
+          "Authorization": "Bearer synthetic-access"
+        }
+      },
+      "candidates": [
+        {
+          "type": "oauth",
+          "access": "synthetic-access",
+          "refresh": "synthetic-refresh",
+          "expires": 1735776010000
+        }
+      ],
+      "expected": "Bearer synthetic-access"
+    },
+    {
+      "name": "scheduling",
+      "kind": "scheduling",
+      "expected": [
+        "baseten",
+        "openai",
+        "openai-codex",
+        "deepseek",
+        "github-copilot",
+        "openrouter",
+        "vercel-ai-gateway",
+        "command-code",
+        "fireworks",
+        "opencode-go",
+        "kimi-coding",
+        "minimax",
+        "minimax-cn",
+        "moonshotai",
+        "moonshotai-cn",
+        "zai",
+        "zai-coding-cn"
+      ]
+    }
+  ]
+}

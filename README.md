@@ -46,7 +46,7 @@ Offline synthetic checks cover payload preservation, native-provider retention a
 
 The collector uses the backend's versioned `usage:query:v1` / `usage:changed:v1` contract. It rejects late responses after session/model changes and clears quota when its cache entry or window expires.
 
-The target is a Go-only PiG package. The [native usage port plan](docs/designs/native-usage.md) preserves the current provider adapters, settings and commands before removing the TypeScript collector and Node dependency. That port is not implemented yet.
+The target is a Go-only PiG package. The [native usage port plan](docs/designs/native-usage.md) preserves the current provider adapters, settings and commands before removing the TypeScript collector and Node dependency. The port translates the pinned open-source modules directly, with focused native tests and representative output comparisons rather than exhaustive branch capture. The initial native transport and balance adapters are staged; the installed collector is unchanged.
 
 ## Review design docs
 
@@ -71,7 +71,9 @@ Aqua Cutter supports flowcharts and sequence diagrams, not C4, state or entity-r
 npm test
 ```
 
-This runs adapter checks, TypeScript checking, Go build/vet/race tests, real package discovery and a terminal smoke test at 120 and 80 columns. The terminal fixture sends no model prompt.
+This runs adapter checks, pinned-source native usage comparisons, TypeScript checking, Go build/vet/race tests, real package discovery and a terminal smoke test at 120 and 80 columns. The terminal fixture sends no model prompt.
+
+`npm run test:usage-native` checks only the native usage slice. `npm run test:usage-baseline` retains the optional historical capture suite; its branch ledger is not a prerequisite for the source-led port.
 
 ## Reproducible package
 

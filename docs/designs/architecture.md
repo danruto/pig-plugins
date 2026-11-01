@@ -74,7 +74,7 @@ Normal extensions run as subprocesses. Compatible Go factories may be fused only
 
 | Owner | Owns | Allowed dependencies |
 | --- | --- | --- |
-| Status registration/adapter | Commands, host-auth resolution, public usage API adaptation and worker lifetime | Collector and host SDK |
+| Status registration/adapter | Commands, host-auth resolution and worker lifetime | Collector and host SDK |
 | Status collector | Provider normalization, guarded requests, account/target selection, settings generation and report cache | Explicit auth snapshots, transport, clocks and cancellation |
 | Footer | Cached summaries, width-aware presentation and opaque native bridge status | Cached state and presentation helpers only |
 | Hermes registration/adapter | Schemas, commands, prompt resources, host calls and session lifetime | Domain owners and host SDK |
@@ -113,7 +113,7 @@ sequenceDiagram
     Footer->>Footer: Render without credentials, history or network reads
 ```
 
-The public query API includes callbacks, cancellation and session object identity. Native adaptation is an early feasibility gate, not a claim that serializing the request preserves these semantics. Check it before porting providers. No fallback may change the account or query other providers without the existing explicit selection.
+The collector publishes reports to the footer in process; the footer is the only usage consumer. Status exposes no public usage event API ([native usage scope](native-usage.md#scope-and-current-state)). No fallback may change the account or query other providers without the existing explicit selection.
 
 ## Owned work lifecycle
 
@@ -282,6 +282,7 @@ Coalesce repeated background diagnostics by operation kind, owner and reason unt
 - [Native runtime and ownership](../adr/0001-native-runtime-ownership.md)
 - [Frozen shared-storage baseline and safety gate](../adr/0002-frozen-shared-storage.md)
 - [SQLite driver candidate](../adr/0003-sqlite-driver-candidate.md)
+- [No public usage event API](../adr/0004-no-public-usage-event-api.md)
 - [Consumer-derived Hermes parity](hermes-parity.md)
 
 Checkpoint evidence must identify the source/host versions, selected composition, fixture, command, result and retained artifact hashes. A registration capture, a model, an offline fixture, a platform run and a live-provider result answer different questions; none substitutes for the others. No deployment, source publication or live-data change follows from a diagram or a checked document alone.

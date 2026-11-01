@@ -1,0 +1,75 @@
+{
+  "formatVersion": 2,
+  "platform": "linux",
+  "arch": "arm64",
+  "probeSha256": "ba682cd832ad4d8c8fcefb28fc69abf9061967b6ebcfee4f37f6eb04bd81f910",
+  "identityProtocol": "SHA-256 of the probe files the measured runs execute (the module import closure of the baseline, transport preload and observation extension, plus the Go peer and TLS helper build inputs; test files excluded), selected-package files, production dependency trees, generated compaction/native footer inputs and PiG/Node/Go executable identities; not just the orchestration file.",
+  "package": {
+    "measurementClass": "Normal-optimization, non-profiling package measurements retained for final native comparison",
+    "composition": [
+      "$PACKAGE/extensions/pig-status",
+      "$PACKAGE/extensions/pig-status-usage.ts",
+      "$PACKAGE/extensions/pig-openai-server-compaction.ts"
+    ],
+    "protocol": "Cold disposable PiG root per sample with shared build cache; selected package only (no observation extension or inspector); loopback transport preload; RPC get_commands readiness; one /usage current-provider refresh with its menu cancelled; aggregate host/descendant RSS; stdin EOF shutdown and all observed PIDs gone. No model prompt. loadAverage is the host's 1/5/15-minute load at launch.",
+    "samples": [
+      {
+        "startupMs": 1026.6404590000002,
+        "residentKiB": 420468,
+        "shutdownMs": 29.6781840000001,
+        "parentShutdownMs": 6.936136000000033,
+        "processCount": 3,
+        "loadAverage": [
+          6.11,
+          7.77,
+          8.88
+        ]
+      },
+      {
+        "startupMs": 885.268802,
+        "residentKiB": 442144,
+        "shutdownMs": 30.1277699999996,
+        "parentShutdownMs": 6.805717999999615,
+        "processCount": 3,
+        "loadAverage": [
+          6.11,
+          7.77,
+          8.88
+        ]
+      },
+      {
+        "startupMs": 932.1186159999997,
+        "residentKiB": 427424,
+        "shutdownMs": 28.984969999999976,
+        "parentShutdownMs": 7.67797500000006,
+        "processCount": 3,
+        "loadAverage": [
+          6.11,
+          7.77,
+          8.88
+        ]
+      }
+    ]
+  },
+  "instrumented": {
+    "measurementClass": "Normal-optimization inspector-instrumented observation-run measurements; not comparable with package samples",
+    "composition": [
+      "$PACKAGE/extensions/pig-status",
+      "$PACKAGE/extensions/pig-status-usage.ts",
+      "$PACKAGE/extensions/pig-openai-server-compaction.ts",
+      "$PACKAGE/probes/usage/bridge",
+      "$PACKAGE/probes/usage/extension.mjs"
+    ],
+    "protocol": "Cold disposable PiG root with shared build cache; complete package plus identical probe; RPC get_commands readiness; aggregate host/descendant RSS after fixture run; stdin EOF shutdown and all observed PIDs gone. Includes synthetic Codex model prompts answered by the loopback proxy endpoint.",
+    "samples": [
+      {
+        "startupMs": 1863.396309,
+        "residentKiB": 575884,
+        "shutdownMs": 38.56629299999622,
+        "parentShutdownMs": 16.17604000000574,
+        "rawBranchesSha256": "d97b4bc38030b53868109abdaa5d1c0cc34a8f474f6aaa33b15834aa88d0b429",
+        "processCount": 4
+      }
+    ]
+  }
+}

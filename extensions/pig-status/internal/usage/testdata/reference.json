@@ -1,0 +1,3006 @@
+{
+  "upstream": {
+    "name": "@narumitw/pi-usage",
+    "version": "0.68.3",
+    "hashes": {
+      "src/providers/deepseek.ts": "609c5d714174b5ed22cc5e2b0c43fcf691ffd7107757748e9c29c40886ebf443",
+      "src/providers/vercel-ai-gateway.ts": "3d3064acb2c0ed419dbcbfa20494c8384a4f89f717e4e21fed62fcf262dae715",
+      "src/providers/moonshot.ts": "6d70618a41f6617015522acd5a4e991f3563f9a263ba3d26b701033bbe5f2482",
+      "src/providers/codex.ts": "1aeb282fe988d580459b5efc419d1aa6100725b76f02e40e59e7396577a8dd7c",
+      "src/providers/github-copilot.ts": "b93abe83ba94f07c1e1c4fbbbb0f596b6dd69149b56e19004b0b193812c19b45",
+      "src/providers/openai-chatgpt.ts": "043c588985065a786caff7a80ad604fe43fdb5eb6dcb663e2c8f729115e8ec13",
+      "src/providers/openai-companion-usage.ts": "dcffe82020bf026d98f353c5881e8754c3a78b3937ceca0fb2df35989b04d7f7",
+      "src/openai-companion-auth.ts": "03b56a483308396fcc87e79bb0f21df214551e9662dedf585eea1aec75c24557",
+      "src/auth-resolution-guard.ts": "0eeb108ec22a45bddbe380e0c0dc231ea4990628e8414b145e642201fbe33e17",
+      "src/oauth-credential-source.ts": "0890881f0b5f89aefe7e79c06427f966adab99e0eb20ca449936ce5b62911dd0",
+      "src/query.ts": "e4e72cb52e63ca65ae7d7cf89f8bccf15b43fc022024a432f209a90289643d6e",
+      "src/core.ts": "7efc37e7c62d8cd832a85af95b09598cd4756226f8e1c5250d7f9082d8a80d15",
+      "src/types.ts": "b2ee986938eadfbee7d156d536b346f2d5ab9ab731d889ce1257b7791ed1eba7"
+    }
+  },
+  "fixtures": [
+    {
+      "name": "deepseek:normal",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "1.000000001",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "deepseek",
+        "providerName": "DeepSeek",
+        "capturedAt": 1900000000000,
+        "source": "deepseek-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "DeepSeek API balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "api-availability",
+            "label": "API calls",
+            "value": "available"
+          },
+          {
+            "id": "cny-total",
+            "label": "Total balance",
+            "value": "110.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cny-granted",
+            "label": "Granted balance",
+            "value": "10.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cny-topped-up",
+            "label": "Topped-up balance",
+            "value": "100.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "usd-total",
+            "label": "Total balance",
+            "value": "1.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-granted",
+            "label": "Granted balance",
+            "value": "0.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-topped-up",
+            "label": "Topped-up balance",
+            "value": "1.000000000",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "deepseek:unavailable",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": false,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "1.000000001",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "deepseek",
+        "providerName": "DeepSeek",
+        "capturedAt": 1900000000000,
+        "source": "deepseek-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "DeepSeek API balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "api-availability",
+            "label": "API calls",
+            "value": "unavailable"
+          },
+          {
+            "id": "cny-total",
+            "label": "Total balance",
+            "value": "110.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cny-granted",
+            "label": "Granted balance",
+            "value": "10.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cny-topped-up",
+            "label": "Topped-up balance",
+            "value": "100.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "usd-total",
+            "label": "Total balance",
+            "value": "1.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-granted",
+            "label": "Granted balance",
+            "value": "0.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-topped-up",
+            "label": "Topped-up balance",
+            "value": "1.000000000",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "deepseek:signed-exact-decimals",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "-0.000000001",
+            "granted_balance": "0",
+            "topped_up_balance": "1.000000000"
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "deepseek",
+        "providerName": "DeepSeek",
+        "capturedAt": 1900000000000,
+        "source": "deepseek-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "DeepSeek API balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "api-availability",
+            "label": "API calls",
+            "value": "available"
+          },
+          {
+            "id": "usd-total",
+            "label": "Total balance",
+            "value": "-0.000000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-granted",
+            "label": "Granted balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "usd-topped-up",
+            "label": "Topped-up balance",
+            "value": "1.000000000",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "deepseek:invalid-availability",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": 1,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "1.000000001",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance response availability was not a boolean."
+    },
+    {
+      "name": "deepseek:empty",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": []
+      },
+      "error": "DeepSeek API balance response returned no balance information."
+    },
+    {
+      "name": "deepseek:null-row",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          null
+        ]
+      },
+      "error": "DeepSeek API balance row was not an object."
+    },
+    {
+      "name": "deepseek:unsupported-currency",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "EUR",
+            "total_balance": "1.000000001",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance row returned an unsupported currency."
+    },
+    {
+      "name": "deepseek:duplicate-currency",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "1.000000001",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          },
+          {
+            "currency": "USD",
+            "total_balance": "1.000000001",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance response repeated USD."
+    },
+    {
+      "name": "deepseek:leading-zero",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "01.25",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance total balance was not a valid amount."
+    },
+    {
+      "name": "deepseek:exponent",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "1e3",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance total balance was not a valid amount."
+    },
+    {
+      "name": "deepseek:number",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": 1.25,
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance total balance was not a valid amount."
+    },
+    {
+      "name": "deepseek:overlong",
+      "providerID": "deepseek",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "is_available": true,
+        "balance_infos": [
+          {
+            "currency": "USD",
+            "total_balance": "11111111111111111111111111111111111111111111111111111111111111111",
+            "granted_balance": "0.000000001",
+            "topped_up_balance": "1.000000000"
+          },
+          {
+            "currency": "CNY",
+            "total_balance": "110.00",
+            "granted_balance": "10.00",
+            "topped_up_balance": "100.00"
+          }
+        ]
+      },
+      "error": "DeepSeek API balance total balance was not a valid amount."
+    },
+    {
+      "name": "vercel-ai-gateway:normal",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "95.500000001",
+        "total_used": "4.499999999"
+      },
+      "expected": {
+        "providerId": "vercel-ai-gateway",
+        "providerName": "Vercel AI Gateway",
+        "capturedAt": 1900000000000,
+        "source": "vercel-ai-gateway-credits",
+        "semantics": {
+          "kind": "api-key",
+          "label": "AI Gateway credits and lifetime spend"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "credit-balance",
+            "label": "Credit balance",
+            "value": "95.500000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "lifetime-spend",
+            "label": "Lifetime spend",
+            "value": "4.499999999",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "vercel-ai-gateway:zero",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "0",
+        "total_used": "0.000000000"
+      },
+      "expected": {
+        "providerId": "vercel-ai-gateway",
+        "providerName": "Vercel AI Gateway",
+        "capturedAt": 1900000000000,
+        "source": "vercel-ai-gateway-credits",
+        "semantics": {
+          "kind": "api-key",
+          "label": "AI Gateway credits and lifetime spend"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "credit-balance",
+            "label": "Credit balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "lifetime-spend",
+            "label": "Lifetime spend",
+            "value": "0.000000000",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "vercel-ai-gateway:missing",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "total_used": "4.499999999"
+      },
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+    },
+    {
+      "name": "vercel-ai-gateway:negative",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "-0",
+        "total_used": "4.499999999"
+      },
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+    },
+    {
+      "name": "vercel-ai-gateway:leading-zero",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "01",
+        "total_used": "4.499999999"
+      },
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+    },
+    {
+      "name": "vercel-ai-gateway:exponent",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "1e3",
+        "total_used": "4.499999999"
+      },
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+    },
+    {
+      "name": "vercel-ai-gateway:number",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": 1.25,
+        "total_used": "4.499999999"
+      },
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+    },
+    {
+      "name": "vercel-ai-gateway:overlong",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "11111111111111111111111111111111111111111111111111111111111111111",
+        "total_used": "4.499999999"
+      },
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+    },
+    {
+      "name": "vercel-ai-gateway:invalid-spend",
+      "providerID": "vercel-ai-gateway",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "balance": "95.500000001",
+        "total_used": null
+      },
+      "error": "Vercel AI Gateway total used was not a valid nonnegative amount."
+    },
+    {
+      "name": "moonshotai:normal",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai",
+        "providerName": "Moonshot AI",
+        "capturedAt": 1900000000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "49.58894",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "50",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.41106",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai:number-format",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 0.000001,
+          "voucher_balance": 1e-7,
+          "cash_balance": 0
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai",
+        "providerName": "Moonshot AI",
+        "capturedAt": 1900000000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "0.000001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "1e-7",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai:safe-integer",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 9007199254740991,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai",
+        "providerName": "Moonshot AI",
+        "capturedAt": 1900000000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "9007199254740991",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "50",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.41106",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai:bad-code",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": "0",
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI balance response did not report success."
+    },
+    {
+      "name": "moonshotai:bad-status",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": 1,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI balance response did not report success."
+    },
+    {
+      "name": "moonshotai:bad-data",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": []
+      },
+      "error": "Moonshot AI balance response data was not an object."
+    },
+    {
+      "name": "moonshotai:negative-available",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": -1,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI available balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai:negative-voucher",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": -1,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI voucher balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai:string-amount",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": "1.25"
+        }
+      },
+      "error": "Moonshot AI cash balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai:unsafe-integer",
+      "providerID": "moonshotai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": 9007199254740992
+        }
+      },
+      "error": "Moonshot AI cash balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai-cn:normal",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai-cn",
+        "providerName": "Moonshot AI CN",
+        "capturedAt": 1900000000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "49.58894",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "50",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.41106",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai-cn:number-format",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 0.000001,
+          "voucher_balance": 1e-7,
+          "cash_balance": 0
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai-cn",
+        "providerName": "Moonshot AI CN",
+        "capturedAt": 1900000000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "0.000001",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "1e-7",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai-cn:safe-integer",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 9007199254740991,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "expected": {
+        "providerId": "moonshotai-cn",
+        "providerName": "Moonshot AI CN",
+        "capturedAt": 1900000000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "9007199254740991",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "50",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-0.41106",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai-cn:bad-code",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": "0",
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI balance response did not report success."
+    },
+    {
+      "name": "moonshotai-cn:bad-status",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": 1,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI balance response did not report success."
+    },
+    {
+      "name": "moonshotai-cn:bad-data",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": []
+      },
+      "error": "Moonshot AI balance response data was not an object."
+    },
+    {
+      "name": "moonshotai-cn:negative-available",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": -1,
+          "voucher_balance": 50,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI available balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai-cn:negative-voucher",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": -1,
+          "cash_balance": -0.41106
+        }
+      },
+      "error": "Moonshot AI voucher balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai-cn:string-amount",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": "1.25"
+        }
+      },
+      "error": "Moonshot AI cash balance was not a valid amount."
+    },
+    {
+      "name": "moonshotai-cn:unsafe-integer",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 49.58894,
+          "voucher_balance": 50,
+          "cash_balance": 9007199254740992
+        }
+      },
+      "error": "Moonshot AI cash balance was not a valid amount."
+    },
+    {
+      "name": "openai-codex:primary-additional-credits",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "plan_type": "\u001b[31mPro\u001b[0m\n plan",
+        "rate_limit": {
+          "primary_window": {
+            "used_percent": 25,
+            "remaining_percent": 75,
+            "limit_window_seconds": 301,
+            "reset_at": 1735776000
+          },
+          "secondary_window": {
+            "used_percent": "110",
+            "limit_window_seconds": "604800",
+            "reset_at": "1735776000"
+          }
+        },
+        "additional_rate_limits": [
+          {
+            "metered_feature": "spark",
+            "limit_name": "Spark",
+            "rate_limit": {
+              "primary_window": {
+                "used_percent": -5,
+                "limit_window_seconds": 60
+              }
+            }
+          }
+        ],
+        "credits": {
+          "has_credits": true,
+          "balance": "12.5"
+        },
+        "rate_limit_reset_credits": {
+          "available_count": "2"
+        }
+      },
+      "expected": {
+        "providerId": "openai-codex",
+        "providerName": "OpenAI Codex",
+        "capturedAt": 1900000000000,
+        "source": "codex-pi-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT subscription limits"
+        },
+        "buckets": [
+          {
+            "id": "codex:primary",
+            "label": "Primary limit",
+            "groupId": "codex",
+            "groupLabel": "Codex",
+            "modelKeys": [
+              "codex",
+              "Codex"
+            ],
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 6,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "codex:secondary",
+            "label": "Secondary limit",
+            "groupId": "codex",
+            "groupLabel": "Codex",
+            "modelKeys": [
+              "codex",
+              "Codex"
+            ],
+            "used": 110,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 10080,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "spark:primary",
+            "label": "Primary limit",
+            "groupId": "spark",
+            "groupLabel": "Spark",
+            "modelKeys": [
+              "spark",
+              "Spark"
+            ],
+            "used": -5,
+            "remaining": 100,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": [
+          {
+            "id": "credits",
+            "label": "Credits",
+            "value": 12.5,
+            "unit": "count"
+          },
+          {
+            "id": "reset-credits",
+            "label": "Usage limit resets",
+            "value": 2,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Pro plan"
+        ]
+      }
+    },
+    {
+      "name": "openai-codex:optional-partial-group",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "rate_limit": {
+          "primary_window": {
+            "used_percent": 25,
+            "remaining_percent": 75,
+            "limit_window_seconds": 301,
+            "reset_at": 1735776000
+          }
+        },
+        "additional_rate_limits": [
+          null,
+          {
+            "limit_name": "optional",
+            "rate_limit": {
+              "primary_window": {
+                "used_percent": 25,
+                "remaining_percent": 75,
+                "limit_window_seconds": 301,
+                "reset_at": 1735776000
+              },
+              "secondary_window": "bad"
+            }
+          },
+          {
+            "metered_feature": "skip",
+            "rate_limit": []
+          }
+        ],
+        "credits": {
+          "has_credits": false
+        }
+      },
+      "expected": {
+        "providerId": "openai-codex",
+        "providerName": "OpenAI Codex",
+        "capturedAt": 1900000000000,
+        "source": "codex-pi-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT subscription limits"
+        },
+        "buckets": [
+          {
+            "id": "codex:primary",
+            "label": "Primary limit",
+            "groupId": "codex",
+            "groupLabel": "Codex",
+            "modelKeys": [
+              "codex",
+              "Codex"
+            ],
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 6,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "optional:primary",
+            "label": "Primary limit",
+            "groupId": "optional",
+            "groupLabel": "optional",
+            "modelKeys": [
+              "optional",
+              "optional"
+            ],
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 6,
+            "resetsAt": 1735776000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "credits",
+            "label": "Credits",
+            "value": "none"
+          }
+        ]
+      }
+    },
+    {
+      "name": "openai-codex:unlimited",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "credits": {
+          "has_credits": true,
+          "unlimited": true
+        },
+        "rate_limit_reset_credits": {
+          "available_count": -2
+        }
+      },
+      "expected": {
+        "providerId": "openai-codex",
+        "providerName": "OpenAI Codex",
+        "capturedAt": 1900000000000,
+        "source": "codex-pi-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT subscription limits"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "credits",
+            "label": "Credits",
+            "value": "unlimited"
+          },
+          {
+            "id": "reset-credits",
+            "label": "Usage limit resets",
+            "value": 0,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "openai-codex:available",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "credits": {
+          "has_credits": true,
+          "balance": "bad"
+        },
+        "rate_limit_reset_credits": {
+          "available_count": -2
+        }
+      },
+      "expected": {
+        "providerId": "openai-codex",
+        "providerName": "OpenAI Codex",
+        "capturedAt": 1900000000000,
+        "source": "codex-pi-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT subscription limits"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "credits",
+            "label": "Credits",
+            "value": "available"
+          },
+          {
+            "id": "reset-credits",
+            "label": "Usage limit resets",
+            "value": 0,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "openai-codex:numeric-strings",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "credits": {
+          "has_credits": true,
+          "balance": "0x10000000000000000"
+        },
+        "rate_limit": {
+          "primary_window": {
+            "used_percent": "1e1",
+            "reset_at": "0",
+            "limit_window_seconds": "61"
+          },
+          "secondary_window": {
+            "used_percent": "1_0"
+          }
+        },
+        "additional_rate_limits": [
+          {
+            "limit_name": "not-a-JS-number",
+            "rate_limit": {
+              "primary_window": {
+                "used_percent": "0x1p2"
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "providerId": "openai-codex",
+        "providerName": "OpenAI Codex",
+        "capturedAt": 1900000000000,
+        "source": "codex-pi-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT subscription limits"
+        },
+        "buckets": [
+          {
+            "id": "codex:primary",
+            "label": "Primary limit",
+            "groupId": "codex",
+            "groupLabel": "Codex",
+            "modelKeys": [
+              "codex",
+              "Codex"
+            ],
+            "used": 10,
+            "remaining": 90,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 2,
+            "resetsAt": 0
+          }
+        ],
+        "metrics": [
+          {
+            "id": "credits",
+            "label": "Credits",
+            "value": 18446744073709552000,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "openai-codex:empty",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {},
+      "error": "Codex usage endpoint returned no displayable usage data."
+    },
+    {
+      "name": "openai-codex:invalid-primary",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "rate_limit": []
+      },
+      "error": "Codex rate limit was not an object."
+    },
+    {
+      "name": "openai-codex:invalid-window",
+      "providerID": "openai-codex",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "rate_limit": {
+          "primary_window": "bad"
+        },
+        "credits": {
+          "has_credits": true
+        }
+      },
+      "error": "Codex rate-limit window was not an object."
+    },
+    {
+      "name": "github-copilot:premium",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "login": "synthetic\u001b[31m-user",
+        "copilot_plan": " Pro\nplan ",
+        "quota_reset_date_utc": "2025-02-01T00:00:00Z",
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        }
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot premium request quota"
+        },
+        "accountLabel": "synthetic-user",
+        "buckets": [
+          {
+            "id": "premium-requests",
+            "label": "Premium requests",
+            "used": 90,
+            "remaining": 210,
+            "limit": 300,
+            "unit": "count",
+            "period": "monthly",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": [],
+        "notes": [
+          "Plan: Pro plan"
+        ]
+      }
+    },
+    {
+      "name": "github-copilot:credits-overage",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "quota_reset_date": "2025-02-01",
+        "quota_snapshots": {
+          "premium_interactions": {
+            "token_based_billing": true,
+            "entitlement": 1000,
+            "remaining": -4,
+            "credits_used": 1004,
+            "overage_count": 2
+          }
+        }
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot AI Credits allowance"
+        },
+        "buckets": [
+          {
+            "id": "ai-credits",
+            "label": "AI credits",
+            "used": 1004,
+            "remaining": 0,
+            "limit": 1000,
+            "unit": "count",
+            "period": "monthly",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "overage-used",
+            "label": "Additional usage",
+            "value": 4,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "github-copilot:quota-remaining-fallback",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "access_type_sku": "free",
+        "quota_reset_date_utc": "",
+        "quota_reset_date": "2025-02-01T01:00:00+01:00",
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": "invalid",
+            "quota_remaining": 200,
+            "credits_used": -1,
+            "overage_count": 7
+          }
+        }
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot premium request quota"
+        },
+        "buckets": [
+          {
+            "id": "premium-requests",
+            "label": "Premium requests",
+            "used": 100,
+            "remaining": 200,
+            "limit": 300,
+            "unit": "count",
+            "period": "monthly",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "overage-used",
+            "label": "Additional usage",
+            "value": 7,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: free"
+        ]
+      }
+    },
+    {
+      "name": "github-copilot:unlimited",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "unlimited": true,
+            "token_based_billing": true
+          }
+        }
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot AI Credits allowance"
+        },
+        "buckets": [
+          {
+            "id": "ai-credits",
+            "label": "AI credits",
+            "unit": "count"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "github-copilot:free",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "limited_user_quotas": {
+          "chat": 8
+        },
+        "monthly_quotas": {
+          "chat": 50
+        },
+        "limited_user_reset_date": "2025-02-01T00:00:00Z"
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot Free chat quota"
+        },
+        "buckets": [
+          {
+            "id": "chat-requests",
+            "label": "Chat requests",
+            "used": 42,
+            "remaining": 8,
+            "limit": 50,
+            "unit": "count",
+            "period": "monthly",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "github-copilot:legacy-long-month-reset",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "quota_reset_date_utc": "February 1, 2025 00:00:00 GMT",
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        }
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot premium request quota"
+        },
+        "buckets": [
+          {
+            "id": "premium-requests",
+            "label": "Premium requests",
+            "used": 90,
+            "remaining": 210,
+            "limit": 300,
+            "unit": "count",
+            "period": "monthly",
+            "resetsAt": 1738368000
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "github-copilot:invalid-preferred-reset",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "quota_reset_date_utc": "not-a-date",
+        "quota_reset_date": "2025-02-01",
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": 300,
+            "remaining": 210
+          }
+        }
+      },
+      "expected": {
+        "providerId": "github-copilot",
+        "providerName": "GitHub Copilot",
+        "capturedAt": 1900000000000,
+        "source": "github-copilot-user",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GitHub Copilot premium request quota"
+        },
+        "buckets": [
+          {
+            "id": "premium-requests",
+            "label": "Premium requests",
+            "used": 90,
+            "remaining": 210,
+            "limit": 300,
+            "unit": "count",
+            "period": "monthly"
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "github-copilot:incomplete",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "quota_snapshots": {
+          "premium_interactions": {
+            "entitlement": "300",
+            "remaining": 200
+          }
+        }
+      },
+      "error": "GitHub Copilot premium requests quota was incomplete."
+    },
+    {
+      "name": "github-copilot:unsupported",
+      "providerID": "github-copilot",
+      "capturedAt": 1900000000000,
+      "payload": {},
+      "error": "GitHub Copilot usage response contained no supported quota."
+    },
+    {
+      "name": "openai:auth-only",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {},
+      "expected": {
+        "providerId": "openai",
+        "providerName": "OpenAI",
+        "capturedAt": 1900000000000,
+        "source": "openai-chatgpt-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT plan authentication status"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan-auth",
+            "label": "ChatGPT plan authentication",
+            "value": "Connected (native OAuth)"
+          }
+        ],
+        "notes": [
+          "Codex companion usage is disabled. Enable Use Codex login for OpenAI usage in /usage Settings only when both logins use the same ChatGPT account and workspace.",
+          "Manage usage: https://chatgpt.com/settings/usage",
+          "Native OpenAI has no supported numerical usage API. Optional companion usage uses undocumented ChatGPT endpoints; registration matching is not independent identity proof.",
+          "Fast mode and earned reset redemption remain legacy openai-codex features."
+        ]
+      }
+    },
+    {
+      "name": "openai:companion-unavailable",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "useCodexUsage": true
+      },
+      "expected": {
+        "providerId": "openai",
+        "providerName": "OpenAI",
+        "capturedAt": 1900000000000,
+        "source": "openai-chatgpt-auth",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT plan authentication status"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "plan-auth",
+            "label": "ChatGPT plan authentication",
+            "value": "Connected (native OAuth)"
+          }
+        ],
+        "notes": [
+          "Numerical usage requires a companion /login openai-codex with the same ChatGPT account/workspace; native inference stays on openai.",
+          "Manage usage: https://chatgpt.com/settings/usage",
+          "Native OpenAI has no supported numerical usage API. Optional companion usage uses undocumented ChatGPT endpoints; registration matching is not independent identity proof.",
+          "Fast mode and earned reset redemption remain legacy openai-codex features."
+        ]
+      }
+    },
+    {
+      "name": "openai:companion",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "expected": {
+        "providerId": "openai",
+        "providerName": "OpenAI",
+        "capturedAt": 1900000000000,
+        "source": "openai-chatgpt-companion",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "ChatGPT plan and app limits (experimental companion source)"
+        },
+        "buckets": [
+          {
+            "id": "plan:primary",
+            "label": "Subscription limit",
+            "groupId": "chatgpt-plan",
+            "groupLabel": "Plan limits",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 6,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "plan:secondary",
+            "label": "Subscription limit",
+            "groupId": "chatgpt-plan",
+            "groupLabel": "Plan limits",
+            "used": 5,
+            "remaining": 95,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 10080
+          },
+          {
+            "id": "app:0",
+            "label": "Subscription limit",
+            "groupId": "chatgpt-app",
+            "groupLabel": "App limits",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 6,
+            "resetsAt": 1735776000
+          }
+        ],
+        "metrics": [
+          {
+            "id": "app-allowance",
+            "label": "App allowance",
+            "value": 20,
+            "unit": "percent"
+          }
+        ],
+        "notes": [
+          "Source: companion Codex OAuth; registration matching is not independent proof of the same user/workspace.",
+          "App allowance caps shared plan usage; it is not remaining or reserved quota.",
+          "Manage usage: https://chatgpt.com/settings/usage"
+        ]
+      }
+    },
+    {
+      "name": "openai:paginated",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": true,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported."
+    },
+    {
+      "name": "openai:unknown-envelope",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null,
+          "total": 2
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported."
+    },
+    {
+      "name": "openai:ambiguous",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "The native registration was not uniquely found in the companion Codex account; use the same ChatGPT account/workspace for both logins."
+    },
+    {
+      "name": "openai:unreadable-id",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app usage returned an unreadable registration identity; uniqueness cannot be established."
+    },
+    {
+      "name": "openai:unmatched",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "missing",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "The native registration was not uniquely found in the companion Codex account; use the same ChatGPT account/workspace for both logins."
+    },
+    {
+      "name": "openai:empty-windows",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": []
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app usage returned no bounded, displayable windows."
+    },
+    {
+      "name": "openai:contradictory-window",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 20,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 20,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT usage returned an invalid or contradictory window."
+    },
+    {
+      "name": "openai:null-reset",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": null
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": null
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT usage returned an invalid or contradictory window."
+    },
+    {
+      "name": "openai:bad-allowance",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": "20",
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app allowance was invalid."
+    },
+    {
+      "name": "openai:too-many-apps",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "0"
+            },
+            {
+              "id": "1"
+            },
+            {
+              "id": "2"
+            },
+            {
+              "id": "3"
+            },
+            {
+              "id": "4"
+            },
+            {
+              "id": "5"
+            },
+            {
+              "id": "6"
+            },
+            {
+              "id": "7"
+            },
+            {
+              "id": "8"
+            },
+            {
+              "id": "9"
+            },
+            {
+              "id": "10"
+            },
+            {
+              "id": "11"
+            },
+            {
+              "id": "12"
+            },
+            {
+              "id": "13"
+            },
+            {
+              "id": "14"
+            },
+            {
+              "id": "15"
+            },
+            {
+              "id": "16"
+            },
+            {
+              "id": "17"
+            },
+            {
+              "id": "18"
+            },
+            {
+              "id": "19"
+            },
+            {
+              "id": "20"
+            },
+            {
+              "id": "21"
+            },
+            {
+              "id": "22"
+            },
+            {
+              "id": "23"
+            },
+            {
+              "id": "24"
+            },
+            {
+              "id": "25"
+            },
+            {
+              "id": "26"
+            },
+            {
+              "id": "27"
+            },
+            {
+              "id": "28"
+            },
+            {
+              "id": "29"
+            },
+            {
+              "id": "30"
+            },
+            {
+              "id": "31"
+            },
+            {
+              "id": "32"
+            },
+            {
+              "id": "33"
+            },
+            {
+              "id": "34"
+            },
+            {
+              "id": "35"
+            },
+            {
+              "id": "36"
+            },
+            {
+              "id": "37"
+            },
+            {
+              "id": "38"
+            },
+            {
+              "id": "39"
+            },
+            {
+              "id": "40"
+            },
+            {
+              "id": "41"
+            },
+            {
+              "id": "42"
+            },
+            {
+              "id": "43"
+            },
+            {
+              "id": "44"
+            },
+            {
+              "id": "45"
+            },
+            {
+              "id": "46"
+            },
+            {
+              "id": "47"
+            },
+            {
+              "id": "48"
+            },
+            {
+              "id": "49"
+            },
+            {
+              "id": "50"
+            },
+            {
+              "id": "51"
+            },
+            {
+              "id": "52"
+            },
+            {
+              "id": "53"
+            },
+            {
+              "id": "54"
+            },
+            {
+              "id": "55"
+            },
+            {
+              "id": "56"
+            },
+            {
+              "id": "57"
+            },
+            {
+              "id": "58"
+            },
+            {
+              "id": "59"
+            },
+            {
+              "id": "60"
+            },
+            {
+              "id": "61"
+            },
+            {
+              "id": "62"
+            },
+            {
+              "id": "63"
+            },
+            {
+              "id": "64"
+            },
+            {
+              "id": "65"
+            },
+            {
+              "id": "66"
+            },
+            {
+              "id": "67"
+            },
+            {
+              "id": "68"
+            },
+            {
+              "id": "69"
+            },
+            {
+              "id": "70"
+            },
+            {
+              "id": "71"
+            },
+            {
+              "id": "72"
+            },
+            {
+              "id": "73"
+            },
+            {
+              "id": "74"
+            },
+            {
+              "id": "75"
+            },
+            {
+              "id": "76"
+            },
+            {
+              "id": "77"
+            },
+            {
+              "id": "78"
+            },
+            {
+              "id": "79"
+            },
+            {
+              "id": "80"
+            },
+            {
+              "id": "81"
+            },
+            {
+              "id": "82"
+            },
+            {
+              "id": "83"
+            },
+            {
+              "id": "84"
+            },
+            {
+              "id": "85"
+            },
+            {
+              "id": "86"
+            },
+            {
+              "id": "87"
+            },
+            {
+              "id": "88"
+            },
+            {
+              "id": "89"
+            },
+            {
+              "id": "90"
+            },
+            {
+              "id": "91"
+            },
+            {
+              "id": "92"
+            },
+            {
+              "id": "93"
+            },
+            {
+              "id": "94"
+            },
+            {
+              "id": "95"
+            },
+            {
+              "id": "96"
+            },
+            {
+              "id": "97"
+            },
+            {
+              "id": "98"
+            },
+            {
+              "id": "99"
+            },
+            {
+              "id": "100"
+            },
+            {
+              "id": "101"
+            },
+            {
+              "id": "102"
+            },
+            {
+              "id": "103"
+            },
+            {
+              "id": "104"
+            },
+            {
+              "id": "105"
+            },
+            {
+              "id": "106"
+            },
+            {
+              "id": "107"
+            },
+            {
+              "id": "108"
+            },
+            {
+              "id": "109"
+            },
+            {
+              "id": "110"
+            },
+            {
+              "id": "111"
+            },
+            {
+              "id": "112"
+            },
+            {
+              "id": "113"
+            },
+            {
+              "id": "114"
+            },
+            {
+              "id": "115"
+            },
+            {
+              "id": "116"
+            },
+            {
+              "id": "117"
+            },
+            {
+              "id": "118"
+            },
+            {
+              "id": "119"
+            },
+            {
+              "id": "120"
+            },
+            {
+              "id": "121"
+            },
+            {
+              "id": "122"
+            },
+            {
+              "id": "123"
+            },
+            {
+              "id": "124"
+            },
+            {
+              "id": "125"
+            },
+            {
+              "id": "126"
+            },
+            {
+              "id": "127"
+            },
+            {
+              "id": "128"
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported."
+    },
+    {
+      "name": "openai:too-many-windows",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                },
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {
+          "rate_limit": {
+            "primary_window": {
+              "used_percent": 25,
+              "remaining_percent": 75,
+              "limit_window_seconds": 301,
+              "reset_at": 1735776000
+            },
+            "secondary_window": {
+              "used_percent": 5,
+              "limit_window_seconds": 604800
+            }
+          }
+        }
+      },
+      "error": "ChatGPT app usage returned no bounded, displayable windows."
+    },
+    {
+      "name": "openai:no-plan-windows",
+      "providerID": "openai",
+      "capturedAt": 1900000000000,
+      "payload": {
+        "clientId": "native-registration",
+        "apps": {
+          "items": [
+            {
+              "id": "other",
+              "windows": []
+            },
+            {
+              "id": "native-registration",
+              "allowed_usage_percent": 20,
+              "windows": [
+                {
+                  "used_percent": 25,
+                  "remaining_percent": 75,
+                  "limit_window_seconds": 301,
+                  "reset_at": 1735776000
+                }
+              ]
+            }
+          ],
+          "has_more": false,
+          "next_cursor": null
+        },
+        "plan": {}
+      },
+      "error": "ChatGPT plan usage returned no displayable windows."
+    }
+  ]
+}

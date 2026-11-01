@@ -6,9 +6,17 @@ This repository targets PiG only. The target is a Go-only status package with no
 
 The current package is still mixed: `extensions/pig-status/` renders the footer in Go; `extensions/pig-status-usage.ts` loads `@narumitw/pi-usage` **0.68.3** and `status/usage.ts`. Keep that collector selected until the complete native replacement passes the gates below. Removing it first would remove provider adapters, settings and commands.
 
-The approved immediate change removes the legacy Pi adapter and its dedicated tests. The native usage port is staged, not implemented. Native Hermes remains a separate project under [its existing contract](pig-hermes.md); sharing a store with an independent Pi installation does not require shipping Pi support here.
+The approved immediate change removes the legacy Pi adapter and its dedicated tests. The native usage port is staged and source-led. Native Hermes remains a separate project under [its existing contract](pig-hermes.md); sharing a store with an independent Pi installation does not require shipping Pi support here.
 
 The [architecture](architecture.md) defines context/container boundaries, collector ownership, the refresh sequence, worker lifecycle, trust boundaries and operational signals. [ADR 0001](../adr/0001-native-runtime-ownership.md) records alternatives and the staged native-runtime decision. Status does not inherit Hermes's storage dependencies or release schedule.
+
+The backend's public `usage:*:v1` event API (`usage:query:v1`, `usage:capabilities:v1` and `usage:changed:v1`, defined in `src/usage-api.ts` and `src/usage-api-types.ts`) is not part of the native port. The native Go collector feeds the Go footer directly, in process. The footer is the only usage consumer. The package provides no replacement event API, versioned or JSON-only. Reasons:
+
+- The package serves a single owner's PiG setup.
+- The API's only consumer is the package's own footer (`status/usage.ts`).
+- Real PiG captures show that the API's session reference, `respond` callback and `AbortSignal` cannot cross the Go/Node bridge. See the [Go/Node boundary evidence](../compatibility/usage.md#gonode-boundary).
+
+Third-party extensions that rely on `usage:*:v1` from this package are unsupported. [ADR 0004](../adr/0004-no-public-usage-event-api.md) records the alternatives.
 
 ## Compatibility baseline
 
@@ -35,9 +43,46 @@ The baseline includes these 18 provider IDs:
 - `zai-coding-cn`
 - `xai`
 
-Source evidence is in the pinned backend's `src/query.ts`, `src/providers/`, `src/usage.ts`, `src/settings.ts`, `src/usage-api.ts` and `src/codex-*.ts`. Its README and `docs/` describe provider semantics, operations, settings and the read-only event API. Inspect these alongside executable captures before implementing each checkpoint.
+Source evidence is in the pinned backend's `src/query.ts`, `src/providers/`, `src/usage.ts`, `src/settings.ts` and `src/codex-*.ts`. Its README and `docs/` describe provider semantics, operations and settings. The read-only event API in `src/usage-api.ts` is out of scope. Inspect these alongside executable captures before implementing each checkpoint.
 
-Derive a branch-to-fixture inventory from provider dispatch, host-auth resolution, settings parsing, command registration and public API consumers. Each row names its source symbol/digest, inputs, expected result/side effects, checkpoint and evidence. Include defaults, invalid inputs, optional sections and failure paths. The 18-provider list is an inventory check, not proof of complete adapter behavior.
+Read and translate the pinned source module by module: provider dispatch, host-auth resolution, settings parsing, commands and footer publication. Reuse upstream tests and useful retained synthetic fixtures. Compare normalized outputs for representative success, optional-data and failure cases; add focused Go tests for parsers, money, credentials, redirects, cancellation and stale publication. Record the source modules and any intentional differences alongside the port.
+
+Exhaustive branch capture, V8 attribution, exact-counter replay and clearing the historical pending ledger are not prerequisites for implementation or cutover. The owner replaced that capture-first method with this source-led method. The 18-provider list still defines required functionality, not a coverage percentage.
+
+### Initial native slice
+
+`extensions/pig-status/internal/usage/` contains the staged transport and balance adapters for DeepSeek, Vercel AI Gateway, Moonshot AI and Moonshot AI CN. They are not registered or selected yet. Host-auth integration, refresh ownership, commands and the remaining adapters still belong to the checkpoints below.
+
+- `balance.go` translates `src/providers/deepseek.ts`, `vercel-ai-gateway.ts` and `moonshot.ts`. Monetary decimal strings stay strings; Moonshot numeric amounts preserve JavaScript number formatting and regional currency.
+- `usage.go` translates the corresponding `query.ts` dispatch/endpoints and the report shape in `types.ts`. Authentication arrives as an explicit host-resolved snapshot with a context-aware revalidation callback.
+- `transport.go` uses standard-library HTTP, refuses redirects before forwarding, bounds successful bodies to 64 KiB and shares one deadline with authentication and response reading. Revalidation runs before requests and before returning reports. Remote error bodies and arbitrary transport/guard error text are omitted, as required by the diagnostics safety contract. Cancellation uses native context errors; the later command layer owns user-facing failure messages.
+- `node --import tsx scripts/usage-reference.mjs --check` compares the small reference file with actual pinned-source normalization. `npm run test:usage-native` also runs Go parser and local HTTPS safety tests. No V8, branch-ledger or full-host capture is involved.
+
+## Regional adapter slice
+
+The staged `Client.Query` seam now also translates pinned `src/providers/minimax.ts`, `moonshot.ts`, `zai.ts`, `zai-errors.ts` and their `query.ts` consumers. Attribution and the upstream MIT license remain in `THIRD_PARTY_NOTICES.md`. `scripts/usage-regional-reference.mjs` imports the actual installed exports and derives representative quota, balance, subscription, fixed-error and Moonshot auth-provenance fixtures; `--check` detects source/fixture drift. The package gate runs those comparisons and the Go normalization tests. These checks use synthetic data, not live provider qualification.
+
+MiniMax chooses pay-as-you-go balance only for a runtime key starting with `sk-api-`; a selected Bearer override takes priority over the supplied API-key snapshot. It preserves regional currencies, exact decimal balances, model groups, dual quota windows, unlimited status, remaining-versus-used count disambiguation and millisecond reset conversion. Moonshot retains the existing numeric balance adapter unchanged. Each provider ID accepts only its own official origin; MiniMax and Zai have no invented regional key-format heuristics.
+
+The seam consumes pre-resolved host authentication, not credential files. An omitted selected-provider identity means the snapshot describes the queried/current provider, preserving existing callers. Explicit sibling Moonshot queries require known host auth provenance; environment credentials need an explicitly supplied label that does not list the exact comma-separated `MOONSHOT_API_KEY` name. An explicitly empty label is distinct from an absent label, as upstream requires. The host must include selected-provider identity and source/label in synchronous revalidation. The later host resolver must populate those fields for cross-provider menu queries; this slice does not activate host collection or alter TypeScript selection.
+
+Zai uses the official regional origin for both quota and optional subscription requests, strips a Bearer prefix only for monitor authentication, preserves count/percent windows, MCP detail metrics and active/current plan selection, and maps only validated numeric error codes to fixed upstream messages. Optional plan transport, HTTP, JSON and payload failures fall back to quota-level information. Invalid renewal dates discard the optional plan, matching the upstream query's catch around subscription normalization. No arbitrary provider text enters an error.
+
+Intentional safety differences follow the existing architecture contract: all redirects are refused before forwarding credentials (including Zai, whose upstream fetch may follow before detecting them); all requests, optional work and synchronous revalidation share the bounded total deadline; cancellation or deadline expiry cannot return a report; authentication is revalidated after optional plan work as well as before that request. Non-Zai transport errors retain the existing body-free sanitized diagnostics. Zai error bodies are read only up to the upstream 4 KiB error bound and decoded only for safe fixed codes; success bodies retain the 64 KiB bound. A Zai window whose finite input overflows to infinity is rejected with a fixed error rather than publishing an unserializable report (upstream JavaScript retains infinity, which JSON turns into null). No live credentials, billing or endpoint probes are authorized here.
+
+## Remaining consumer adapters
+
+The staged native seam also translates `src/providers/command-code.ts`, `opencode-zen.ts`, `kimi-coding.ts`, `xai.ts` and their `query.ts`, `usage.ts` and `usage-helpers.ts` consumers from the pinned backend. `scripts/usage-consumer-reference.mjs` imports the installed source exports for representative normalized reports, malformed and optional fields, date/rounding boundaries, xAI OAuth matching and the menu-only scheduling distinction. These synthetic comparisons run in normal, native and Nix package checks; they are not live-provider qualification.
+
+Command Code discovers the account with `alpha/whoami`, derives only a validated organization ID, then reads optional credits, subscription and billing-period summary. The summary uses the subscription's trimmed period start. Each optional transport, HTTP, JSON or shape failure degrades to the source's unavailable notes; account failure remains fatal. USD rolling windows, remaining credit pool, plan labels and split-token fallbacks remain separate. Native optional sections run sequentially so synchronous host revalidation never overlaps; all share the same total deadline. Unlike upstream's optional-budget fallback, expiration of that deadline rejects publication under the architecture contract.
+
+OpenCode Go uses the Zen Go endpoint and preserves percent windows, rate-limited status and sanitized unavailable notes. Kimi preserves count windows, absent-counter inference, duplicate-window rejection, explicit-window suppression of ratio fallbacks, stable window ordering, fixed-point booster rounding, currency validation and optional wallet rejection. Its strict timestamps remain separate from the permissive JavaScript date semantics used by the other adapters, including day overflow, midnight 24:00, expanded years and negative-epoch flooring.
+
+xAI uses fresh host-supplied OAuth candidates through the existing snapshot callback, not API-key billing or credential-file reads. Exactly one complete candidate must match the effective runtime access token; duplicate offers are not collapsed. Consumer identity discovery precedes billing, and only the proxy's validated canonical user ID becomes `x-userid` on billing. Fixed Grok CLI headers accompany both requests; no `pi-usage` user agent or arbitrary selected-model headers are forwarded. Revalidation also rematches the OAuth identity before each request and before publication. Signed integer cents, preferred percentage, legacy/current periods, empty configuration notes and optional tier validation follow the pinned source. Model authentication remains restricted to `https://api.x.ai`, independently of the consumer proxy transport origin.
+
+There is no native scheduler yet. The explicit schedulability capability excludes xAI and unsupported IDs; the later collector must consult it before automatic work and must not publish xAI into the footer. Explicit `Client.Query` remains available for xAI menu actions. Host configured-provider discovery, explicit cross-provider selection, cache/generation fencing and refresh ownership remain the later collector checkpoints; none is activated by this slice. The selected TypeScript collector and package membership are unchanged and continue to enforce the existing menu-only behavior.
+
+All four adapters retain the existing two-query admission bound, 15-second maximum total budget, 64 KiB success-body bound, redirect refusal before credential forwarding and body-free sanitized errors. Nonfinite Command Code credit totals are rejected rather than publishing JSON-null numeric fields. No live provider or billing operations are authorized by these checks.
 
 ## Behavior to preserve
 
@@ -52,7 +97,7 @@ Derive a branch-to-fixture inventory from provider dispatch, host-auth resolutio
 - Preserve Codex Fast capability discovery, conservative fallback, request-tier rewriting and matching assistant-message cost correction. A saved toggle affects subsequent payload hooks, not requests already sent.
 - Preserve Codex reset discovery, fresh OAuth/account matching, explicit confirmation, stable redemption identity for safe retry, and outcome reporting. Do not make live redemption requests in tests.
 - Preserve settings validation, defaults, unknown fields, legacy target selection migration, ordered private atomic saves and refusal to overwrite invalid files. Keep existing user settings readable without copying Pi configuration.
-- Preserve the structured usage API's query, capabilities and invalidation behavior. Characterize callback, cancellation and session-identity behavior across the Go bridge before relying on equivalence.
+- Preserve what the footer depends on, at the collector-to-footer seam: normalized reports, cache expiry, stale-publication rejection and cancellation on model or session change.
 
 ### Safety and lifecycle
 
@@ -65,11 +110,11 @@ Derive a branch-to-fixture inventory from provider dispatch, host-auth resolutio
 
 ## Implementation checkpoints
 
-Before checkpoint 2, use real PiG processes to characterize the existing public usage protocol's callback acceptance, cancellation, session object identity, result timing, invalidation and capabilities behavior at the Go/Node boundary. Inspect `src/usage-api-types.ts`, `src/usage-api.ts` and `status/usage.ts`; a plain JSON-shaped substitute cannot establish reference/callback parity. Record the native adaptation and its failure modes. If the bridge cannot preserve the contract, stop and request a decision rather than introducing a new host API or silently removing the public API.
+The Go/Node bridge characterization in the [compatibility record](../compatibility/usage.md#gonode-boundary) is the evidence for leaving the public usage event API out of scope. It is not a gate on checkpoint 2.
 
-1. [ ] Capture the baseline in disposable PiG roots: registration, commands, settings, normalized reports, request boundaries, failure behavior and lifecycle sequences. Use synthetic credentials and local provider fixtures. Retain portable expected data with source fingerprints; never retain personal credentials or session history.
+1. [ ] Identify the pinned source and reuse useful baseline fixtures. Derive behavior from source and upstream tests while porting; do not finish exhaustive capture first. Use disposable PiG roots and local synthetic endpoints for host integration checks. Never retain personal credentials or session history.
 2. [ ] Port provider normalization and guarded HTTP transport with fixtures for all 18 providers. Exercise malformed data, optional-section failures, origin rejection, redirect rejection and secret-safe errors. Compare against the frozen backend, including units and timestamp conversions.
-3. [ ] Port host-auth integration, account/target selection, cache ownership, automatic refresh and the structured usage API. Prove that model/account/settings changes, cancellation and expiry reject stale publications through real PiG processes.
+3. [ ] Port host-auth integration, account/target selection, cache ownership, automatic refresh and in-process publication to the footer. Prove that model/account/settings changes, cancellation and expiry reject stale publications through real PiG processes.
 4. [ ] Port `/usage`, settings, `/fast` and reset workflows. Prove terminal/RPC behavior, persistence and rollback on failure, request-tier and cost attribution, confirmation and safe reset retry with local fixtures only.
 5. [ ] Integrate native collection with the footer. Use conventional Go factories if the package is to support fusion; the current executable footer is not a fusible factory. Keep collection separate from rendering and SQLite/Hermes dependencies out of status.
 6. [ ] Replace package membership atomically after parity passes. Remove the TypeScript collector, its dependency and obsolete adapter tests only when their behavior has native coverage. Replace Node-dependent status checks and the Claude test fixture; retain package metadata needed for PiG discovery.
@@ -77,8 +122,8 @@ Before checkpoint 2, use real PiG processes to characterize the existing public 
 
 ## Cutover gate
 
-All provider and command behavior above must have executable evidence before removing the existing backend. Every consumer-inventory row must have passing evidence; no behavioral branch is covered merely because its provider ID or command name exists. A partial port must not be installed as a full replacement or described as Go-only. If a behavior cannot cross the Go bridge unchanged, record the gap and obtain an explicit decision rather than silently dropping it.
+All provider and command behavior above must be implemented before removing the existing backend. Review the translation against the pinned source, compare representative normalized outputs, and pass focused tests for the safety and lifecycle requirements below. Historical branch-ledger completion is not a release gate. Known unreachable baseline paths remain native test obligations, not reasons to expand the capture harness. The public usage event API remains out of [scope](#scope-and-current-state). A partial port must not be installed as a full replacement or described as Go-only. Record intentional behavior changes; an unresolved host capability or product decision must not silently remove a feature.
 
-Qualification includes the architecture's threat cases and operational outcomes: credential/origin changes during a request, redirects, stale publication, settings-save failure, unknown quota, bounded background failure diagnostics and interrupted shutdown. Verify the renderer remains cache-only and errors never disclose account identifiers, secrets or raw provider bodies. Keep original command/query failure fields and messages; extra diagnostics do not alter the public result schema.
+Qualification includes the architecture's threat cases and operational outcomes: credential/origin changes during a request, redirects, stale publication, settings-save failure, unknown quota, bounded background failure diagnostics and interrupted shutdown. Verify the renderer remains cache-only and errors never disclose account identifiers, secrets or raw provider bodies. Keep original command/query failure fields and messages; extra diagnostics do not alter the command result schema.
 
 Do not change consumer deployment selection, live credentials, billing state or the shared Hermes store as part of this port. Consumer wiring remains in dotfiles. Committing, pushing and activating a replacement require their own authorization.

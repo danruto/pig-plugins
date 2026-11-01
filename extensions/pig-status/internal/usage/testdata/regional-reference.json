@@ -1,0 +1,3851 @@
+{
+  "upstream": {
+    "name": "@narumitw/pi-usage",
+    "version": "0.68.3",
+    "hashes": {
+      "src/providers/minimax.ts": "3d3d4fe5664030e9706979abcd4e43573cb4770239dcb2600291a7bcfbf386cf",
+      "src/providers/moonshot.ts": "6d70618a41f6617015522acd5a4e991f3563f9a263ba3d26b701033bbe5f2482",
+      "src/providers/zai.ts": "20123d2a7b15f5c7db603748aac4821ad83c8b517fd4613b278ed77ba80f47ae",
+      "src/providers/zai-errors.ts": "57b06ab7cc12d80ce4d711b7ef26d4a28c931a9445cc2723a8bdc63fd67a0545",
+      "src/query.ts": "e4e72cb52e63ca65ae7d7cf89f8bccf15b43fc022024a432f209a90289643d6e",
+      "src/core.ts": "7efc37e7c62d8cd832a85af95b09598cd4756226f8e1c5250d7f9082d8a80d15",
+      "src/types.ts": "b2ee986938eadfbee7d156d536b346f2d5ab9ab731d889ce1257b7791ed1eba7"
+    }
+  },
+  "fixtures": [
+    {
+      "name": "minimax:normal",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax-cn:regional-groups",
+      "providerID": "minimax-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "\u001b[31mM2\u001b[0m\nModel",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": "\u001b[31mM2\u001b[0m\nModel",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": "模型",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": " ",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          },
+          {
+            "model_name": "İModel",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "m2-model:interval",
+            "label": "Rolling window",
+            "groupId": "m2-model",
+            "groupLabel": "M2 Model",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "m2-model:weekly",
+            "label": "Weekly window",
+            "groupId": "m2-model",
+            "groupLabel": "M2 Model",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          },
+          {
+            "id": "m2-model-2:interval",
+            "label": "Rolling window",
+            "groupId": "m2-model-2",
+            "groupLabel": "M2 Model",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "m2-model-2:weekly",
+            "label": "Weekly window",
+            "groupId": "m2-model-2",
+            "groupLabel": "M2 Model",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          },
+          {
+            "id": "quota:interval",
+            "label": "Rolling window",
+            "groupId": "quota",
+            "groupLabel": "模型",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "quota:weekly",
+            "label": "Weekly window",
+            "groupId": "quota",
+            "groupLabel": "模型",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          },
+          {
+            "id": "quota-4:interval",
+            "label": "Rolling window",
+            "groupId": "quota-4",
+            "groupLabel": "Quota 4",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "quota-4:weekly",
+            "label": "Weekly window",
+            "groupId": "quota-4",
+            "groupLabel": "Quota 4",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          },
+          {
+            "id": "i-model:interval",
+            "label": "Rolling window",
+            "groupId": "i-model",
+            "groupLabel": "İModel",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "i-model:weekly",
+            "label": "Weekly window",
+            "groupId": "i-model",
+            "groupLabel": "İModel",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:no-count-or-percent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 80,
+            "remaining": 20,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:unlimited",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 3,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 3,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 100,
+            "unit": "percent",
+            "period": "unlimited",
+            "windowMinutes": 300
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 100,
+            "unit": "percent",
+            "period": "unlimited",
+            "windowMinutes": 10080
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:zero-percent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 0,
+            "current_interval_total_count": 0,
+            "current_interval_remaining_percent": 0,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 0,
+            "current_weekly_total_count": 0,
+            "current_weekly_remaining_percent": 0,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 0,
+            "used": 100,
+            "limit": 0,
+            "unit": "percent",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "remaining": 0,
+            "used": 100,
+            "limit": 0,
+            "unit": "percent",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:tie-count",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 50,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 50,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 50,
+            "remaining": 50,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:tolerance-edge",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 79,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:short-window",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735776000000,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1735776030000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 1,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 1,
+            "resetsAt": 1735776030
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:unsupported-status",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 0,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan Rolling window status was unsupported."
+    },
+    {
+      "name": "minimax:bad-status",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": "1",
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan current_weekly_status was not a nonnegative safe integer."
+    },
+    {
+      "name": "minimax:bad-percent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": "80",
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan current_interval_remaining_percent was not a percentage."
+    },
+    {
+      "name": "minimax:over-percent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 101,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan current_weekly_remaining_percent was not a percentage."
+    },
+    {
+      "name": "minimax:over-count",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 101,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+    },
+    {
+      "name": "minimax:inconsistent-percent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 50,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+    },
+    {
+      "name": "minimax:bad-total",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": -1,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan current_weekly_total_count was not a nonnegative safe integer."
+    },
+    {
+      "name": "minimax:unsafe-count",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 9007199254740992,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan current_interval_usage_count was not a nonnegative safe integer."
+    },
+    {
+      "name": "minimax:fraction-count",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 1.5,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan current_interval_total_count was not a nonnegative safe integer."
+    },
+    {
+      "name": "minimax:invalid-name",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": 1,
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan model name was not a string."
+    },
+    {
+      "name": "minimax:boost-cap",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 10001
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan weekly boost was unreasonable."
+    },
+    {
+      "name": "minimax:bad-boost",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": -1
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan weekly_boost_permille was not a nonnegative safe integer."
+    },
+    {
+      "name": "minimax:bad-time",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 0,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan start_time was not a valid timestamp."
+    },
+    {
+      "name": "minimax:string-time",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": "1735776000000",
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan weekly_end_time was not a valid timestamp."
+    },
+    {
+      "name": "minimax:reverse-time",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735775999999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan Rolling window timestamps were reversed."
+    },
+    {
+      "name": "minimax:zero-count-mismatch",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 0,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+    },
+    {
+      "name": "minimax:zero-without-percent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 0,
+            "current_interval_total_count": 0,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan Rolling window returned no quota and no percent."
+    },
+    {
+      "name": "minimax:null-optionals",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": null,
+            "current_interval_status": null,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": null
+          }
+        ]
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-token-plan",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "MiniMax Token Plan quota"
+        },
+        "buckets": [
+          {
+            "id": "minimax-m2:interval",
+            "label": "Rolling window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 300,
+            "resetsAt": 1735794000
+          },
+          {
+            "id": "minimax-m2:weekly",
+            "label": "Weekly window",
+            "groupId": "minimax-m2",
+            "groupLabel": "MiniMax M2",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 10080,
+            "resetsAt": 1736380800
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "minimax:bad-success",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": "0"
+        },
+        "model_remains": [
+          {
+            "model_name": "MiniMax M2",
+            "current_interval_usage_count": 80,
+            "current_interval_total_count": 100,
+            "current_interval_remaining_percent": 80,
+            "current_interval_status": 1,
+            "start_time": 1735776000000,
+            "end_time": 1735794000999,
+            "current_weekly_usage_count": 20,
+            "current_weekly_total_count": 100,
+            "current_weekly_remaining_percent": 80,
+            "current_weekly_status": 2,
+            "weekly_start_time": 1735776000000,
+            "weekly_end_time": 1736380800000,
+            "weekly_boost_permille": 1500
+          }
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax usage response did not report success."
+    },
+    {
+      "name": "minimax:empty",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": []
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan returned no quota rows."
+    },
+    {
+      "name": "minimax:bad-row",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "model_remains": [
+          null
+        ]
+      },
+      "kind": "report",
+      "error": "MiniMax Token Plan quota row was not an object."
+    },
+    {
+      "name": "minimax:balance",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": "0"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "expected": {
+        "providerId": "minimax",
+        "providerName": "MiniMax",
+        "capturedAt": 1735776000000,
+        "source": "minimax-account-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "MiniMax pay-as-you-go account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "12345678901234567890.001",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-2.500",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "credit-balance",
+            "label": "Credit balance",
+            "value": "1.00",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "owed-amount",
+            "label": "Owed amount",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "minimax-cn:balance",
+      "providerID": "minimax-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": "0"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "expected": {
+        "providerId": "minimax-cn",
+        "providerName": "MiniMax CN",
+        "capturedAt": 1735776000000,
+        "source": "minimax-account-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "MiniMax pay-as-you-go account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "12345678901234567890.001",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-2.500",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "credit-balance",
+            "label": "Credit balance",
+            "value": "1.00",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "owed-amount",
+            "label": "Owed amount",
+            "value": "0",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "minimax:balance-negative",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": "-0"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "error": "MiniMax owed amount was not a valid amount."
+    },
+    {
+      "name": "minimax:balance-number",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": 1
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "error": "MiniMax owed amount was not a valid amount."
+    },
+    {
+      "name": "minimax:balance-leading-zero",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": "01"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "error": "MiniMax owed amount was not a valid amount."
+    },
+    {
+      "name": "minimax:balance-exponent",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": "1e2"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "error": "MiniMax owed amount was not a valid amount."
+    },
+    {
+      "name": "minimax:balance-long",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00",
+        "owed_amount": "11111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "error": "MiniMax owed amount was not a valid amount."
+    },
+    {
+      "name": "minimax:balance-missing",
+      "providerID": "minimax",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "base_resp": {
+          "status_code": 0
+        },
+        "available_amount": "12345678901234567890.001",
+        "cash_balance": "-2.500",
+        "voucher_balance": "0",
+        "credit_balance": "1.00"
+      },
+      "kind": "report",
+      "usageKind": "account-balance",
+      "error": "MiniMax owed amount was not a valid amount."
+    },
+    {
+      "name": "minimax:kind-sk-api-synthetic",
+      "kind": "usage-kind",
+      "key": "sk-api-synthetic",
+      "expected": "account-balance"
+    },
+    {
+      "name": "minimax:kind-sk-cp-synthetic",
+      "kind": "usage-kind",
+      "key": "sk-cp-synthetic",
+      "expected": "token-plan"
+    },
+    {
+      "name": "minimax:kind-SK-api-synthetic",
+      "kind": "usage-kind",
+      "key": "SK-api-synthetic",
+      "expected": "token-plan"
+    },
+    {
+      "name": "minimax:kind-",
+      "kind": "usage-kind",
+      "key": "",
+      "expected": "token-plan"
+    },
+    {
+      "name": "moonshotai:regional-balance",
+      "providerID": "moonshotai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 1e-7,
+          "voucher_balance": 0,
+          "cash_balance": -1.25
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "moonshotai",
+        "providerName": "Moonshot AI",
+        "capturedAt": 1735776000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "1e-7",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "USD"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-1.25",
+            "unit": "currency",
+            "currency": "USD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "moonshotai-cn:regional-balance",
+      "providerID": "moonshotai-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": 0,
+        "status": true,
+        "data": {
+          "available_balance": 1e-7,
+          "voucher_balance": 0,
+          "cash_balance": -1.25
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "moonshotai-cn",
+        "providerName": "Moonshot AI CN",
+        "capturedAt": 1735776000000,
+        "source": "moonshot-balance",
+        "semantics": {
+          "kind": "api-key",
+          "label": "Moonshot API account balance"
+        },
+        "buckets": [],
+        "metrics": [
+          {
+            "id": "available-balance",
+            "label": "Available balance",
+            "value": "1e-7",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "voucher-balance",
+            "label": "Voucher balance",
+            "value": "0",
+            "unit": "currency",
+            "currency": "CNY"
+          },
+          {
+            "id": "cash-balance",
+            "label": "Cash balance",
+            "value": "-1.25",
+            "unit": "currency",
+            "currency": "CNY"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zai:window-overflow",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 1e+308,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "nativeError": "Z.AI quota window was not finite.",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "Infinityh window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": null
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-sub-half-week",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 0.000049603174603174596,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 0
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-half-week",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 0.0000496031746031746,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-above-half-week",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 0.00004960317460317462,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-sub-half-hour",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 0.008333333333333333,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "0h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-half-hour",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 0.008333333333333333,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "0h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-large-hour",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 75059993789508.28,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "75059993789508h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 4503599627370497
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-large-week",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 446785677318.5017,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 4503599627370497
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-large-hour-label",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 4503599627370497,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "4503599627370497h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 270215977642229820
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:round-half-hour-label",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 0.5,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "1h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 30
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-sub-half-week",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 0.000049603174603174596,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 0
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-half-week",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 0.0000496031746031746,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-above-half-week",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 0.00004960317460317462,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-sub-half-hour",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 0.008333333333333333,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "0h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-half-hour",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 0.008333333333333333,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "0h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 1
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-large-hour",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 75059993789508.28,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "75059993789508h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 4503599627370497
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-large-week",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "number": 446785677318.5017,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 4503599627370497
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-large-hour-label",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 4503599627370497,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "4503599627370497h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 270215977642229820
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai-coding-cn:round-half-hour-label",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": 0.5,
+              "percentage": 25
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "1h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 30
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:normal",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "level": " Lite\nplan ",
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": 25,
+              "number": 5,
+              "nextResetTime": 1735776000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "currentValue": 120,
+              "usage": 100,
+              "number": 2,
+              "nextResetTime": 0
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 2,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "模型",
+                  "usage": 0
+                },
+                {
+                  "modelCode": "İModel",
+                  "usage": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "5h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 0
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 2,
+            "remaining": 8,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          },
+          {
+            "id": "mcp-tool",
+            "label": "模型",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "mcp-i-model",
+            "label": "İModel",
+            "value": 1,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Lite plan"
+        ]
+      }
+    },
+    {
+      "name": "zai-coding-cn:regional-plan",
+      "providerID": "zai-coding-cn",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "level": " Lite\nplan ",
+          "limits": [
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": 25,
+              "number": 5,
+              "nextResetTime": 1735776000999
+            },
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 6,
+              "currentValue": 120,
+              "usage": 100,
+              "number": 2,
+              "nextResetTime": 0
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 2,
+              "usage": 10,
+              "usageDetails": [
+                {
+                  "modelCode": "Web Search",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "模型",
+                  "usage": 0
+                },
+                {
+                  "modelCode": "İModel",
+                  "usage": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "plan": {
+        "name": "Pro",
+        "renewsAt": "2025-02-01"
+      },
+      "expected": {
+        "providerId": "zai-coding-cn",
+        "providerName": "Z.AI Coding CN",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "5h window",
+            "used": 25,
+            "remaining": 75,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 300,
+            "resetsAt": 1735776000
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 120,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "count",
+            "windowMinutes": 20160,
+            "resetsAt": 0
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 2,
+            "remaining": 8,
+            "limit": 10,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-web-search",
+            "label": "Web Search",
+            "value": 2,
+            "unit": "count"
+          },
+          {
+            "id": "mcp-tool",
+            "label": "模型",
+            "value": 0,
+            "unit": "count"
+          },
+          {
+            "id": "mcp-i-model",
+            "label": "İModel",
+            "value": 1,
+            "unit": "count"
+          }
+        ],
+        "notes": [
+          "Plan: Pro · renews 2025-02-01"
+        ]
+      }
+    },
+    {
+      "name": "zai:custom-fallback-windows",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "CREDIT_LIMIT",
+              "unit": 3,
+              "number": 1.25,
+              "percentage": 150
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "percentage": 20
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "number": -1,
+              "percentage": 0
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "five-hour",
+            "label": "1h window",
+            "used": 100,
+            "remaining": 0,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 75
+          },
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 20,
+            "remaining": 80,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 10080
+          },
+          {
+            "id": "five-hour",
+            "label": "5h window",
+            "used": 0,
+            "remaining": 100,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 300
+          }
+        ],
+        "metrics": []
+      }
+    },
+    {
+      "name": "zai:invalid-optional-rows",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            null,
+            [],
+            {
+              "type": "OTHER",
+              "percentage": 10
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": "3",
+              "percentage": 10
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 3,
+              "percentage": -1
+            },
+            {
+              "type": "TIME_LIMIT",
+              "usageDetails": [
+                null,
+                {
+                  "modelCode": "partial",
+                  "usage": 1
+                }
+              ]
+            },
+            {
+              "type": "TOKENS_LIMIT",
+              "unit": 6,
+              "currentValue": "4",
+              "usage": 10,
+              "percentage": 10
+            },
+            {
+              "type": "TIME_LIMIT",
+              "currentValue": 0,
+              "usage": 0,
+              "usageDetails": [
+                {
+                  "modelCode": "\u001b[31mSanitized\u001b[0m\nTool",
+                  "usage": 2
+                },
+                {
+                  "modelCode": "bad",
+                  "usage": -1
+                },
+                {}
+              ]
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "expected": {
+        "providerId": "zai",
+        "providerName": "Z.AI",
+        "capturedAt": 1735776000000,
+        "source": "zai-quota",
+        "semantics": {
+          "kind": "consumer-subscription",
+          "label": "GLM Coding Plan usage"
+        },
+        "buckets": [
+          {
+            "id": "weekly",
+            "label": "Weekly window",
+            "used": 10,
+            "remaining": 90,
+            "limit": 100,
+            "unit": "percent",
+            "windowMinutes": 10080
+          },
+          {
+            "id": "mcp-monthly",
+            "label": "MCP monthly allowance",
+            "used": 0,
+            "remaining": 0,
+            "limit": 0,
+            "unit": "count"
+          }
+        ],
+        "metrics": [
+          {
+            "id": "mcp-partial",
+            "label": "partial",
+            "value": 1,
+            "unit": "count"
+          },
+          {
+            "id": "mcp-sanitized-tool",
+            "label": "Sanitized Tool",
+            "value": 2,
+            "unit": "count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "zai:empty",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {}
+      },
+      "kind": "report",
+      "error": "Z.AI quota endpoint returned no displayable usage data."
+    },
+    {
+      "name": "zai:invalid-data",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": []
+      },
+      "kind": "report",
+      "error": "Z.AI quota response data was not an object."
+    },
+    {
+      "name": "zai:only-metrics",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {
+          "limits": [
+            {
+              "type": "TIME_LIMIT",
+              "usageDetails": [
+                {
+                  "modelCode": "search",
+                  "usage": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "kind": "report",
+      "error": "Z.AI quota endpoint returned no displayable usage data."
+    },
+    {
+      "name": "zai:error",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": 1309
+      },
+      "kind": "report",
+      "error": "Z.AI 1309: GLM Coding Plan expired. Renew your subscription."
+    },
+    {
+      "name": "zai:plan-legacy-first",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          null,
+          {},
+          {
+            "productName": "Legacy",
+            "nextRenewTime": "2025-02-01anything"
+          },
+          {
+            "productName": "Other"
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": {
+        "name": "Legacy",
+        "renewsAt": "2025-02-01"
+      }
+    },
+    {
+      "name": "zai:plan-priority",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "Valid",
+            "status": "VALID"
+          },
+          {
+            "productName": "Current",
+            "inCurrentPeriod": 1
+          },
+          {
+            "productName": "Best",
+            "status": " valid ",
+            "inCurrentPeriod": true,
+            "nextRenewTime": 1735776000000
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": {
+        "name": "Best",
+        "renewsAt": "2025-01-02"
+      }
+    },
+    {
+      "name": "zai:plan-current-only",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "Expired",
+            "status": "EXPIRED",
+            "inCurrentPeriod": true
+          },
+          {
+            "productName": "Current",
+            "inCurrentPeriod": true
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": {
+        "name": "Current"
+      }
+    },
+    {
+      "name": "zai:plan-valid-only",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "Inactive",
+            "inCurrentPeriod": false
+          },
+          {
+            "productName": "Valid",
+            "status": "VALID",
+            "nextRenewTime": 0
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": {
+        "name": "Valid"
+      }
+    },
+    {
+      "name": "zai:plan-inactive",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "Old",
+            "status": "EXPIRED"
+          },
+          {
+            "productName": "Not current",
+            "status": "VALID",
+            "inCurrentPeriod": 0
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": null
+    },
+    {
+      "name": "zai:plan-bad-state",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "\u001b[31mSafe\u001b[0m\nPlan",
+            "status": "",
+            "inCurrentPeriod": "true",
+            "nextRenewTime": -1
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": {
+        "name": "Safe Plan"
+      }
+    },
+    {
+      "name": "zai:plan-expanded-year",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "Future",
+            "nextRenewTime": 253402300800000
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": {
+        "name": "Future",
+        "renewsAt": "+010000-01"
+      }
+    },
+    {
+      "name": "zai:plan-invalid-date-discards-plan",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": [
+          {
+            "productName": "Earlier"
+          },
+          {
+            "productName": "Bad",
+            "nextRenewTime": 8640000000000001
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": null
+    },
+    {
+      "name": "zai:plan-failed",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "success": false,
+        "data": [
+          {
+            "productName": "Not returned"
+          }
+        ]
+      },
+      "kind": "plan",
+      "expected": null
+    },
+    {
+      "name": "zai:plan-not-array",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "data": {}
+      },
+      "kind": "plan",
+      "expected": null
+    },
+    {
+      "name": "zai:fixed-code-1000",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1000,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1000: Authentication failed. Check your API key."
+    },
+    {
+      "name": "zai:fixed-code-1001",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1001,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1001: Authentication header missing. Check your API key."
+    },
+    {
+      "name": "zai:fixed-code-1003",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1003,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1003: Authentication token expired. Obtain a new token."
+    },
+    {
+      "name": "zai:fixed-code-1005",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1005,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1005: Two-factor authentication required."
+    },
+    {
+      "name": "zai:fixed-code-1113",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1113,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1113: Insufficient balance or no resource package. Recharge your account."
+    },
+    {
+      "name": "zai:fixed-code-1200",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1200,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1200: API call error. Try again later."
+    },
+    {
+      "name": "zai:fixed-code-1210",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1210,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1210: Invalid API parameter. Check the API documentation."
+    },
+    {
+      "name": "zai:fixed-code-1211",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1211,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1211: Unknown model. Check the model ID."
+    },
+    {
+      "name": "zai:fixed-code-1212",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1212,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1212: This model does not support the requested method."
+    },
+    {
+      "name": "zai:fixed-code-1213",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1213,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1213: A required parameter is missing."
+    },
+    {
+      "name": "zai:fixed-code-1214",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1214,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1214: Invalid parameter. Check the API documentation."
+    },
+    {
+      "name": "zai:fixed-code-1215",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1215,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1215: Conflicting parameters. Check the API documentation."
+    },
+    {
+      "name": "zai:fixed-code-1220",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1220,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1220: Access denied. Check your permissions."
+    },
+    {
+      "name": "zai:fixed-code-1221",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1221,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1221: This API has been taken offline."
+    },
+    {
+      "name": "zai:fixed-code-1222",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1222,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1222: This API does not exist."
+    },
+    {
+      "name": "zai:fixed-code-1230",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1230,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1230: API processing error. Try again later."
+    },
+    {
+      "name": "zai:fixed-code-1234",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1234,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1234: Network error. Try again later."
+    },
+    {
+      "name": "zai:fixed-code-1261",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1261,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1261: Prompt too long. Reduce the input length."
+    },
+    {
+      "name": "zai:fixed-code-1301",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1301,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1301: Content rejected by the safety policy."
+    },
+    {
+      "name": "zai:fixed-code-1302",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1302,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1302: Request rate limit reached. Try again later."
+    },
+    {
+      "name": "zai:fixed-code-1305",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1305,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1305: Service overloaded. Try again later."
+    },
+    {
+      "name": "zai:fixed-code-1308",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1308,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1308: Usage limit reached. Wait for the quota reset."
+    },
+    {
+      "name": "zai:fixed-code-1309",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1309,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1309: GLM Coding Plan expired. Renew your subscription."
+    },
+    {
+      "name": "zai:fixed-code-1310",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1310,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1310: Weekly or monthly limit exhausted. Wait for the quota reset."
+    },
+    {
+      "name": "zai:fixed-code-1311",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1311,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1311: Your subscription does not include this model."
+    },
+    {
+      "name": "zai:fixed-code-1313",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1313,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1313: Request frequency restricted by the Fair Usage Policy. Contact support."
+    },
+    {
+      "name": "zai:fixed-code-1314",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1314,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1314: Enterprise package expired. Contact your administrator."
+    },
+    {
+      "name": "zai:fixed-code-1315",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1315,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1315: This API key requires an enterprise coding package scenario. Replace the key."
+    },
+    {
+      "name": "zai:fixed-code-1316",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1316,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1316: 5-hour limit reached; insufficient balance for extra usage. Wait for reset."
+    },
+    {
+      "name": "zai:fixed-code-1317",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1317,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1317: 7-day limit reached; insufficient balance for extra usage. Wait for reset."
+    },
+    {
+      "name": "zai:fixed-code-1318",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1318,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1318: 5-hour limit reached; extra usage blocked by monthly spend limit."
+    },
+    {
+      "name": "zai:fixed-code-1319",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1319,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1319: 7-day limit reached; extra usage blocked by monthly spend limit."
+    },
+    {
+      "name": "zai:fixed-code-1320",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1320,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1320: 5-hour limit reached; extra usage blocked by monthly spend limit."
+    },
+    {
+      "name": "zai:fixed-code-1321",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 1321,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1321: 7-day limit reached; extra usage blocked by monthly spend limit."
+    },
+    {
+      "name": "zai:fixed-code-9999",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 9999,
+          "message": "secret\u001b[31m"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 9999: API request failed."
+    },
+    {
+      "name": "zai:success",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": 200
+      },
+      "kind": "payload-error",
+      "expected": ""
+    },
+    {
+      "name": "zai:null-code",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": null
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI: API request failed."
+    },
+    {
+      "name": "zai:bad-code",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": "01309"
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI: API request failed."
+    },
+    {
+      "name": "zai:top-fallback",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": "1309",
+        "error": {}
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI 1309: GLM Coding Plan expired. Renew your subscription."
+    },
+    {
+      "name": "zai:nested-null",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "code": 1309,
+        "error": {
+          "code": null
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI: API request failed."
+    },
+    {
+      "name": "zai:nested-success",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "error": {
+          "code": 0
+        }
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI: API request failed."
+    },
+    {
+      "name": "zai:false-success",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {
+        "success": false
+      },
+      "kind": "payload-error",
+      "expected": "Z.AI: API request failed."
+    },
+    {
+      "name": "zai:http-200",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 200,
+      "body": "not json secret",
+      "expected": "Z.AI: Invalid JSON response."
+    },
+    {
+      "name": "zai:http-200",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 200,
+      "body": "{}",
+      "expected": ""
+    },
+    {
+      "name": "zai:http-401",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 401,
+      "body": "secret",
+      "expected": "Z.AI HTTP 401: Authentication failed. Check your API key."
+    },
+    {
+      "name": "zai:http-403",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 403,
+      "body": "{}",
+      "expected": "Z.AI HTTP 403: Access denied. Check your permissions."
+    },
+    {
+      "name": "zai:http-400",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 400,
+      "body": "{}",
+      "expected": "Z.AI HTTP 400: Invalid request. Check the API documentation."
+    },
+    {
+      "name": "zai:http-429",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 429,
+      "body": "{}",
+      "expected": "Z.AI HTTP 429: Request or usage limit reached. Try again later."
+    },
+    {
+      "name": "zai:http-500",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 500,
+      "body": "{}",
+      "expected": "Z.AI HTTP 500: Internal error. Try again later."
+    },
+    {
+      "name": "zai:http-503",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 503,
+      "body": "{}",
+      "expected": "Z.AI HTTP 503: API request failed."
+    },
+    {
+      "name": "zai:http-402",
+      "providerID": "zai",
+      "capturedAt": 1735776000000,
+      "payload": {},
+      "kind": "response-error",
+      "status": 402,
+      "body": "{\"code\":\"1310\"}",
+      "expected": "Z.AI 1310: Weekly or monthly limit exhausted. Wait for the quota reset."
+    },
+    {
+      "name": "moonshotai:auth-current-shared",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "moonshotai",
+      "source": "environment",
+      "sourceLabel": "MOONSHOT_API_KEY",
+      "expected": true
+    },
+    {
+      "name": "moonshotai:auth-unknown-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "expected": false
+    },
+    {
+      "name": "moonshotai:auth-stored-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "source": "auth.json",
+      "expected": true
+    },
+    {
+      "name": "moonshotai:auth-shared-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "OTHER, MOONSHOT_API_KEY",
+      "expected": false
+    },
+    {
+      "name": "moonshotai:auth-unknown-env",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "expected": false
+    },
+    {
+      "name": "moonshotai:auth-regional-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "MOONSHOT_CN_API_KEY",
+      "expected": true
+    },
+    {
+      "name": "moonshotai:auth-substring",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "OTHER_MOONSHOT_API_KEY",
+      "expected": true
+    },
+    {
+      "name": "moonshotai:auth-empty-label",
+      "kind": "auth",
+      "providerID": "moonshotai",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "",
+      "expected": true
+    },
+    {
+      "name": "moonshotai-cn:auth-current-shared",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "moonshotai-cn",
+      "source": "environment",
+      "sourceLabel": "MOONSHOT_API_KEY",
+      "expected": true
+    },
+    {
+      "name": "moonshotai-cn:auth-unknown-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "expected": false
+    },
+    {
+      "name": "moonshotai-cn:auth-stored-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "source": "auth.json",
+      "expected": true
+    },
+    {
+      "name": "moonshotai-cn:auth-shared-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "OTHER, MOONSHOT_API_KEY",
+      "expected": false
+    },
+    {
+      "name": "moonshotai-cn:auth-unknown-env",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "expected": false
+    },
+    {
+      "name": "moonshotai-cn:auth-regional-sibling",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "MOONSHOT_CN_API_KEY",
+      "expected": true
+    },
+    {
+      "name": "moonshotai-cn:auth-substring",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "OTHER_MOONSHOT_API_KEY",
+      "expected": true
+    },
+    {
+      "name": "moonshotai-cn:auth-empty-label",
+      "kind": "auth",
+      "providerID": "moonshotai-cn",
+      "selectedProviderID": "other",
+      "source": "environment",
+      "sourceLabel": "",
+      "expected": true
+    }
+  ]
+}
