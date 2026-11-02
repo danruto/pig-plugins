@@ -1,16 +1,20 @@
-// Package store implements the pinned Hermes schema and guarded Markdown memory mutations.
+// Package store implements the pinned Hermes schema, guarded Markdown mutations and bounded recovery.
 // Markdown publication and scoped search reconciliation are separate outcomes. Mutations use
-// the shared SQLite mutation lease and retain recovery/conflict artifacts and bounded retries.
-// They do not qualify stale-holder publication safety or implement database recovery; cutover
-// remains blocked pending mixed-writer qualification. Callers must inspect MutationResult even
-// when an error is returned: cancellation and cleanup failures can follow document publication.
-// Memory borrows its database; callers close it only after synchronous operations return.
-// Coordination factories select shared mutation, consolidation and recovery identities. Acquire
-// owns a coordinator handle until Release; consolidation leases also own a renewal worker that
-// Release cancels and joins. Lease methods may run concurrently; callers must always release.
-// Renew and CurrentOwner fence only lease rows, never subsequent document or database publication.
-// Consolidation and recovery operations remain unimplemented; their ownership APIs are staged.
-// RecoveryLockOptions controls lease timing only, not the deferred recovery circuit or backups.
+// shared SQLite leases and retain recovery/conflict artifacts. Cutover remains blocked by the
+// frozen writer's stale-holder publication and peer-open-handle counterexamples under ADR 0002.
+// Callers inspect MutationResult even on errors: cancellation and cleanup can follow publication.
+// Open and NewMemory are explicit borrowed-handle primitives; OpenDatabase and NewManagedMemory
+// share one replaceable handle owner. Database.Do serializes database-only callbacks and retries
+// once on corruption. Callbacks must close rows and transactions before returning, must not retain
+// handles or reenter Database, and must be retry-safe; never put document writes in a callback.
+// Close closes admission, cancels and joins the eager integrity worker, then closes the handle.
+// All other work must settle before Close. Recovery status is available through Database.Status;
+// recovery result paths and direct errors are local diagnostics, not safe SDK notification text.
+// Coordination factories select the shared mutation, consolidation and recovery identities.
+// Acquire owns a coordinator handle until Release; consolidation also owns a renewal worker.
+// Renew and CurrentOwner fence only lease rows, never later filesystem or database publication.
+// RecoveryOptions bounds recovery time, the shared circuit and backup groups; RecoveryLockOptions
+// controls lease timing. Consolidation orchestration remains staged, not implemented.
 package store
 
 import (

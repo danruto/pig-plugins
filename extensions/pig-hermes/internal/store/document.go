@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"crypto/sha256"
 	"errors"
 	"fmt"
@@ -226,6 +227,12 @@ func artifactKind(name string) string {
 }
 
 func pruneMemoryArtifacts(path string) error {
+	return pruneMemoryArtifactsContext(context.Background(), path)
+}
+
+func pruneMemoryArtifactsContext(ctx context.Context, path string) error {
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
 	artifacts, err := memoryArtifacts(path)
 	if err != nil {
 		return err
@@ -233,6 +240,9 @@ func pruneMemoryArtifacts(path string) error {
 	counts, sizes := map[string]int{}, map[string]int64{}
 	now := time.Now()
 	for _, artifact := range artifacts {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		keep := artifactWithinBudget(artifact, counts, sizes, now)
 		if keep {
 			counts[artifact.kind]++
@@ -240,14 +250,14 @@ func pruneMemoryArtifacts(path string) error {
 			continue
 		}
 		if artifact.kind == "recovery" {
-			if err := retireMemoryArtifact(path, artifact.path); err != nil {
+			if err := retireMemoryArtifact(ctx, path, artifact.path); err != nil {
 				return err
 			}
 		} else if err := os.Remove(artifact.path); err != nil {
 			return err
 		}
 	}
-	return pruneRetiredArtifacts(path)
+	return pruneRetiredArtifacts(ctx, path)
 }
 
 func artifactWithinBudget(artifact memoryArtifact, counts map[string]int, sizes map[string]int64, now time.Time) bool {
@@ -261,20 +271,20 @@ func artifactWithinBudget(artifact memoryArtifact, counts map[string]int, sizes 
 	return age <= 30*24*time.Hour
 }
 
-func retireMemoryArtifact(path, recovery string) error {
+func retireMemoryArtifact(ctx context.Context, path, recovery string) error {
 	retired, err := artifactPath(path, "retired")
 	if err != nil {
 		return err
 	}
-	raw, err := os.ReadFile(recovery)
+	temp, err := os.MkdirTemp(filepath.Dir(path), ".tmp-")
 	if err != nil {
 		return err
 	}
-	temp, err := stageDocument(path, string(raw), 0600)
-	if err != nil {
-		return err
+	staged := filepath.Join(temp, "write.tmp")
+	err = copyFileContext(ctx, recovery, staged)
+	if err == nil {
+		err = os.Rename(staged, retired)
 	}
-	err = os.Rename(filepath.Join(temp, "write.tmp"), retired)
 	cleanup := os.RemoveAll(temp)
 	if err != nil {
 		return errors.Join(err, cleanup)
@@ -282,7 +292,7 @@ func retireMemoryArtifact(path, recovery string) error {
 	return errors.Join(cleanup, os.Remove(recovery))
 }
 
-func pruneRetiredArtifacts(path string) error {
+func pruneRetiredArtifacts(ctx context.Context, path string) error {
 	artifacts, err := memoryArtifacts(path)
 	if err != nil {
 		return err
@@ -290,6 +300,9 @@ func pruneRetiredArtifacts(path string) error {
 	var count int
 	var size int64
 	for _, artifact := range artifacts {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		if artifact.kind != "retired" {
 			continue
 		}

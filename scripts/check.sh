@@ -37,10 +37,14 @@ npm run typecheck
   gofmt -l . | grep . && exit 1
   go build -modcacherw -modfile="$tmp/hermes.go.mod" ./...
   go vet -modcacherw -modfile="$tmp/hermes.go.mod" ./...
+  export HERMES_RECOVERY_SCRATCH="${HERMES_RECOVERY_SCRATCH:-$tmp/hermes-recovery}"
+  mkdir -p "$HERMES_RECOVERY_SCRATCH"
   HERMES_PACKAGE="${HERMES_PUBLICATION_SOURCE:-${HERMES_PACKAGE:-}}" \
     go test -modcacherw -modfile="$tmp/hermes.go.mod" -count=1 -race -json ./...
   bash "$root/scripts/hermes-settings-reference.sh" "$tmp/hermes.go.mod" > "$tmp/hermes-settings.md"
   diff -u "$root/docs/reference/hermes-settings.md" "$tmp/hermes-settings.md"
+  bash "$root/scripts/hermes-recovery-reference.sh" "$tmp/hermes.go.mod" > "$tmp/hermes-recovery.md"
+  diff -u "$root/docs/reference/hermes-recovery.md" "$tmp/hermes-recovery.md"
 )
 cd extensions/pig-status
 cp go.mod "$tmp/go.mod"

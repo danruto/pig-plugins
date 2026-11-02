@@ -43,6 +43,7 @@ const (
 
 type Memory struct {
 	db       *sql.DB
+	database *Database
 	settings config.Settings
 	paths    paths.Resolved
 }
@@ -56,7 +57,49 @@ func NewMemory(db *sql.DB, settings config.Settings, resolved paths.Resolved) (*
 			return nil, errors.New("memory roots must be absolute")
 		}
 	}
-	return &Memory{db, settings, resolved}, nil
+	return &Memory{db: db, settings: settings, paths: resolved}, nil
+}
+
+func NewManagedMemory(ctx context.Context, database *Database, settings config.Settings, resolved paths.Resolved) (*Memory, error) {
+	if database == nil {
+		return nil, errors.New("memory requires a database owner")
+	}
+	var memory *Memory
+	err := database.Do(ctx, func(db *sql.DB) error {
+		var err error
+		memory, err = NewMemory(db, settings, resolved)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	memory.database = database
+	memory.db = nil
+	return memory, nil
+}
+
+func (m *Memory) Reconcile(ctx context.Context, scope Scope) (result MutationResult, err error) {
+	identity, err := m.documentPath(scope)
+	if err != nil {
+		return result, err
+	}
+	coordination, err := MutationCoordination(identity)
+	if err != nil {
+		return result, err
+	}
+	lease, err := coordination.Acquire(ctx)
+	if err != nil {
+		return result, err
+	}
+	defer func() { err = errors.Join(err, lease.Release()) }()
+	current, err := readDocument(identity)
+	if err != nil {
+		return result, err
+	}
+	result.Code = "reconciled"
+	result, err = m.finalize(ctx, scope, documentView{identity, current}, result)
+	result.Success = result.SearchReconciled
+	return result, err
 }
 
 func (m *Memory) Add(ctx context.Context, scope Scope, mutation Mutation) (MutationResult, error) {

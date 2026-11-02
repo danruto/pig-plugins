@@ -89,7 +89,15 @@ func unescapeJSONSeparators(encoded string) string {
 }
 
 func (m *Memory) reconcile(ctx context.Context, scope Scope, raw []string) error {
-	tx, err := m.db.BeginTx(ctx, nil)
+	operation := func(db *sql.DB) error { return m.reconcileDatabase(ctx, db, scope, raw) }
+	if m.database != nil {
+		return m.database.Do(ctx, operation)
+	}
+	return operation(m.db)
+}
+
+func (m *Memory) reconcileDatabase(ctx context.Context, db *sql.DB, scope Scope, raw []string) error {
+	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}

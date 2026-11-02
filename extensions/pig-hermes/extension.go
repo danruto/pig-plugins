@@ -4,7 +4,6 @@ package pighermes
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"os"
 	"path/filepath"
@@ -19,11 +18,14 @@ import (
 )
 
 type storageOwner struct {
-	mu       sync.Mutex
-	db       *sql.DB
-	memory   *store.Memory
-	settings config.Settings
-	paths    paths.Resolved
+	mu             sync.Mutex
+	db             *store.Database
+	cancel         context.CancelFunc
+	done           chan struct{}
+	maintenanceErr error
+	memory         *store.Memory
+	settings       config.Settings
+	paths          paths.Resolved
 }
 
 func Extension() *sdk.Extension {
@@ -91,11 +93,11 @@ func (o *storageOwner) start(ctx context.Context, cwd string) error {
 	if err != nil {
 		return errors.New("hermes: storage path resolution failed")
 	}
-	db, err := store.Open(ctx, resolved.Database)
+	db, err := store.OpenDatabase(ctx, resolved.Database, store.RecoveryOptions{})
 	if err != nil {
 		return errors.New("hermes: schema initialization failed")
 	}
-	memory, err := store.NewMemory(db, settings, resolved)
+	memory, err := store.NewManagedMemory(ctx, db, settings, resolved)
 	if err != nil {
 		if closeErr := db.Close(); closeErr != nil {
 			return errors.New("hermes: memory initialization and database close failed")
@@ -103,6 +105,14 @@ func (o *storageOwner) start(ctx context.Context, cwd string) error {
 		return errors.New("hermes: memory initialization failed")
 	}
 	o.settings, o.paths, o.db, o.memory = settings, resolved, db, memory
+	workCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	o.cancel, o.done = cancel, make(chan struct{})
+	done := o.done
+	go func() {
+		defer close(done)
+		defer cancel()
+		_, o.maintenanceErr = memory.Maintain(workCtx)
+	}()
 	return nil
 }
 
@@ -110,7 +120,12 @@ func (o *storageOwner) close() error {
 	if o.db == nil {
 		return nil
 	}
+	o.cancel()
+	<-o.done
 	err := o.db.Close()
-	o.db, o.memory = nil, nil
+	if o.maintenanceErr != nil && !errors.Is(o.maintenanceErr, context.Canceled) {
+		err = errors.Join(err, errors.New("hermes: recovery maintenance failed"))
+	}
+	o.db, o.memory, o.cancel, o.done, o.maintenanceErr = nil, nil, nil, nil, nil
 	return err
 }
