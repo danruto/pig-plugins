@@ -1,5 +1,10 @@
-// Package store opens the pinned Hermes SQLite schema on an explicit canonical path.
-// It does not publish Markdown, recover corrupt databases, or claim mixed-writer publication safety.
+// Package store implements the pinned Hermes schema and guarded Markdown memory mutations.
+// Markdown publication and scoped search reconciliation are separate outcomes. Mutations use
+// the shared SQLite mutation lease and retain recovery/conflict artifacts and bounded retries.
+// They do not qualify stale-holder publication safety or implement database recovery; cutover
+// remains blocked pending mixed-writer qualification. Callers must inspect MutationResult even
+// when an error is returned: cancellation and cleanup failures can follow document publication.
+// Memory borrows its database; callers close it only after synchronous operations return.
 package store
 
 import (

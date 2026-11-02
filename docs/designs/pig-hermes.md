@@ -8,7 +8,7 @@ The package runs only in PiG. Pi keeps its TypeScript Hermes and shares memories
 
 Reference source: `pi-hermes-memory` **0.9.11**, upstream commit `71cf5ab7d909318a383bf52bb3ad3cf83a9efc03`, plus the retained [asynchronous integrity-scan patch](../../patches/hermes-0.9.11-async-integrity.patch). The [baseline manifest](../compatibility/hermes-baseline.json), [executable closure](../compatibility/hermes-closure.json) and [public-surface capture](../compatibility/hermes-surface.json) retain useful provenance. They do not impose exact API, configuration or branch parity.
 
-The current package contains **no native Hermes replacement**. An unselected [configuration/path/schema checkpoint](hermes-configuration.md) is staged under `extensions/pig-hermes`; it is not a usable memory backend. Probes and scoped checks do not authorize live data.
+The current package contains **no selected native Hermes replacement**. An unselected [configuration/path/schema and guarded-mutation checkpoint](hermes-configuration.md) is staged under `extensions/pig-hermes`; it is not a usable memory backend. Probes and scoped checks do not authorize live data.
 
 ## Required workflows
 

@@ -21,6 +21,7 @@ import (
 type storageOwner struct {
 	mu       sync.Mutex
 	db       *sql.DB
+	memory   *store.Memory
 	settings config.Settings
 	paths    paths.Resolved
 }
@@ -94,7 +95,14 @@ func (o *storageOwner) start(ctx context.Context, cwd string) error {
 	if err != nil {
 		return errors.New("hermes: schema initialization failed")
 	}
-	o.settings, o.paths, o.db = settings, resolved, db
+	memory, err := store.NewMemory(db, settings, resolved)
+	if err != nil {
+		if closeErr := db.Close(); closeErr != nil {
+			return errors.New("hermes: memory initialization and database close failed")
+		}
+		return errors.New("hermes: memory initialization failed")
+	}
+	o.settings, o.paths, o.db, o.memory = settings, resolved, db, memory
 	return nil
 }
 
@@ -103,6 +111,6 @@ func (o *storageOwner) close() error {
 		return nil
 	}
 	err := o.db.Close()
-	o.db = nil
+	o.db, o.memory = nil, nil
 	return err
 }

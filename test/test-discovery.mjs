@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import { appendFileSync, existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { createInterface } from "node:readline";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import test from "node:test";
@@ -152,6 +153,112 @@ for (const input of hermesFailureInputs) test(`AC-factory-reject: initialization
 		assert.match(errors[0].error, input.stage);
 		assert.doesNotMatch(diagnostic, /synthetic-private-config|synthetic-secret-content/);
 	} finally {
+		rmSync(fixture.root, { recursive: true, force: true });
+	}
+});
+
+function startHermesLifecycle(fixture) {
+	const child = spawn(fixture.binary, ["--offline", "--mode", "rpc", "--no-session", "--no-extensions", "--no-skills", "--no-prompt-templates", "--no-context-files", "--no-mcp", "--no-tools", "-e", join(fixture.pkg, "extensions/pig-hermes"), "-e", join(fixture.pkg, "probes/completion-probe"), "--model", "hermes-probe/fixture"], {
+		cwd: fixture.cwd, env: fixture.env, detached: true, stdio: ["pipe", "pipe", "pipe"],
+	});
+	if (process.env.HERMES_ACCEPTANCE_PID_FILE) appendFileSync(process.env.HERMES_ACCEPTANCE_PID_FILE, `${child.pid}\n`);
+	const pending = new Map();
+	const errors = [];
+	let stderr = "";
+	let sequence = 0;
+	child.stderr.setEncoding("utf8").on("data", (text) => { stderr += text; });
+	child.on("error", (error) => errors.push({ type: "process_error", error: error.message }));
+	createInterface({ input: child.stdout }).on("line", (line) => {
+		const record = JSON.parse(line);
+		if (record.type === "extension_error" || record.type === "error") errors.push(record);
+		const waiter = pending.get(record.id);
+		if (waiter) {
+			pending.delete(record.id);
+			waiter.resolve(record);
+		}
+	});
+	const exit = new Promise((resolve) => child.on("close", (code, signal) => {
+		for (const waiter of pending.values()) waiter.reject(new Error(`PiG closed before its RPC response: ${code}/${signal}: ${stderr}`));
+		pending.clear();
+		resolve({ code, signal });
+	}));
+	function kill() {
+		if (child.exitCode !== null || child.signalCode !== null) return;
+		process.kill(-child.pid, "SIGKILL");
+	}
+	const deadline = setTimeout(kill, 120_000);
+	deadline.unref();
+	return {
+		errors,
+		request(type) {
+			const id = `lifecycle-${++sequence}`;
+			const response = new Promise((resolve, reject) => pending.set(id, { resolve, reject }));
+			child.stdin.write(`${JSON.stringify({ id, type })}\n`);
+			return response;
+		},
+		async finish() {
+			child.stdin.end();
+			return await exit;
+		},
+		async dispose() {
+			kill();
+			await exit;
+			clearTimeout(deadline);
+		},
+	};
+}
+
+function selectHermesKnowledge(fixture, name) {
+	const database = join(fixture.root, name, "sessions.db");
+	writeFileSync(join(fixture.agent, "hermes-memory-config.json"), JSON.stringify({ memoryDir: join(fixture.root, name) }));
+	return database;
+}
+
+test("RULE-replacement-lifetime: offline Hermes retires the previous store when RPC replaces its session", async () => {
+	const fixture = hermesFixture();
+	const oldDB = selectHermesKnowledge(fixture, "first-knowledge");
+	const runtime = startHermesLifecycle(fixture);
+	try {
+		const started = await runtime.request("get_state");
+		assert.equal(started.success, true);
+		assert.ok(statSync(`${oldDB}-wal`).size > 0);
+		const newDB = selectHermesKnowledge(fixture, "replacement-knowledge");
+
+		const replaced = await runtime.request("new_session");
+		const replacedState = await runtime.request("get_state");
+
+		assert.equal(replaced.success, true);
+		assert.notEqual(replacedState.data.sessionId, started.data.sessionId);
+		assert.ok(statSync(`${newDB}-wal`).isFile());
+		assert.equal(existsSync(`${oldDB}-wal`), false);
+		assert.deepEqual(sqliteCheckpoint(newDB), { integrity: "ok", tokenizer: "trigram-v1", tables: ["extension_metadata", "memories", "messages", "session_files", "sessions"] });
+		assert.deepEqual(runtime.errors, []);
+		await runtime.finish();
+		assert.equal(existsSync(`${newDB}-wal`), false);
+	} finally {
+		await runtime.dispose();
+		rmSync(fixture.root, { recursive: true, force: true });
+	}
+});
+
+test("RULE-shutdown-lifetime: offline Hermes closes its current store on RPC EOF", async () => {
+	const fixture = hermesFixture();
+	const currentDB = selectHermesKnowledge(fixture, "shutdown-knowledge");
+	const runtime = startHermesLifecycle(fixture);
+	try {
+		const started = await runtime.request("get_state");
+		assert.equal(started.success, true);
+		assert.ok(statSync(`${currentDB}-wal`).size > 0);
+
+		const exit = await runtime.finish();
+
+		assert.equal(exit.code, 0);
+		assert.equal(exit.signal, null);
+		assert.equal(existsSync(`${currentDB}-wal`), false);
+		assert.deepEqual(sqliteCheckpoint(currentDB), { integrity: "ok", tokenizer: "trigram-v1", tables: ["extension_metadata", "memories", "messages", "session_files", "sessions"] });
+		assert.deepEqual(runtime.errors, []);
+	} finally {
+		await runtime.dispose();
 		rmSync(fixture.root, { recursive: true, force: true });
 	}
 });
