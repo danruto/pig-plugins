@@ -5,6 +5,12 @@
 // remains blocked pending mixed-writer qualification. Callers must inspect MutationResult even
 // when an error is returned: cancellation and cleanup failures can follow document publication.
 // Memory borrows its database; callers close it only after synchronous operations return.
+// Coordination factories select shared mutation, consolidation and recovery identities. Acquire
+// owns a coordinator handle until Release; consolidation leases also own a renewal worker that
+// Release cancels and joins. Lease methods may run concurrently; callers must always release.
+// Renew and CurrentOwner fence only lease rows, never subsequent document or database publication.
+// Consolidation and recovery operations remain unimplemented; their ownership APIs are staged.
+// RecoveryLockOptions controls lease timing only, not the deferred recovery circuit or backups.
 package store
 
 import (

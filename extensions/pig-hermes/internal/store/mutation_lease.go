@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 	"net/url"
 	"os"
 	"os/exec"
@@ -18,13 +19,18 @@ import (
 	"time"
 )
 
-type mutationLease struct {
+type Lease struct {
 	db               *sql.DB
 	path, key, token string
+	coordination     Coordination
+	stopHeartbeat    context.CancelFunc
+	heartbeatDone    chan struct{}
+	releaseOnce      sync.Once
+	releaseErr       error
 }
 type pendingRelease struct{ path, key, token string }
 
-var pendingMutationReleases = struct {
+var pendingLeaseReleases = struct {
 	sync.Mutex
 	rows map[pendingRelease]bool
 }{rows: make(map[pendingRelease]bool)}
@@ -73,7 +79,7 @@ func processAlive(pid int) bool {
 	return !errors.Is(syscall.Kill(pid, 0), syscall.ESRCH)
 }
 
-func openMutationCoordinator(ctx context.Context, path string) (*sql.DB, error) {
+func openCoordinator(ctx context.Context, path string) (*sql.DB, error) {
 	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
 		return nil, err
 	}
@@ -121,31 +127,51 @@ func initializeCoordinator(ctx context.Context, db *sql.DB) error {
 	return nil
 }
 
-func acquireMutation(ctx context.Context, identity string) (*mutationLease, error) {
-	path := filepath.Join(filepath.Dir(filepath.Dir(identity)), ".pi-hermes-locks.sqlite")
-	db, err := openMutationCoordinator(ctx, path)
+var ErrLockContention = errors.New("shared Hermes lock contention; retry when the other writer finishes")
+
+func (c Coordination) Acquire(ctx context.Context) (*Lease, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if err := c.validate(); err != nil {
+		return nil, err
+	}
+	db, err := openCoordinator(ctx, c.Database)
 	if err != nil {
 		return nil, err
 	}
-	lease := &mutationLease{db: db, path: path, key: "mutation:" + identity}
+	lease := &Lease{db: db, path: c.Database, key: c.Key, coordination: c}
 	lease.token, err = randomToken()
 	if err != nil {
 		return nil, errors.Join(err, db.Close())
 	}
-	lease.retryPending(ctx)
-	sweepDeadMutationRows(ctx, db, path)
 	if err := lease.wait(ctx); err != nil {
 		return nil, errors.Join(err, db.Close())
 	}
+	lease.startHeartbeat()
 	return lease, nil
 }
 
-func (l *mutationLease) wait(ctx context.Context) error {
-	deadline := time.NewTimer(5 * time.Second)
-	defer deadline.Stop()
-	tick := time.NewTicker(10 * time.Millisecond)
-	defer tick.Stop()
+func (c Coordination) validate() error {
+	if !filepath.IsAbs(c.Database) || c.Key == "" {
+		return errors.New("coordination requires an absolute database and nonempty key")
+	}
+	for _, value := range []float64{c.WaitMS, c.PollMS, c.StaleMS} {
+		if math.IsInf(value, 0) || math.IsNaN(value) {
+			return errors.New("coordination timing must be finite")
+		}
+	}
+	if c.WaitMS < 0 || c.PollMS < 0 || c.RenewInterval < 0 {
+		return errors.New("coordination wait, poll and renewal interval must be nonnegative")
+	}
+	return nil
+}
+
+func (l *Lease) wait(ctx context.Context) error {
+	started := time.Now()
 	for {
+		l.retryPending(ctx)
+		sweepDeadLeaseRows(ctx, l.db, l.path)
 		acquired, err := l.tryAcquire(ctx)
 		if err != nil {
 			return err
@@ -153,17 +179,41 @@ func (l *mutationLease) wait(ctx context.Context) error {
 		if acquired {
 			return nil
 		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-deadline.C:
-			return errors.New("memory mutation lock contention; retry when the other writer finishes")
-		case <-tick.C:
+		remaining := l.coordination.WaitMS - time.Since(started).Seconds()*1000
+		if remaining <= 0 {
+			return ErrLockContention
+		}
+		if err := waitLeasePoll(ctx, min(remaining, l.coordination.PollMS)); err != nil {
+			return err
 		}
 	}
 }
 
-func (l *mutationLease) tryAcquire(ctx context.Context) (bool, error) {
+func waitLeasePoll(ctx context.Context, milliseconds float64) error {
+	started := time.Now()
+	for {
+		remaining := milliseconds - time.Since(started).Seconds()*1000
+		if remaining <= 0 {
+			return ctx.Err()
+		}
+		if err := waitLeaseTimer(ctx, time.Duration(min(remaining, 3600000)*float64(time.Millisecond))); err != nil {
+			return err
+		}
+	}
+}
+
+func waitLeaseTimer(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
+}
+
+func (l *Lease) tryAcquire(ctx context.Context) (bool, error) {
 	tx, err := l.db.BeginTx(ctx, nil)
 	if err != nil {
 		return false, err
@@ -178,7 +228,7 @@ func (l *mutationLease) tryAcquire(ctx context.Context) (bool, error) {
 		return false, err
 	}
 	now := time.Now().UnixMilli()
-	if err == nil && !leaseReclaimable(pid, incarnation, now-acquired) {
+	if err == nil && !leaseReclaimable(incarnation, observeProcess(pid), float64(now-acquired), l.coordination.StaleMS) {
 		return false, tx.Commit()
 	}
 	_, err = tx.ExecContext(ctx, `INSERT INTO locks(lock_key,token,pid,incarnation,acquired_at) VALUES (?,?,?,?,?) ON CONFLICT(lock_key) DO UPDATE SET token=excluded.token,pid=excluded.pid,incarnation=excluded.incarnation,acquired_at=excluded.acquired_at WHERE locks.token=?`, l.key, l.token, os.Getpid(), nullable(processIncarnation(os.Getpid())), now, oldToken)
@@ -188,37 +238,56 @@ func (l *mutationLease) tryAcquire(ctx context.Context) (bool, error) {
 	return true, tx.Commit()
 }
 
-func leaseReclaimable(pid int, incarnation sql.NullString, age int64) bool {
-	if age >= 300000 {
-		return true
-	}
-	observed := processIncarnation(pid)
-	alive := observed != "" || processAlive(pid)
-	if !alive {
-		return true
-	}
-	if !incarnation.Valid || observed == "" {
-		return false
-	}
-	return incarnation.String != observed
+type processObservation struct {
+	incarnation string
+	alive       bool
 }
 
-func (l *mutationLease) release() error {
+func observeProcess(pid int) processObservation {
+	incarnation := processIncarnation(pid)
+	return processObservation{incarnation: incarnation, alive: incarnation != "" || processAlive(pid)}
+}
+
+func leaseReclaimable(incarnation sql.NullString, observed processObservation, ageMS, staleMS float64) bool {
+	if staleMS > 0 && ageMS >= staleMS {
+		return true
+	}
+	if !observed.alive {
+		return true
+	}
+	if !incarnation.Valid || observed.incarnation == "" {
+		return false
+	}
+	return incarnation.String != observed.incarnation
+}
+
+func (l *Lease) Release() error {
+	l.releaseOnce.Do(func() {
+		if l.stopHeartbeat != nil {
+			l.stopHeartbeat()
+			<-l.heartbeatDone
+		}
+		l.releaseErr = l.releaseOwned()
+	})
+	return l.releaseErr
+}
+
+func (l *Lease) releaseOwned() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
 	defer cancel()
 	row := pendingRelease{l.path, l.key, l.token}
-	err := deleteMutationLease(ctx, l.db, row)
-	pendingMutationReleases.Lock()
+	err := deleteOwnedLease(ctx, l.db, row)
+	pendingLeaseReleases.Lock()
 	if err != nil {
-		pendingMutationReleases.rows[row] = true
+		pendingLeaseReleases.rows[row] = true
 	} else {
-		delete(pendingMutationReleases.rows, row)
+		delete(pendingLeaseReleases.rows, row)
 	}
-	pendingMutationReleases.Unlock()
+	pendingLeaseReleases.Unlock()
 	return errors.Join(err, l.db.Close())
 }
 
-func deleteMutationLease(ctx context.Context, db *sql.DB, row pendingRelease) error {
+func deleteOwnedLease(ctx context.Context, db *sql.DB, row pendingRelease) error {
 	var err error
 	for range 3 {
 		_, err = db.ExecContext(ctx, "DELETE FROM locks WHERE lock_key=? AND token=?", row.key, row.token)
@@ -229,47 +298,47 @@ func deleteMutationLease(ctx context.Context, db *sql.DB, row pendingRelease) er
 	return err
 }
 
-func (l *mutationLease) retryPending(ctx context.Context) {
-	pendingMutationReleases.Lock()
+func (l *Lease) retryPending(ctx context.Context) {
+	pendingLeaseReleases.Lock()
 	var rows []pendingRelease
-	for row := range pendingMutationReleases.rows {
+	for row := range pendingLeaseReleases.rows {
 		if row.path == l.path && row.key == l.key {
 			rows = append(rows, row)
 		}
 	}
-	pendingMutationReleases.Unlock()
+	pendingLeaseReleases.Unlock()
 	for _, row := range rows {
-		if deleteMutationLease(ctx, l.db, row) != nil {
+		if deleteOwnedLease(ctx, l.db, row) != nil {
 			continue
 		}
-		pendingMutationReleases.Lock()
-		delete(pendingMutationReleases.rows, row)
-		pendingMutationReleases.Unlock()
+		pendingLeaseReleases.Lock()
+		delete(pendingLeaseReleases.rows, row)
+		pendingLeaseReleases.Unlock()
 	}
 }
 
-var mutationSweepTimes = struct {
+var leaseSweepTimes = struct {
 	sync.Mutex
 	paths map[string]time.Time
 }{paths: make(map[string]time.Time)}
 
-func mutationSweepDue(path string) bool {
-	mutationSweepTimes.Lock()
-	defer mutationSweepTimes.Unlock()
+func leaseSweepDue(path string) bool {
+	leaseSweepTimes.Lock()
+	defer leaseSweepTimes.Unlock()
 	now := time.Now()
-	if now.Sub(mutationSweepTimes.paths[path]) < time.Minute {
+	if now.Sub(leaseSweepTimes.paths[path]) < time.Minute {
 		return false
 	}
-	mutationSweepTimes.paths[path] = now
+	leaseSweepTimes.paths[path] = now
 	return true
 }
 
-func mutationHolderGone(pid int) bool {
+func leaseHolderGone(pid int) bool {
 	return pid > 0 && pid != os.Getpid() && !processAlive(pid) && processIncarnation(pid) == ""
 }
 
-func sweepDeadMutationRows(ctx context.Context, db *sql.DB, path string) {
-	if !mutationSweepDue(path) {
+func sweepDeadLeaseRows(ctx context.Context, db *sql.DB, path string) {
+	if !leaseSweepDue(path) {
 		return
 	}
 	rows, err := db.QueryContext(ctx, "SELECT lock_key,token,pid,acquired_at FROM locks WHERE acquired_at<=? LIMIT 128", time.Now().UnixMilli()-60000)
@@ -285,7 +354,8 @@ func sweepDeadMutationRows(ctx context.Context, db *sql.DB, path string) {
 	for rows.Next() {
 		var row candidate
 		if err := rows.Scan(&row.key, &row.token, &row.pid, &row.acquired); err != nil {
-			break
+			_ = rows.Close()
+			return
 		}
 		candidates = append(candidates, row)
 	}
@@ -295,13 +365,58 @@ func sweepDeadMutationRows(ctx context.Context, db *sql.DB, path string) {
 		return
 	}
 	for _, row := range candidates {
-		if !mutationHolderGone(row.pid) {
+		if !leaseHolderGone(row.pid) {
 			continue
 		}
 		if _, err := db.ExecContext(ctx, "DELETE FROM locks WHERE lock_key=? AND token=? AND acquired_at=?", row.key, row.token, row.acquired); err != nil {
 			return
 		}
 	}
+}
+
+func (l *Lease) Token() string { return l.token }
+
+func (l *Lease) CurrentOwner(ctx context.Context) (bool, error) {
+	var token string
+	err := l.db.QueryRowContext(ctx, "SELECT token FROM locks WHERE lock_key=?", l.key).Scan(&token)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+	return err == nil && token == l.token, err
+}
+
+func (l *Lease) Renew(ctx context.Context) (bool, error) {
+	result, err := l.db.ExecContext(ctx, "UPDATE locks SET acquired_at=? WHERE lock_key=? AND token=?", time.Now().UnixMilli(), l.key, l.token)
+	if err != nil {
+		return false, err
+	}
+	count, err := result.RowsAffected()
+	return count == 1, err
+}
+
+func (l *Lease) startHeartbeat() {
+	if l.coordination.RenewInterval == 0 {
+		return
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	l.stopHeartbeat = cancel
+	l.heartbeatDone = make(chan struct{})
+	go func() {
+		defer close(l.heartbeatDone)
+		ticker := time.NewTicker(l.coordination.RenewInterval)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				owned, err := l.Renew(ctx)
+				if err == nil && !owned {
+					return
+				}
+			}
+		}
+	}()
 }
 
 func nullable(text string) any {

@@ -145,12 +145,16 @@ func (m *Memory) apply(ctx context.Context, scope Scope, plan MutationPlan, dupl
 	if err := os.MkdirAll(filepath.Dir(identity), 0700); err != nil {
 		return result, err
 	}
-	lease, err := acquireMutation(ctx, identity)
+	coordination, err := MutationCoordination(identity)
+	if err != nil {
+		return result, err
+	}
+	lease, err := coordination.Acquire(ctx)
 	if err != nil {
 		return result, err
 	}
 	defer func() {
-		err = errors.Join(err, lease.release())
+		err = errors.Join(err, lease.Release())
 		if err != nil && result.DocumentSaved {
 			result.Warning = "Document publication occurred before this error; reload disk state before retrying."
 			result.RepairAdvice = "Inspect the current document and retained recovery/conflict files; repair search using /memory-sync-markdown with the selected backend."
