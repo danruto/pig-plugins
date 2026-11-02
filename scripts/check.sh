@@ -29,6 +29,19 @@ node --import tsx scripts/usage-regional-reference.mjs --check
 node --import tsx scripts/usage-consumer-reference.mjs --check
 node --test test/test-usage.mjs test/test-docs.mjs
 npm run typecheck
+(
+  cd extensions/pig-hermes
+  cp go.mod "$tmp/hermes.go.mod"
+  cp go.sum "$tmp/hermes.go.sum"
+  go mod edit -modfile="$tmp/hermes.go.mod" -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk"
+  gofmt -l . | grep . && exit 1
+  go build -modcacherw -modfile="$tmp/hermes.go.mod" ./...
+  go vet -modcacherw -modfile="$tmp/hermes.go.mod" ./...
+  HERMES_PACKAGE="${HERMES_PUBLICATION_SOURCE:-${HERMES_PACKAGE:-}}" \
+    go test -modcacherw -modfile="$tmp/hermes.go.mod" -count=1 -race -json ./...
+  bash "$root/scripts/hermes-settings-reference.sh" "$tmp/hermes.go.mod" > "$tmp/hermes-settings.md"
+  diff -u "$root/docs/reference/hermes-settings.md" "$tmp/hermes-settings.md"
+)
 cd extensions/pig-status
 cp go.mod "$tmp/go.mod"
 go mod edit -modfile="$tmp/go.mod" -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk"
