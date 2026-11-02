@@ -82,6 +82,8 @@ The pinned bridge's full offline race suite passed on rerun. The first run expos
 
 A live, prompt-free `TestGetUsageAnswersWithKeyedWindows` invocation received a valid reply with `rate_limits_available: true` and `rate_limits: null`, so its assertion requiring keyed windows failed. This is **not** proof of live percentage availability. The bridge retains its event-window fallback; status does not invent quota or treat unknown as zero. Real terminal tests use labelled synthetic quota and are not presented as a live account measurement.
 
+The [frozen publication model](hermes-publication.md) supplies bounded exhaustive exploration and deterministic mixed-process reproduction of blocking stale-publication and open-handle recovery traces. Use its regression commands without treating their success as publication qualification; ADR 0002 still requires an owner-approved coordinated protocol decision before cutover.
+
 ## Next checkpoint
 
 Implement from the pinned source with focused checks alongside each feature; no exhaustive H1 corpus or pre-port performance baseline is required. Session import/index/search covers PiG, Pi and Claude Code only. H2 still requires bounded publication/recovery modeling and real mixed-writer tests before storage acceptance. An unresolved frozen-writer counterexample blocks cutover; it does not authorize a native-only workaround or an unapproved TypeScript patch. See the [native Hermes contract](../designs/pig-hermes.md); there is no native replacement to activate yet.

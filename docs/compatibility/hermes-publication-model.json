@@ -1,0 +1,1619 @@
+{
+  "notice": "GENERATED FROM CODE — DO NOT EDIT. Run node probes/hermes-publication/run.mjs --write-evidence to regenerate.",
+  "status": "BLOCKED",
+  "bound": {
+    "writers": 2,
+    "operationsPerIncarnation": 1,
+    "restartPerWriter": 1,
+    "clockMoves": 2,
+    "clocks": [
+      -2,
+      0,
+      2,
+      4
+    ],
+    "staleAt": 2,
+    "maintenanceAttempts": 1,
+    "faultFamiliesExploredSeparately": true
+  },
+  "cases": {
+    "reuse": {
+      "states": 3852,
+      "edges": 8658,
+      "terminals": 40,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-token-checked",
+        "0:rename",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-token-checked",
+        "1:rename",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "missing": {
+      "states": 1988,
+      "edges": 4554,
+      "terminals": 16,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:atomic-link-conflict",
+        "0:check-fingerprint",
+        "0:link",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-token-checked",
+        "0:verify",
+        "1:acquire",
+        "1:atomic-link-conflict",
+        "1:check-fingerprint",
+        "1:link",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-token-checked",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "renewal": {
+      "states": 15312,
+      "edges": 63648,
+      "terminals": 40,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-token-checked",
+        "0:rename",
+        "0:renew-io-failure",
+        "0:renew-ok",
+        "0:renew-old-token-rejected",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-token-checked",
+        "1:rename",
+        "1:renew-io-failure",
+        "1:renew-ok",
+        "1:renew-old-token-rejected",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "release": {
+      "states": 6378,
+      "edges": 16788,
+      "terminals": 64,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-fails-pending",
+        "0:release-token-checked",
+        "0:rename",
+        "0:retry-pending-release",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-fails-pending",
+        "1:release-token-checked",
+        "1:rename",
+        "1:retry-pending-release",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "partial": {
+      "states": 8484,
+      "edges": 20774,
+      "terminals": 112,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:reconcile-fails-report-warning",
+        "0:release-token-checked",
+        "0:rename",
+        "0:repair-from-document",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:reconcile-fails-report-warning",
+        "1:release-token-checked",
+        "1:rename",
+        "1:repair-from-document",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "crash": {
+      "states": 172986,
+      "edges": 438894,
+      "terminals": 1200,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:crash",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-token-checked",
+        "0:rename",
+        "0:restart-same-pid-new-incarnation",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:crash",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-token-checked",
+        "1:rename",
+        "1:restart-same-pid-new-incarnation",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "pid-reuse": {
+      "states": 172986,
+      "edges": 438894,
+      "terminals": 1200,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:crash",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-token-checked",
+        "0:rename",
+        "0:restart-same-pid-new-incarnation",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:crash",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-token-checked",
+        "1:rename",
+        "1:restart-same-pid-new-incarnation",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "unknown-incarnation": {
+      "states": 127396,
+      "edges": 316368,
+      "terminals": 1850,
+      "exhausted": true,
+      "events": [
+        "0:acquire",
+        "0:check-fingerprint",
+        "0:crash",
+        "0:read-fingerprint",
+        "0:reconcile-and-report",
+        "0:release-token-checked",
+        "0:rename",
+        "0:restart-same-pid-new-incarnation",
+        "0:verify",
+        "1:acquire",
+        "1:check-fingerprint",
+        "1:crash",
+        "1:read-fingerprint",
+        "1:reconcile-and-report",
+        "1:release-token-checked",
+        "1:rename",
+        "1:restart-same-pid-new-incarnation",
+        "1:verify",
+        "clock:-2",
+        "clock:0",
+        "clock:2",
+        "clock:4"
+      ]
+    },
+    "recovery": {
+      "states": 115,
+      "edges": 214,
+      "terminals": 16,
+      "exhausted": true,
+      "events": [
+        "A:check-recovery-owner",
+        "A:copy-readable-rows",
+        "A:crash-between-file-renames",
+        "A:publish-and-restore-fail-backup-retained",
+        "A:publish-fails-restore-backup",
+        "A:rename-main-to-backup",
+        "A:rename-rebuilt-main",
+        "A:rename-shm-to-backup",
+        "A:rename-wal-to-backup",
+        "A:restart-retains-readable-backup",
+        "B:commit-on-open-handle",
+        "B:crash-and-reopen-current-path",
+        "clock:stale-takeover"
+      ]
+    }
+  },
+  "counterexamples": {
+    "stale-plan": {
+      "family": "reuse",
+      "trace": [
+        {
+          "event": "initial",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": null,
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:acquire",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "read",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:read-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "check",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:check-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "clock:2",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:acquire",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "read",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:read-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "check",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:check-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:rename",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 1,
+            "exists": true,
+            "version": 1,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "verify",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:rename",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 2,
+            "exists": true,
+            "version": 2,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "verify",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "verify",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "lost-accepted-update": {
+      "family": "reuse",
+      "trace": [
+        {
+          "event": "initial",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": null,
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:acquire",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "read",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:read-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "check",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:check-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 0,
+            "clockMoves": 0,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "clock:2",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 0,
+              "token": "0:0",
+              "incarnation": 0,
+              "at": 0
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "idle",
+                "incarnation": 0,
+                "token": null,
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:acquire",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "read",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 0,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:read-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "check",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:check-fingerprint",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 0,
+            "exists": true,
+            "version": 0,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:rename",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 1,
+            "exists": true,
+            "version": 1,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "verify",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:verify",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 1,
+            "exists": true,
+            "version": 1,
+            "rows": 0,
+            "accepted": 0,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "reconcile",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              },
+              {
+                "id": 1,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "0:reconcile-and-report",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 1,
+            "exists": true,
+            "version": 1,
+            "rows": 1,
+            "accepted": 1,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "done",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": "saved"
+              },
+              {
+                "id": 1,
+                "phase": "publish",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        },
+        {
+          "event": "1:rename",
+          "state": {
+            "mode": "reuse",
+            "fault": "none",
+            "now": 2,
+            "clockMoves": 1,
+            "lease": {
+              "id": 1,
+              "token": "1:0",
+              "incarnation": 0,
+              "at": 2
+            },
+            "doc": 2,
+            "exists": true,
+            "version": 2,
+            "rows": 1,
+            "accepted": 1,
+            "writers": [
+              {
+                "id": 0,
+                "phase": "done",
+                "incarnation": 0,
+                "token": "0:0",
+                "base": 0,
+                "plan": 1,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": "saved"
+              },
+              {
+                "id": 1,
+                "phase": "verify",
+                "incarnation": 0,
+                "token": "1:0",
+                "base": 0,
+                "plan": 2,
+                "version": 0,
+                "renewed": false,
+                "released": false,
+                "crashed": false,
+                "outcome": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "stale-recovery-owner-renamed": {
+      "family": "recovery",
+      "trace": [
+        {
+          "event": "initial",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": false,
+            "recovery": "snapshot",
+            "snapshot": 0,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:copy-readable-rows",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": false,
+            "recovery": "check",
+            "snapshot": 1,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:check-recovery-owner",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "move",
+            "snapshot": 1,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "clock:stale-takeover",
+          "state": {
+            "lease": "B",
+            "now": 2,
+            "checked": true,
+            "recovery": "move",
+            "snapshot": 1,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:rename-main-to-backup",
+          "state": {
+            "lease": "B",
+            "now": 2,
+            "checked": true,
+            "recovery": "move-wal",
+            "snapshot": 1,
+            "active": null,
+            "files": [
+              1,
+              0
+            ],
+            "backup": 0,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        }
+      ]
+    },
+    "accepted-row-detached-from-current-db": {
+      "family": "recovery",
+      "trace": [
+        {
+          "event": "initial",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": false,
+            "recovery": "snapshot",
+            "snapshot": 0,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:copy-readable-rows",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": false,
+            "recovery": "check",
+            "snapshot": 1,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:check-recovery-owner",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "move",
+            "snapshot": 1,
+            "active": 0,
+            "files": [
+              1,
+              0
+            ],
+            "backup": null,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:rename-main-to-backup",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "move-wal",
+            "snapshot": 1,
+            "active": null,
+            "files": [
+              1,
+              0
+            ],
+            "backup": 0,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:rename-wal-to-backup",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "move-shm",
+            "snapshot": 1,
+            "active": null,
+            "files": [
+              1,
+              0
+            ],
+            "backup": 0,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:rename-shm-to-backup",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "publish",
+            "snapshot": 1,
+            "active": null,
+            "files": [
+              1,
+              0
+            ],
+            "backup": 0,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "A:rename-rebuilt-main",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "done",
+            "snapshot": 1,
+            "active": 1,
+            "files": [
+              1,
+              1
+            ],
+            "backup": 0,
+            "peer": "open",
+            "handle": 0,
+            "accepted": 1,
+            "restored": false,
+            "crashed": false
+          }
+        },
+        {
+          "event": "B:commit-on-open-handle",
+          "state": {
+            "lease": "A",
+            "now": 0,
+            "checked": true,
+            "recovery": "done",
+            "snapshot": 1,
+            "active": 1,
+            "files": [
+              3,
+              1
+            ],
+            "backup": 0,
+            "peer": "accepted",
+            "handle": 0,
+            "accepted": 3,
+            "restored": false,
+            "crashed": false
+          }
+        }
+      ]
+    }
+  }
+}

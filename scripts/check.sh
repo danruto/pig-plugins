@@ -11,6 +11,13 @@ sdk=$(pig reload --sdk-path)
 cd "$root"
 npm run prepare:compaction
 node --import tsx --test test/test-compaction-payload.mjs test/test-compaction-integration.mjs
+npm run test:hermes-publication
+(
+  cd probes/hermes-sqlite
+  go build -modcacherw -o "$tmp/publication-peer" ./publication-peer
+  go vet ./publication-peer
+  go test ./publication-peer
+)
 python3 probes/hermes-closure.py --check
 if [[ -n ${HERMES_PACKAGE:-} ]]; then
   python3 probes/hermes-closure.py --verify-installed
