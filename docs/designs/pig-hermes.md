@@ -2,137 +2,98 @@
 
 ## Goal and boundary
 
-Replace `pi-hermes-memory` in PiG with a Go extension, without reducing features or splitting the existing knowledge base. Pi keeps the TypeScript implementation. Both hosts must safely share memories and procedural skills.
+Replace `pi-hermes-memory` in PiG with a usable Go extension that preserves the owner's knowledge workflows and shared data. This is a feature-level replacement, not a 1:1 upstream port. [ADR 0005](../adr/0005-feature-level-native-scope.md) defines the approved scope.
 
-Baseline: `pi-hermes-memory` **0.9.11**, upstream commit `71cf5ab7d909318a383bf52bb3ad3cf83a9efc03`, plus the retained [asynchronous integrity-scan patch](../../patches/hermes-0.9.11-async-integrity.patch). The [baseline manifest](../compatibility/hermes-baseline.json) pins the upstream archive, patch and complete packaged source tree, including startup/shutdown behavior in `src/index.ts` and `src/store/db.ts`. The port freezes that baseline; tracking subsequent upstream changes is separate work. Source fingerprints do not pin dependencies. The separate [executable closure](../compatibility/hermes-closure.json) retains the observed dependency graph, installed file hashes, PiG/Node/npm/Go and Nix closure, staged SDK, bundled Node bridge and both SQLite engine identities. [Reproduction](../compatibility/hermes.md#frozen-executable-closure) distinguishes offline artifact checks from installed-byte verification; executable observations must identify that verified closure.
+The package runs only in PiG. Pi keeps its TypeScript Hermes and shares memories and procedural skills safely with PiG. Session import, indexing and search support **PiG, Pi and Claude Code only**. This does not add runtime integrations for Pi or Claude, or remove unrelated model providers.
 
-The current package contains **no native Hermes replacement**. The probes establish feasibility only. No live data migration or activation is authorized by a passing probe alone.
+Reference source: `pi-hermes-memory` **0.9.11**, upstream commit `71cf5ab7d909318a383bf52bb3ad3cf83a9efc03`, plus the retained [asynchronous integrity-scan patch](../../patches/hermes-0.9.11-async-integrity.patch). The [baseline manifest](../compatibility/hermes-baseline.json), [executable closure](../compatibility/hermes-closure.json) and [public-surface capture](../compatibility/hermes-surface.json) retain useful provenance. They do not impose exact API, configuration or branch parity.
 
-## Public parity surface
+The current package contains **no native Hermes replacement**. Probes establish feasibility, not permission to use live data.
 
-The generated [surface capture](../compatibility/hermes-surface.json) records real default registration in an isolated PiG configuration: six tools, ten commands, lifecycle handlers, 44 canonical interface fields and packaged-source fingerprints. It does not capture parameter schemas, all accepted configuration inputs or configuration-dependent registration. The [consumer compatibility contract](hermes-parity.md) defines derivation, aliases, union/nested forms, both session-search schemas and the required branch-to-fixture inventory. Counts alone never establish parity.
+## Required workflows
 
-Preserve these tools, including parameters, defaults, error behavior, scope attribution and response fields:
+- Memory: `memory_add`, `memory_replace`, `memory_remove` and `memory_search`, with global/project attribution, categories, bounded results and honest partial-success outcomes.
+- Session search: query-based `session_search` over PiG, Pi and Claude Code sessions, with project/role filters, bounded snippets and source attribution. Preserve relevant conversation, branch, compaction and tool content. The upstream anchors-only alternate schema is not a release requirement.
+- Skills: `skill_manage` creation, inspection, patch/update, deletion, scope moves and resource discovery, with collision/path guards and deletion confirmation.
+- Context: fenced memory policies, existing storage modes, context preview and explicit user-authored standing instructions.
+- Automatic work: bounded review, correction capture, consolidation/overflow, live indexing, startup backfill, retention and Markdown sync.
+- User commands: insights, skill management, consolidation, interview, project switching, indexing, sync, context preview, pinning and memory-tool guidance. Keep these workflows usable in terminal and remote procedure call (RPC) modes; exact UI wording is not required.
 
-- `memory_add`, `memory_replace`, `memory_remove`
-- `memory_search`, `session_search`
-- `skill_manage`, including its legacy action aliases
-
-Preserve these commands:
-
-- `/memory-insights`, `/memory-skills`, `/memory-consolidate`
-- `/memory-interview`, `/memory-switch-project`
-- `/memory-index-sessions`, `/memory-sync-markdown`
-- `/memory-preview-context`, `/memory-pin`, `/learn-memory-tool`
-
-A changed native implementation may use idiomatic Go internals, but cannot silently change the public contract. Interactive skill management retains search, selection, conflict-safe moves, deletion confirmation and partial-success reporting.
+Use native schemas and validated settings. Document accepted inputs and any needed migration. Preserve settings/data needed by existing consumers, but do not reproduce unused aliases, permissive parser quirks, every optional registration variant or exact error strings. [Feature verification](hermes-parity.md) defines focused checks rather than exhaustive capture gates.
 
 ## Architecture
 
-Use a conventional `Extension() *sdk.Extension` factory under `extensions/pig-hermes`, with its own Go module. Keep SQLite dependencies out of `pig-status`. The [architecture views](architecture.md) define container boundaries, component ownership, runtime flows, lifecycle states, logical data, threats and operational signals. The [runtime decision](../adr/0001-native-runtime-ownership.md) records the approved separation and bridge qualification limits.
+Use a conventional `Extension() *sdk.Extension` factory under `extensions/pig-hermes`, with its own Go module. Keep SQLite dependencies out of `pig-status`. The [architecture views](architecture.md) define ownership, lifecycle, threats and operational signals.
 
-Keep the SDK at the extension boundary. Domain storage and parsing take explicit paths, clocks and cancellation; they do not depend on a cached request-scoped SDK context.
+Keep the SDK at the extension boundary. Domain storage and parsing take explicit paths, clocks and cancellation, not cached request-scoped SDK contexts. Create packages only when their feature needs them:
 
-Suggested internal ownership:
-
-- `store`: SQLite, Markdown authority/export, mutation locks, recovery and maintenance.
-- `skills`: skill documents, scope, path guards, collision detection and discovery.
-- `sessions`: JSONL parsing, indexing/backfill, retention and both search variants.
-- `learning`: review/correction/consolidation plans and their lifecycle.
-- Extension registration: schemas, commands, prompt sections and PiG host calls.
-
-Create those packages only as each checkpoint needs them; do not scaffold empty abstractions.
+- `store`: SQLite, Markdown publication/reconciliation, coordination, recovery and maintenance.
+- `skills`: documents, scope, guards, collisions and discovery through guarded storage.
+- `sessions`: three supported parsers, indexing/backfill, retention and query-based search.
+- `learning`: review/correction/consolidation plans and scheduling.
+- Registration: tool schemas, commands, prompt sections and PiG host calls.
 
 ## Shared storage invariants
 
-1. Resolve the same canonical storage identities as TypeScript, including existing symlinked paths and missing final path components.
-2. Preserve the existing global data root and project directories. Installation under PiG does not imply storage under PiG.
-3. Keep Pi and PiG session roots explicit and separate from the shared knowledge root. Native indexing must deliberately include both hosts, not accidentally share settings or authentication.
-4. Preserve schema, FTS5 trigram indexes, triggers, timestamps, categories, project attribution, hit counts and session-file metadata.
-5. Preserve storage-mode authority and actual write paths: `policy-only` uses SQLite for search but still mutates/reconciles Markdown without legacy capacity enforcement; `legacy-inject` retains its Markdown limits and frozen prompt snapshot behavior. Document/search partial success retains the existing repair warning, not a fictional cross-store transaction.
-6. Use the exact operation-specific coordination databases, paths and keys in the [shared-storage contract](shared-storage.md#coordination-identities). Mutation and recovery use their respective `.pi-hermes-locks.sqlite` locations; consolidation uses its separate `locks.sqlite` database. Go-only mutexes or file locks do not coordinate with TypeScript.
-7. Match lease keys, PID/incarnation handling, timestamps, renewal, stale takeover and token-fenced release. A resumed stale holder must not publish an outdated mutation plan. Matching lease rows does not prove this invariant: the [publication-safety gate](shared-storage.md#publication-safety-gate) requires bounded modeling and concrete mixed-writer tests. A frozen-writer counterexample blocks cutover until a separately approved coordinated fix exists.
-8. Preserve atomic plans, duplicate handling, ambiguous substring matching, cancellation and external Markdown edit reconciliation.
-9. Do not introduce a schema that requires destructive rollback. Preserve readable rows during corruption recovery and cap recovery retries/backups.
-10. Do not replace JavaScript string-length semantics with UTF-8 byte or rune counts. Capacity, matching and truncation need a Unicode compatibility corpus.
+1. Resolve canonical storage identities, symlinks and missing path components compatibly with TypeScript. Keep the existing global/project knowledge roots.
+2. Keep PiG, Pi and Claude Code session roots explicit and separate. Do not infer shared settings or authentication from shared knowledge. Skip unsupported formats explicitly.
+3. Preserve the shared SQLite schema, FTS5 trigram indexes, triggers, timestamps, categories, attribution, hit counts and session-file metadata. Do not introduce a destructive rollback requirement.
+4. Preserve actual storage authority: `policy-only` still mutates/reconciles Markdown without legacy capacity enforcement; `legacy-inject` retains its limits and prompt snapshot behavior. Report durable document/search partial success honestly.
+5. Use the operation-specific coordination identities in the [shared-storage contract](shared-storage.md#coordination-identities). Go-only mutexes or file locks do not coordinate with TypeScript.
+6. Preserve lease tokens, PID/incarnation handling, timing, renewal, takeover and fenced release. Pass the [publication-safety gate](shared-storage.md#publication-safety-gate); matching lease rows alone is not proof against lost updates.
+7. Preserve guarded mutation plans, duplicate/ambiguous matching, external-edit reconciliation and cancellation outcomes. Shared capacity/matching semantics need focused Unicode checks.
+8. Preserve readable rows during recovery and bound retries/backups. A frozen-writer counterexample blocks cutover until an approved coordinated fix exists.
 
-`modernc.org/sqlite` **1.52.0** is the initial native-driver candidate because the existing cached dependency passed the real TypeScript schema/trigram/read-write probe. That result does not settle corruption recovery, search ranking, contention or every target platform; those remain checkpoint gates. The [candidate decision record](../adr/0003-sqlite-driver-candidate.md) compares alternatives without presenting qualification as complete.
+`modernc.org/sqlite` **1.52.0** remains the initial [driver candidate](../adr/0003-sqlite-driver-candidate.md). Existing schema/trigram probes do not qualify recovery, contention or every platform.
 
-## Security invariants
+## Security and owned work
 
-- Memory, skills and standing-instruction writes pass the existing content/secret scans.
-- Port JavaScript regular-expression semantics deliberately. Go's ASCII whitespace classes are not a drop-in replacement for JavaScript Unicode whitespace matching.
-- Preserve path traversal, symlink and skill-name/collision guards.
-- Memory is context, not new instructions. Preserve prompt fencing and policy styles.
-- Only explicit user commands/editor actions write standing instructions. Reviews, correction capture and consolidation cannot promote content into them.
-- Preserve permissions and avoid logging source memory, credentials, provider headers or prompts.
-- Test with synthetic data. Never copy personal memory into fixtures or source control.
+- Scan memory, skills and standing-instruction writes for unsafe content/secrets. Keep traversal, symlink, name and collision guards.
+- Treat memory as fenced context, not new instructions. Only explicit user commands/editor actions write standing instructions; automatic learning cannot promote content into them.
+- Preserve permissions. Never log memory content, credentials, provider headers or prompts. All fixtures use disposable synthetic roots.
+- Use PiG's provider stack for attributed side-channel completions, including extension-provided providers. Do not mutate the foreground conversation.
+- Use the current PiG executable for restricted fallback. Allow only the three memory mutation tools; deny general file/shell/MCP and skill access. Honor trusted provider-extension selection.
+- Give review, correction, compaction/shutdown flush and consolidation explicit bounded budgets. Keep configured model/fallback and thinking behavior useful without reproducing parser aliases.
+- Request-scoped SDK contexts end with their handlers. Own asynchronous work independently and obtain fresh awaited host-call contexts. Close admission, run eligible normal flush, cancel/terminate and join workers, then close SQLite. Reload skips normal shutdown flush.
+- Keep integrity scanning eager/asynchronous. Interrupted cleanup is not a clean shutdown. Use bounded, process-local, secret-safe diagnostics rather than a new telemetry service or journal.
 
-## Learning and lifecycle
+## Implementation checkpoints
 
-Preserve turn/tool-call thresholds, the initial-turn floor, review serialization, correction patterns, configured model/fallback chains, thinking settings, no-op handling and saved-memory notifications.
+### H1 — Source reference and focused verification
 
-Direct completions use PiG's provider stack. Keep side-channel requests separate from the foreground conversation and retain provider attribution. Support extension-provided providers, not just built-ins.
+Existing provenance, SQLite, lease, completion and session-format probes remain useful evidence. Read the relevant pinned source while implementing each feature; reuse upstream tests and representative fixtures. No exhaustive consumer inventory, full schema capture or pre-port operation corpus is required. Performance measurements accompany qualification rather than blocking storage implementation.
 
-A Go SDK request context is cancelled when its handler returns. Do not retain it in a background goroutine. The feasibility probe demonstrates an owned worker emitting an unbound extension-bus event; its listener receives a fresh awaited context and can complete after startup has returned while foreground RPC stays responsive. Production use needs operation/session ownership checks, bounded work, cancellation and shutdown draining. The probe is not a complete worker implementation.
+### H2 — Shared storage and safety
 
-Preserve the subprocess fallback and its capability restrictions: memory mutation tools only, no general file/shell/MCP access. Native fallback uses the current PiG executable with explicit extension/provider selection, not an accidental invocation of a different harness. Honor trusted provider-extension configuration.
+- [ ] Implement validated configuration, canonical paths, shared schema and both storage modes.
+- [ ] Implement scans, guarded mutation plans, operation-specific coordination, recovery and maintenance.
+- [ ] Model publication/recovery and prove deterministic TypeScript/Go mixed-writer interleavings under ADR 0002. Retain assumptions and blocking counterexamples.
+- [ ] Verify final content, metadata and no lost updates across contention, takeover/resume and crash/restart. Keep all work off the live store.
 
-Preserve separate budgets and behavior for automatic review, correction save, compaction flush, shutdown flush and consolidation. Reload skips the normal shutdown flush. Drain owned indexers, learners and integrity scans before closing SQLite. Follow the [owned-work lifecycle](architecture.md#owned-work-lifecycle): close admission, run eligible normal flush, cancel/terminate and join owned work, then close resources. Capture the exact baseline budget and failure semantics per operation; interrupted cleanup is not a clean shutdown.
+### H3 — Tools and context
 
-Preserve public response fields and configured notifications. Implement the [operational failure matrix](architecture.md#operational-signals) with fixed reason codes, bounded process-local diagnostic state and secret-safe outcomes. Do not add a telemetry service or persist a new operation journal.
+- [ ] Implement memory tools/search and query-based session search for PiG, Pi and Claude Code.
+- [ ] Implement skills, safe scope moves, discovery, memory policies, standing instructions and context preview.
+- [ ] Leave focused runnable checks for supported inputs, safety boundaries and honest failure/partial-success behavior.
 
-## Ordered implementation checkpoints
+### H4 — Automatic work and commands
 
-### H1 — Executable compatibility contract
-
-- [x] Capture real default upstream registration and canonical interface field names; this is not complete schema/configuration parity.
-- [x] Verify the pinned upstream archive plus retained patch reconstructs all 92 baseline packaged files with the recorded source-tree digest.
-- [x] Retain exact dependency/runtime versions and digests for the executable corpus.
-- [x] Prove cross-engine schema/trigram/read-write compatibility on a disposable database.
-- [x] Prove TypeScript lease visibility, release and refusal to steal a live Go-created lease.
-- [x] Prove direct and registry completions through an extension provider.
-- [x] Prove owned background completion leaves foreground RPC responsive.
-- [x] Parse a real offline-provider PiG JSONL session with the existing TypeScript session parser.
-- [ ] Derive the consumer branch-to-fixture inventory and capture operation/search/configuration fixtures, including aliases, precedence, both search schemas and disabled/variant registration.
-- [ ] Establish matched synthetic startup/search/shutdown measurements.
-
-### H2 — Storage and safety
-
-- [ ] Port config/path/project resolution, schema and both memory modes.
-- [ ] Port scanning, matching, budgets and atomic memory plans.
-- [ ] Model and validate the actual publication/recovery protocol under the frozen-writer safety gate before accepting native publication code; retain assumptions and counterexamples.
-- [ ] Port canonical cross-process leases, synchronization, recovery and maintenance using each operation's exact identity.
-- [ ] Run real concurrent TypeScript/Go add/replace/remove, consolidation, reconciliation, recovery and crash/restart tests. Assert final content, provenance and no lost updates, including pause/takeover/resume interleavings.
-- [ ] Keep this checkpoint off the live store.
-
-### H3 — Explicit tools and context
-
-- [ ] Port all six tool schemas and behavior, including both session-search variants.
-- [ ] Port skills, collisions, scope moves and resource discovery.
-- [ ] Port memory policies, legacy injection, standing instructions and context preview.
-- [ ] Compare results against the TypeScript fixture corpus; preserve failure behavior rather than only happy paths.
-
-### H4 — Automatic work and user commands
-
-- [ ] Port review/correction/consolidation and direct/subprocess transport behavior.
-- [ ] Port live indexing, bounded startup backfill, manual indexing, retention and Markdown sync.
-- [ ] Port all ten commands and interactive workflows.
-- [ ] Verify cancellation, compaction, reload, session replacement, failed initialization and shutdown ordering with real PiG processes.
-- [ ] Verify the integrity scan remains eager/asynchronous rather than disabling or deferring the check to claim a startup win.
+- [ ] Implement owned completions/fallback, review, corrections and consolidation.
+- [ ] Implement supported-session indexing, bounded backfill, retention, sync and eager asynchronous integrity scans.
+- [ ] Implement the required command workflows with terminal/RPC checks.
+- [ ] Verify compaction, cancellation, reload, replacement, failed initialization and shutdown with real PiG processes.
 
 ### H5 — Qualification and cutover
 
-- [ ] Match every captured consumer contract: canonical fields, legacy aliases, nested/union inputs, defaults, schemas, registration variants, side effects and failure behavior. Require evidence for every parity-inventory row, not only names/counts.
-- [ ] Resolve every publication-safety counterexample without weakening invariants. A coordinated baseline/protocol change requires separate approval under [ADR 0002](../adr/0002-frozen-shared-storage.md).
-- [ ] Build/test Linux amd64/arm64 and macOS arm64, including SQLite FTS5/trigram support.
-- [ ] Measure matched final builds for startup, first lookup, resident memory and shutdown. Report first-use and background costs separately.
-- [ ] Back up shared data and record a rollback rehearsal using disposable stores.
-- [ ] Activate native Hermes in PiG only, after the complete parity and mixed-writer gates pass.
-- [ ] Keep Pi's TypeScript extension and shared data compatible.
+- [ ] Verify the required workflows and security/lifecycle properties; no exhaustive upstream parity ledger is required.
+- [ ] Resolve publication-safety counterexamples without weakening invariants. Coordinated writer/protocol changes still require separate approval under ADR 0002.
+- [ ] Qualify Linux amd64/arm64 and macOS arm64 packaging and SQLite FTS5/trigram support, distinguishing build checks from runtime evidence.
+- [ ] Measure synthetic startup, first lookup, resident memory and shutdown. Compare matched existing observations where available; do not disable safety work to claim improvement.
+- [ ] Rehearse disposable backup/restore and rollback with Pi's TypeScript writer remaining compatible.
+- [ ] Add the usable, qualified extension to package membership. Live backup and activation remain separate owner decisions.
 
 ## Release and ownership
 
-Do not include `pig-hermes` in package membership until it is a usable extension. Experimental probes stay outside the installed inventory. A passing subset does not justify a reduced-feature replacement.
+Experimental probes are not installed extensions. Keep the existing backend selected until the scoped replacement qualifies; describe its supported scope honestly, never as full upstream parity.
 
-Dotfiles selects the package version and personal configuration. Plugin code, fixtures and checks live here. Publish an immutable source/release pin only after an explicit commit/push request.
+Dotfiles owns package selection and personal configuration. Committing, pushing, publishing and live activation each require their own authorization.

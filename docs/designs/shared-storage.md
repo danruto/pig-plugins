@@ -2,7 +2,7 @@
 
 ## Status and authority
 
-This contract refines [native Hermes](pig-hermes.md), not the TypeScript writer. Source paths below refer to the exact [frozen baseline](../compatibility/hermes-baseline.json). The [decision record](../adr/0002-frozen-shared-storage.md) requires separate approval for any shared protocol change.
+This contract refines [native Hermes](pig-hermes.md), not the TypeScript writer. Source paths below refer to the exact [frozen baseline](../compatibility/hermes-baseline.json). The [decision record](../adr/0002-frozen-shared-storage.md) requires separate approval for any shared protocol change. [ADR 0005](../adr/0005-feature-level-native-scope.md) removes exact public API parity, not the shared-data and publication invariants here.
 
 The knowledge root is resolved by the baseline path/configuration code. PiG installation does not move it. Canonicalize symlinks and missing final components exactly as `src/store/canonical-storage-path.ts` does. Project identity binds from the session/tool working directory, not the extension process's startup directory.
 
@@ -12,7 +12,7 @@ The knowledge root is resolved by the baseline path/configuration code. PiG inst
 | `legacy-inject` | Preserve Markdown limits and the frozen injected prompt snapshot. Mutations reconcile the SQLite search mirror. |
 | Memory mutation result | A successful document write and failed SQLite reconciliation is partial success with the baseline repair warning, not an atomic rollback of both stores. Preserve duplicate/matching and external-edit reconciliation behavior. |
 | Skills and standing instructions | Guarded documents retain their existing scope, formatting, permissions and discovery rules. Standing instructions require explicit user action. |
-| Session search | Legacy search reads the shared index; anchor search reads session files. Both hosts' roots must be deliberate inputs, with source paths retained in results/metadata. |
+| Session search | Query-based search uses the shared index. PiG, Pi and Claude Code roots are explicit inputs with source attribution retained compatibly in results/metadata. The upstream anchor-only alternate schema is not required. |
 | Search indexes | FTS5 trigram indexes and triggers derive from the baseline schema. Preserve short-query/ranking/error behavior, hit counts, timestamps and project attribution. |
 
 Query authority is not a claim that Markdown and SQLite share one transaction. Preserve recoverable partial-success states rather than returning an invented all-or-nothing result.
@@ -35,7 +35,7 @@ Lease rows retain `lock_key`, `token`, `pid`, `incarnation` and millisecond `acq
 
 ## Mutation sequence and partial success
 
-This sequence describes the baseline document-backed add path for valid content, including busy-lock, cancellation and search-reconciliation outcomes. Policy-only search authority does not remove it. Replace/remove and validation/no-op outcomes have their own corpus rows; this view does not imply identical cancellation arguments for every action.
+This sequence describes the baseline document-backed add path for valid content, including busy-lock, cancellation and search-reconciliation outcomes. Policy-only search authority does not remove it. Replace/remove and validation/no-op outcomes need focused checks; this view does not imply identical cancellation arguments for every action.
 
 ```mermaid
 sequenceDiagram
@@ -74,7 +74,7 @@ sequenceDiagram
     end
 ```
 
-On publication failure, preserve the baseline bounded external-write retries, conflict/recovery artifacts and reload-from-disk behavior. The baseline add path checks its supplied signal after acquisition; its lock wait is not itself signal-aware. Capture replace/remove separately rather than assuming they receive the same signal. Native cancellation and durable-write reporting must match the executable corpus and must not turn an already durable write into a false no-write claim. A proposed public cancellation change requires a decision, not an inaccurate baseline diagram.
+On publication failure, preserve the baseline bounded external-write retries, conflict/recovery artifacts and reload-from-disk behavior. The baseline add path checks its supplied signal after acquisition; its lock wait is not itself signal-aware. Check replace/remove separately rather than assuming they receive the same signal. Native cancellation may be more responsive, but must not turn an already durable write into a false no-write claim or bypass shared coordination. Exact cancellation API parity is not required.
 
 ## Publication-safety gate
 

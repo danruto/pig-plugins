@@ -4,7 +4,7 @@
 
 These views specify the target architecture for [native status](native-usage.md) and [native Hermes](pig-hermes.md). They do not describe two completed ports. The installed status package still uses its pinned TypeScript collector; native Hermes is absent. [Compatibility findings](../compatibility/hermes.md) are feasibility evidence only.
 
-Goals are feature parity, safe shared knowledge, responsive foreground work and native packaging. Non-goals are Pi runtime adapters in this package, a new knowledge service, a new schema, a telemetry platform, personal deployment changes and reduced-feature replacements.
+Goals are useful native workflows, safe shared knowledge, responsive foreground work and native packaging. [ADR 0005](../adr/0005-feature-level-native-scope.md) replaces 1:1 upstream parity with source-led feature verification. Non-goals are Pi/Claude runtime adapters in this package, session adapters beyond PiG/Pi/Claude Code, a new knowledge service/schema, a telemetry platform and personal deployment changes.
 
 ## System context
 
@@ -39,7 +39,8 @@ C4Container
         ContainerDb(ownSessions, "Current-host sessions", "JSONL", "Retains foreground conversation records.")
     }
     Container(peer, "Peer assistant", "Pi and TypeScript", "Independently uses shared knowledge.")
-    ContainerDb(peerSessions, "Peer-host sessions", "JSONL", "Retains the peer conversation records.")
+    ContainerDb(peerSessions, "Peer-host sessions", "JSONL", "Retains Pi conversation records.")
+    ContainerDb(claudeSessions, "Claude Code sessions", "JSONL", "External session data only; no Claude runtime integration.")
     ContainerDb(knowledge, "Knowledge search store", "SQLite", "Stores search rows, metadata and indexes.")
     ContainerDb(documents, "Knowledge documents", "Markdown", "Stores memory documents, skills and standing instructions.")
     ContainerDb(leases, "Coordination stores", "SQLite", "Coordinate operation-specific cross-process ownership.")
@@ -52,6 +53,7 @@ C4Container
     Rel(host, ownSessions, "Persists foreground messages", "JSONL")
     Rel(hermes, ownSessions, "Indexes and searches", "JSONL")
     Rel(hermes, peerSessions, "Indexes and searches", "JSONL")
+    Rel(hermes, claudeSessions, "Imports, indexes and searches", "JSONL")
     Rel(peer, peerSessions, "Persists foreground messages", "JSONL")
     Rel(hermes, knowledge, "Queries and updates", "SQL")
     Rel(hermes, documents, "Reads and publishes", "Files")
@@ -80,7 +82,7 @@ Normal extensions run as subprocesses. Compatible Go factories may be fused only
 | Hermes registration/adapter | Schemas, commands, prompt resources, host calls and session lifetime | Domain owners and host SDK |
 | Hermes store | Database access, Markdown mutation/reconciliation, lease protocol, recovery and maintenance | Explicit paths, clocks and cancellation |
 | Hermes skills | Skill scope, collision/path guards and discovery | Document operations through the store's guarded boundary |
-| Hermes sessions | Parsing, live/backfill indexing, retention and both search variants | Store and explicit session roots |
+| Hermes sessions | PiG/Pi/Claude Code parsing, live/backfill indexing, retention and query-based search | Store and explicit session roots |
 | Hermes learning | Review/correction/consolidation plans and scheduling | Store operations and an injected completion capability |
 
 The SDK does not enter domain packages. Learning and session indexers do not open independent database connections or implement their own leases. Skills owns skill policy; the store owns guarded publication. Status has no Hermes or SQLite dependency. Create packages when needed, not as empty scaffolding.
@@ -139,7 +141,7 @@ A session owner contains a cancellation source, monotonically changing generatio
 
 1. Close admission before draining; stop refresh and review scheduling.
 2. On ordinary shutdown, run the eligible baseline flush before cancelling the work that flush needs. Reload skips that flush. Session replacement cannot carry an old plan into the new session.
-3. Apply each operation's captured baseline budget, propagate cancellation, terminate owned fallback processes when required and join them.
+3. Apply each operation's configured bounded budget, propagate cancellation, terminate owned fallback processes when required and join them.
 4. Finish or cancel indexers, learners and integrity scans before closing database handles. A failed initialization follows the same resource cleanup path without admitting learning work.
 5. Reject publication from cancelled or replaced owners. A timeout is failure, not evidence of a clean drain. Never close a database beneath a live worker to make shutdown appear fast.
 
@@ -263,7 +265,7 @@ External editors and peer writers can bypass this extension's scans. Treat their
 
 Use host notifications, command/tool results and bounded diagnostic output. Do not add a telemetry backend. All diagnostic emission happens outside render callbacks.
 
-Each operation has an ephemeral correlation ID, owner generation, operation kind, outcome, duration and a fixed reason code. Do not persist new operation history. Never include memory content, prompts, absolute private paths, account identifiers, credentials or arbitrary provider error bodies. Preserve baseline tool response fields and configuration-controlled notification behavior; additional diagnostics are not new public tool fields.
+Each operation has an ephemeral correlation ID, owner generation, operation kind, outcome, duration and a fixed reason code. Do not persist new operation history. Never include memory content, prompts, absolute private paths, account identifiers, credentials or arbitrary provider error bodies. Use documented native result schemas and configuration-controlled notifications. Exact upstream fields/messages are not a parity requirement; preserve honest durable outcomes.
 
 | Failure | User-visible behavior | Resource behavior |
 | --- | --- | --- |
@@ -283,6 +285,7 @@ Coalesce repeated background diagnostics by operation kind, owner and reason unt
 - [Frozen shared-storage baseline and safety gate](../adr/0002-frozen-shared-storage.md)
 - [SQLite driver candidate](../adr/0003-sqlite-driver-candidate.md)
 - [No public usage event API](../adr/0004-no-public-usage-event-api.md)
-- [Consumer-derived Hermes parity](hermes-parity.md)
+- [Feature-level native scope](../adr/0005-feature-level-native-scope.md)
+- [Hermes feature verification](hermes-parity.md)
 
 Checkpoint evidence must identify the source/host versions, selected composition, fixture, command, result and retained artifact hashes. A registration capture, a model, an offline fixture, a platform run and a live-provider result answer different questions; none substitutes for the others. No deployment, source publication or live-data change follows from a diagram or a checked document alone.

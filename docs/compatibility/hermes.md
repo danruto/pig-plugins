@@ -4,7 +4,7 @@
 
 Observed with PiG **0.5.3+1.4.0.74f46864**, Go **1.27.3**, Node **24.21.0**, patched `pi-hermes-memory` **0.9.11** and `modernc.org/sqlite` **1.52.0**. The original feasibility run used Go 1.26.8; the closure-bound reproduction uses the exact versions and digests in the [executable manifest](hermes-closure.json). All memory/database/session fixtures were disposable. No personal memory was copied or migrated.
 
-These are feasibility results, not acceptance credit for an unimplemented native extension.
+These are feasibility results, not acceptance credit for an unimplemented native extension. [ADR 0005](../adr/0005-feature-level-native-scope.md) supersedes the original exhaustive capture/parity plan. The retained closure and observations remain historical evidence; they are not a requirement to recapture every runtime or upstream branch before implementation.
 
 ## Observed results
 
@@ -72,7 +72,7 @@ python3 probes/hermes-closure.py --check
 
 These are new, reproducible observations, not an invented historical dependency pin. Retaining this closure does not establish a complete operation corpus, consumer inventory, performance baseline or native Hermes parity.
 
-The [consumer parity contract](../designs/hermes-parity.md) covers the runtime parser aliases and registration variants omitted by the default inventory. The [coordination table](../designs/shared-storage.md#coordination-identities) corrects the assumption that all callers use a single lock database. The existing lease probe checks a synthetic `mutation:fixture` key; it does not establish consolidation or recovery key/path parity.
+The [feature verification contract](../designs/hermes-parity.md) now defines focused native checks; exact parser-alias and registration-variant parity is not required. The [coordination table](../designs/shared-storage.md#coordination-identities) corrects the assumption that all callers use a single lock database. The existing lease probe checks a synthetic `mutation:fixture` key; it does not establish consolidation or recovery key/path parity.
 
 ## Status integration qualification
 
@@ -84,4 +84,4 @@ A live, prompt-free `TestGetUsageAnswersWithKeyedWindows` invocation received a 
 
 ## Next checkpoint
 
-H1 still needs the consumer-derived operation/configuration/search corpus and matched synthetic performance baseline. H2 requires bounded publication/recovery modeling and real mixed-writer tests before storage acceptance. An unresolved frozen-writer counterexample blocks cutover; it does not authorize a native-only workaround or an unapproved TypeScript patch. See the [native Hermes contract](../designs/pig-hermes.md); there is no native replacement to activate yet.
+Implement from the pinned source with focused checks alongside each feature; no exhaustive H1 corpus or pre-port performance baseline is required. Session import/index/search covers PiG, Pi and Claude Code only. H2 still requires bounded publication/recovery modeling and real mixed-writer tests before storage acceptance. An unresolved frozen-writer counterexample blocks cutover; it does not authorize a native-only workaround or an unapproved TypeScript patch. See the [native Hermes contract](../designs/pig-hermes.md); there is no native replacement to activate yet.

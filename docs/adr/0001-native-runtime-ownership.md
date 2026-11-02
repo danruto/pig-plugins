@@ -1,6 +1,6 @@
 # ADR 0001: Native runtime ownership and staged replacement
 
-Status: Accepted — records the existing approved package scope.
+Status: Accepted — runtime ownership remains in force. [ADR 0005](0005-feature-level-native-scope.md) supersedes complete-baseline parity and pre-port capture requirements below; this record retains the original decision history.
 
 ## Context
 
