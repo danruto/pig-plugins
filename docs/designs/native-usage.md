@@ -84,6 +84,14 @@ There is no native scheduler yet. The explicit schedulability capability exclude
 
 All four adapters retain the existing two-query admission bound, 15-second maximum total budget, 64 KiB success-body bound, redirect refusal before credential forwarding and body-free sanitized errors. Nonfinite Command Code credit totals are rejected rather than publishing JSON-null numeric fields. No live provider or billing operations are authorized by these checks.
 
+## Staged host authentication and selection
+
+The SDK-free domain now resolves effective host authentication and dispatches explicit current, other-provider and all-configured selections. It uses fresh same-session readiness and credential offers, preserves nullable authorization suppression and provenance labels, and fences complete selected-model/auth revisions plus the queried registry model and provider origin. Only the selected provider uses selected-model authorization; another provider uses its own provider authentication. Inventory is owned by one awaited dispatch, not retained as a cache. Requests and publication reuse the existing guarded client, OAuth identity matching, two-query admission bound and total deadline.
+
+Fireworks discovery returns stable account slugs. Billing requires an explicitly named discovered slug, even for a singleton; an absent or missing selection returns choices, never a substitute or aggregation. Native OpenAI remains authentication-only unless companion collection is explicitly requested. Companion authentication is independently acquired and pinned; no native credential is forwarded to ChatGPT.
+
+The reviewed host capability is staged only at the disposable process adapter in `internal/usage/testdata/host/`. It is not a runtime registration, footer integration or package-membership change. The current package still builds against its unpatched pinned SDK and selects the Node collector. Factory/lifetime integration, cache/settings generations, background refresh and user commands remain later checkpoints. See [the fixture instructions](../../extensions/pig-status/internal/usage/testdata/host/README.md) for the exact isolated local-HTTPS command; fixture proof is not live qualification.
+
 ## Behavior to preserve
 
 ### Collection and presentation
