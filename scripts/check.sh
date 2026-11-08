@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
+python3 "$root/scripts/check-native-usage.py"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 export HOME="$tmp/home" PIG_HOME="$tmp/pig" PIG_CODING_AGENT_DIR="$tmp/pig-agent"

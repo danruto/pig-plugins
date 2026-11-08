@@ -12,8 +12,10 @@
 // the host must revalidate their provenance along with the credential and origin.
 // xAI resolves fresh matching OAuth snapshots before consumer identity and billing
 // requests. Its canonical user ID is sent only to billing, never inferred locally.
-// Schedulable excludes menu-only xAI; a future collector must check it before
-// admitting automatic work. Query remains the explicit menu query seam.
+// Schedulable excludes menu-only xAI. Collector owns a bounded current-account cache,
+// complete host/model/target/settings fences, expiry and reset projections. Its
+// refresh calls are awaited; the adapter independently owns and joins scheduling.
+// Query remains the explicit menu query seam.
 package usage
 
 import (
