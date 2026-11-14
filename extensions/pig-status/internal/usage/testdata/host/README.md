@@ -27,4 +27,4 @@ env -i "$PY" probes/native-auth/run.py THIRD_UNIQUE_NAME footer
 
 The registered fixture commands are `/na-query`, `/na-model` and `/na-control`; no free-form model input or raw reload command is sent. Control state and TLS hold/release files are disposable stimuli, not production options. The fixture never logs snapshots, API keys, OAuth grants or provider error bodies. Request receipts use symbolic credential tags, not credentials.
 
-The ordinary full `npm test` remains independently red on the pre-existing Hermes baseline. Passing these focused checks or the package Nix build is not a claim that full baseline is green. No live service, real login/refresh, reset/redemption, all-platform or runtime cutover qualification is implied.
+Passing these focused checks or the package Nix build is not a claim that the full `npm test` gate is green. No live service, real login/refresh, reset/redemption, all-platform or runtime cutover qualification is implied.

@@ -2,7 +2,7 @@
 
 Owned PiG extensions, separate from personal system configuration. This package targets PiG only.
 
-**Available:** compact `pig-status` footer with integrated usage collection and corrected OpenAI server compaction. **Planned:** native Go Hermes. The package does not install or activate a partial memory replacement.
+**Available:** compact `pig-status` footer with integrated usage collection and corrected OpenAI server compaction.
 
 ## Install from a checkout
 
@@ -85,26 +85,5 @@ pig install ./result --validate-only --json
 The output contains the prebuilt native footer, status collector, prepared compactor and locked production dependencies. PiG supplies the Node compatibility runtime. Source installation builds the Go footer on first use; the Nix output needs no Go compiler at runtime.
 
 Dotfiles should select this package and own personal configuration, not contain its implementation. During development, select the checkout. Use an immutable source/release pin after publication.
-
-## Native Hermes
-
-- [Delivery contract and PB work issues](https://github.com/danruto/pig-plugins/issues/1)
-- [Implementation milestones](https://github.com/danruto/pig-plugins/milestones)
-- [Native Hermes contract and checkpoints](docs/designs/pig-hermes.md)
-- [Approved feature-level scope](docs/adr/0005-feature-level-native-scope.md)
-- [Compatibility findings and reproduction](docs/compatibility/hermes.md)
-- [Captured upstream public surface](docs/compatibility/hermes-surface.json)
-
-Milestones and GitHub dependencies own delivery order and progress for native usage and Hermes. Repository design documents own behavior and safety contracts. Live Hermes activation is a separate owner-approval gate, not queued implementation work. Native replacements are source-led, not 1:1 upstream ports. Hermes session import/index/search supports PiG, Pi and Claude Code only; this package still runs only in PiG.
-
-Select a ready objective from this checkout:
-
-```text
-/pb:work --prod
-```
-
-`.pb/issues-repo` selects the GitHub backlog. The routing roster uses native workers unless explicitly configured. `--prod` preserves the existing installed backend while its replacement is staged. Commits, pushes and live activation require separate authorization.
-
-All compatibility probes use disposable roots. They must never be pointed at live memory or session databases. Passing feasibility probes does not establish scoped feature or shared-storage qualification.
 
 See [third-party notices](THIRD_PARTY_NOTICES.md) for provenance and licensing.

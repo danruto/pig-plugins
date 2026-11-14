@@ -69,5 +69,5 @@ observations, not a resource-budget acceptance assertion.
 This script supplies runnable build/check infrastructure and fixture orchestration.
 It does **not** independently assert every stale-publication/lifecycle property,
 repeat the five-minute expiry experiment, qualify the installed footer, or claim
-that unrelated Hermes package tests pass. Independent acceptance assertions remain
+that the whole package passes. Independent acceptance assertions remain
 owned by the fresh test-writer and can use the retained real-host receipts.

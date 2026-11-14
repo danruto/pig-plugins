@@ -55,7 +55,6 @@
             doCheck = true;
             checkPhase = ''
               runHook preCheck
-              python3 probes/hermes-closure.py --check
               npm run typecheck
               node --import tsx --test test/test-compaction-payload.mjs
               node --test test/test-usage.mjs test/test-docs.mjs
