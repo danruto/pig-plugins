@@ -71,9 +71,15 @@ Aqua Cutter supports flowcharts and sequence diagrams, not C4, state or entity-r
 npm test
 ```
 
-This runs adapter checks, pinned-source native usage comparisons, TypeScript checking, Go build/vet/race tests, real package discovery and a terminal smoke test at 120 and 80 columns. The terminal fixture sends no model prompt.
+This runs adapter checks, pinned-source native usage comparisons, TypeScript checking and oxlint, Go formatting, `go fix -diff`, build/vet/race tests and golangci-lint, real package discovery and a terminal smoke test at 120 and 80 columns. The terminal fixture sends no model prompt. Use the flake devShell (`nix develop`, or direnv) for the pinned golangci-lint and Python.
 
-`npm run test:usage-native` checks only the native usage slice. `npm run test:usage-baseline` retains the optional historical capture suite; its branch ledger is not a prerequisite for the source-led port.
+`scripts/check.sh` holds the one check list. `npm test` runs every step; the Nix build runs the steps that need no PiG host, except golangci-lint; `npm run test:usage-native` checks only the native usage slice.
+
+golangci-lint reports issues that predate the gate in `test/go-lint-baseline.json`. The check fails on any issue outside it, and on a baseline entry that no longer occurs. After fixing issues, run `npm run lint:go-baseline` and review the diff. Do not add new issues to the baseline or raise a limit.
+
+`npm run test:native-usage-host` runs the staged native usage gate against a reviewed PiG host; see [`scripts/check-native-usage.md`](scripts/check-native-usage.md). Without that host it exits 2.
+
+`npm run test:usage-baseline` retains the optional historical capture suite; its branch ledger is not a prerequisite for the source-led port.
 
 ## Reproducible package
 

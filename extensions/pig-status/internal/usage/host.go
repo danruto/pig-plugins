@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"maps"
 	"net/http"
 	"reflect"
 	"time"
@@ -120,9 +121,7 @@ func (r Resolver) snapshot(ctx context.Context, options map[string]any) (hostSna
 		return hostSnapshot{}, err
 	}
 	request := make(map[string]any, len(options)+1)
-	for key, value := range options {
-		request[key] = value
-	}
+	maps.Copy(request, options)
 	request["timeoutMs"] = hostTimeout(ctx)
 	raw, err := r.Host.SessionAuth(ctx, request)
 	if err != nil {

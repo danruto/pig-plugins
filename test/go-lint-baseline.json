@@ -1,0 +1,2427 @@
+[
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeDeepSeek is 16, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeMoonshot is 14, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeReport is 13, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeDeepSeek' has too many statements (32 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/balance.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "prealloc",
+    "text": "Consider preallocating wantTargets with capacity len(tokens) + 1"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "prealloc",
+    "text": "Consider preallocating wantWire with capacity len(tokens) + 1"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 6"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 6"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 6"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 7"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "context-as-argument: context.Context should be the first parameter of a function"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "context-as-argument: context.Context should be the first parameter of a function"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "revive",
+    "text": "context-as-argument: context.Context should be the first parameter of a function"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeOpenRouter is 12, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/billing.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/collector_test.go",
+    "linter": "errorlint",
+    "text": "comparing with != will fail on wrapped errors. Use errors.Is to check for a specific error"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/collector_test.go",
+    "linter": "errorlint",
+    "text": "comparing with != will fail on wrapped errors. Use errors.Is to check for a specific error"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/collector_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/collector.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_date.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function consumerDateSeconds is 46, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_date.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function consumerLegacyRFCDate is 13, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_date.go",
+    "linter": "funlen",
+    "text": "Function 'consumerDateSeconds' has too many statements (65 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "gosec",
+    "text": "G115: integer overflow conversion int -> int32"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "gosec",
+    "text": "G115: integer overflow conversion int -> int32"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "noctx",
+    "text": "os/exec.Command must not be called. use os/exec.CommandContext"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "noctx",
+    "text": "os/exec.Command must not be called. use os/exec.CommandContext"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "prealloc",
+    "text": "Consider preallocating want with capacity len(f.Wires)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'canceled' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'canceled' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function queryCommandCode is 16, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_query.go",
+    "linter": "funlen",
+    "text": "Function 'queryCommandCode' has too many statements (32 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer_uppercase.go",
+    "linter": "gochecknoglobals",
+    "text": "jsUppercaseExpansions is a global variable"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeCommandCode is 40, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeCommandCode' has too many statements (69 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/consumer.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function ListTargets is 16, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeFireworks is 19, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "funlen",
+    "text": "Function 'ListTargets' has too many statements (40 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeFireworks' has too many statements (45 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/fireworks.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/host.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function acquire is 14, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/host.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function oauth is 11, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/host.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/host.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/host.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/host.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function kimiEpoch is 20, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function kimiUsageRow is 13, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function kimiWallet is 15, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeKimi is 33, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeKimi' has too many statements (60 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/kimi.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function miniMaxWindow is 28, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeMiniMax is 18, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "funlen",
+    "text": "Function 'miniMaxWindow' has too many statements (54 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeMiniMax' has too many statements (46 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'optional' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'weekly' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'weekly' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/minimax.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function queryOAuth is 16, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function resolveCompanion is 16, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function resolveCopilot is 15, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function resolveNativeOpenAI is 20, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "funlen",
+    "text": "Function 'queryOAuth' has too many statements (43 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "funlen",
+    "text": "Function 'resolveCompanion' has too many statements (31 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "funlen",
+    "text": "Function 'resolveCopilot' has too many statements (31 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "funlen",
+    "text": "Function 'resolveNativeOpenAI' has too many statements (35 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'useCompanion' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/oauth.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function matchingOpenAIAppBuckets is 26, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function openAIWindow is 13, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "funlen",
+    "text": "Function 'matchingOpenAIAppBuckets' has too many statements (40 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'enabled' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/openai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "staticcheck",
+    "text": "SA6006: use io.Writer.Write instead of converting from []byte to string to use io.WriteString"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/provider_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/query_boundary_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "gosec",
+    "text": "G115: integer overflow conversion int -> int32"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 6"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'allowed' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'optional' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'optional' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/regional_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/selection.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function Query is 12, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/selection.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function selectProviders is 11, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/selection.go",
+    "linter": "gochecknoglobals",
+    "text": "usageProviderIDs is a global variable"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "right hand must be only type assertion"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "right hand must be only type assertion"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "right hand must be only type assertion"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "right hand must be only type assertion"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "musttag",
+    "text": "the given struct should be annotated with the `json` tag"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 7"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'plan' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'success' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function addCodexGroup is 12, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function copilotReset is 17, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function displayString is 31, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function finiteNumber is 17, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeCodex is 16, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeCopilot is 13, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "funlen",
+    "text": "Function 'displayString' has too many statements (34 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeCodex' has too many statements (31 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeCopilot' has too many statements (32 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'optional' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'stringsAllowed' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "QF1003: could use tagged switch on credits[\"has_credits\"]"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/subscription.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "forcetypeassert",
+    "text": "right hand must be only type assertion"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "forcetypeassert",
+    "text": "type assertion must be checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport_test.go",
+    "linter": "thelper",
+    "text": "parameter testing.TB should have name tb"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function fetchJSON is 21, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function validatedHeaders is 19, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "errcheck",
+    "text": "Error return value of `response.Body.Close` is not checked"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "funlen",
+    "text": "Function 'fetchJSON' has too many statements (44 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'zai' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'zai' seems to be a control flag, avoid control coupling"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/transport.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function providerEndpoint is 19, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function query is 34, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "funlen",
+    "text": "Function 'providerEndpoint' has too many statements (37 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "funlen",
+    "text": "Function 'query' has too many statements (57 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "gochecknoglobals",
+    "text": "querySlots is a global variable"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "staticcheck",
+    "text": "QF1003: could use tagged switch on providerID"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/usage.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeXai is 31, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function queryXai is 14, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function resolveXai is 14, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function xaiPeriod is 17, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeXai' has too many statements (40 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "funlen",
+    "text": "Function 'queryXai' has too many statements (35 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "funlen",
+    "text": "Function 'resolveXai' has too many statements (34 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "funlen",
+    "text": "Function 'xaiPeriod' has too many statements (38 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "revive",
+    "text": "max-control-nesting: control flow nesting exceeds 3"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not be capitalized"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/xai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai_errors.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function zaiPayloadError is 11, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai_errors.go",
+    "linter": "gochecknoglobals",
+    "text": "zaiErrorMessages is a global variable"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai_errors.go",
+    "linter": "gochecknoglobals",
+    "text": "zaiHTTPMessages is a global variable"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeZai is 32, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function normalizeZaiSubscription is 31, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeZai' has too many statements (65 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "funlen",
+    "text": "Function 'normalizeZaiSubscription' has too many statements (31 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "revive",
+    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/internal/usage/zai.go",
+    "linter": "staticcheck",
+    "text": "ST1005: error strings should not end with punctuation or newlines"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function fit is 17, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "cyclop",
+    "text": "calculated cyclomatic complexity for function render is 21, max is 10"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "funlen",
+    "text": "Function 'fit' has too many statements (39 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "funlen",
+    "text": "Function 'render' has too many statements (38 > 30)"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "perfsprint",
+    "text": "integer-format: fmt.Sprint can be replaced with faster strconv.Itoa"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "revive",
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 9"
+  },
+  {
+    "file": "extensions/pig-status/main.go",
+    "linter": "revive",
+    "text": "flag-parameter: parameter 'gauge' seems to be a control flag, avoid control coupling"
+  }
+]

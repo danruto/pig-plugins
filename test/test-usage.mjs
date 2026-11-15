@@ -47,6 +47,8 @@ test("uses the versioned backend API and publishes cache accounting with normali
     assert.equal(request.respond(response(f.ctx, [
       { label: "5h", unit: "percent", used: 39 },
       { label: "Week", unit: "count", remaining: 87, limit: 100 },
+      { label: "Day", unit: "percent", remaining: 25 },
+      { label: "Requests", unit: "count", used: 30, limit: 120 },
       { label: "balance only", unit: "usd", remaining: 7 },
     ])), true);
   });
@@ -55,7 +57,10 @@ test("uses the versioned backend API and publishes cache accounting with normali
   assert.deepEqual(f.latest(), {
     input: 100, output: 25, cacheRead: 900, cacheWrite: 300, cost: 0.216,
     subscription: false,
-    windows: [{ label: "5h", usedPercent: 39 }, { label: "Week", usedPercent: 13 }],
+    windows: [
+      { label: "5h", usedPercent: 39 }, { label: "Week", usedPercent: 13 },
+      { label: "Day", usedPercent: 75 }, { label: "Requests", usedPercent: 25 },
+    ],
   });
   f.entries.splice(0);
   f.session("session-b");

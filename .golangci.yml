@@ -1,0 +1,94 @@
+version: "2"
+linters:
+    default: standard
+    enable:
+        - bodyclose
+        - containedctx
+        - contextcheck
+        - copyloopvar
+        - cyclop
+        - depguard
+        - errname
+        - errorlint
+        - exhaustive
+        - forcetypeassert
+        - funlen
+        - gochecknoglobals
+        - gochecknoinits
+        - goprintffuncname
+        - gosec
+        - intrange
+        - modernize
+        - musttag
+        - nakedret
+        - nilerr
+        - noctx
+        - nolintlint
+        - perfsprint
+        - prealloc
+        - revive
+        - rowserrcheck
+        - sloglint
+        - spancheck
+        - sqlclosecheck
+        - testifylint
+        - thelper
+        - usetesting
+    settings:
+        cyclop:
+            max-complexity: 10
+        depguard:
+            rules:
+                main:
+                    deny:
+                        - pkg: math/rand$
+                          desc: use math/rand/v2, or crypto/rand for secrets
+                        - pkg: github.com/pkg/errors
+                          desc: use errors and fmt.Errorf
+                        - pkg: go.uber.org/automaxprocs
+                          desc: the runtime reads container CPU limits
+                        - pkg: github.com/stretchr/testify/suite
+                          desc: use plain tests with t.Cleanup
+        exhaustive:
+            default-case-required: true
+            default-signifies-exhaustive: true
+        funlen:
+            lines: -1
+            statements: 30
+        nolintlint:
+            require-explanation: true
+            require-specific: true
+        revive:
+            rules:
+                - name: argument-limit
+                  arguments: [4]
+                - name: max-control-nesting
+                  arguments: [3]
+                - name: flag-parameter
+                - name: deep-exit
+                - name: context-as-argument
+                - name: context-keys-type
+                - name: error-return
+                - name: error-strings
+                - name: receiver-naming
+                - name: unexported-return
+                - name: use-any
+                - name: var-naming
+                - name: indent-error-flow
+                - name: superfluous-else
+                - name: early-return
+        sloglint:
+            static-msg: true
+        spancheck:
+            checks: [end, record-error, set-status]
+    exclusions:
+        rules:
+            - path: _test\.go
+              linters: [funlen, cyclop]
+formatters:
+    enable:
+        - goimports
+issues:
+    max-issues-per-linter: 0
+    max-same-issues: 0
+    uniq-by-line: false

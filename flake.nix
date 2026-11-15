@@ -7,12 +7,29 @@
     let
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
       eachSystem = nixpkgs.lib.genAttrs systems;
+      golangciLint = pkgs: pkgs.golangci-lint.overrideAttrs (finalAttrs: _: {
+        version = "2.15.0";
+        src = pkgs.fetchFromGitHub {
+          owner = "golangci";
+          repo = "golangci-lint";
+          tag = "v${finalAttrs.version}";
+          hash = "sha256-m9PoJHescRuT9DiKsb6LL+lQlc7RKAWDiRyf8pNMffA=";
+        };
+        vendorHash = "sha256-gWbhZc/BJwuiwyTMaR1ShEBI1lo0bGLCXsdj5n91baw=";
+        ldflags = [
+          "-s"
+          "-w"
+          "-X main.version=${finalAttrs.version}"
+          "-X main.commit=v${finalAttrs.version}"
+          "-X main.date=1970-01-01T00:00:00Z"
+        ];
+      });
     in {
       devShells = eachSystem (system:
         let pkgs = import nixpkgs { inherit system; };
         in {
           default = pkgs.mkShell {
-            packages = [ pkgs.go pkgs.nodejs ];
+            packages = [ pkgs.go pkgs.nodejs pkgs.python3 (golangciLint pkgs) ];
           };
         });
 
@@ -31,7 +48,7 @@
               filter = path: type: !(builtins.elem (baseNameOf path) [ ".git" ".pb" "node_modules" ".direnv" "result" ])
                 && path != (toString ./. + "/compaction/generated");
             };
-            npmDepsHash = "sha256-/eV4JMGv0DZssixePje5kTJRjaoDS7B1qN3SzgEq7bg=";
+            npmDepsHash = "sha256-z9bsQCnX2vpBw7NYXEiuDvKuWQoKgZvgBLuaQLdR8Ww=";
             npmFlags = [ "--legacy-peer-deps" "--ignore-scripts" ];
             nativeBuildInputs = [ pkgs.go pkgs.python3 pkgs.patch ];
             env = {
@@ -55,14 +72,7 @@
             doCheck = true;
             checkPhase = ''
               runHook preCheck
-              npm run typecheck
-              node --import tsx --test test/test-compaction-payload.mjs
-              node --test test/test-usage.mjs test/test-docs.mjs
-              node --import tsx scripts/usage-reference.mjs --check
-              node --import tsx scripts/usage-billing-reference.mjs --check
-              node --import tsx scripts/usage-regional-reference.mjs --check
-              node --import tsx scripts/usage-consumer-reference.mjs --check
-              (cd extensions/pig-status && go test ./... && go vet ./...)
+              PIG_STATUS_SDK=${sdkSource}/extensions/sdk bash scripts/check.sh sandbox
               runHook postCheck
             '';
             installPhase = ''

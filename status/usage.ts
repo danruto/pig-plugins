@@ -47,23 +47,23 @@ function finite(value: unknown): value is number {
 }
 
 function reportWindows(report: Record<string, unknown>): QuotaWindow[] {
-	if (!Array.isArray(report.buckets)) return [];
-	return report.buckets.flatMap((value: unknown) => {
+	if (!Array.isArray(report["buckets"])) return [];
+	return report["buckets"].flatMap((value: unknown) => {
 		const bucket = record(value);
-		if (!bucket || typeof bucket.label !== "string") return [];
+		if (!bucket || typeof bucket["label"] !== "string") return [];
 		let used: number | undefined;
-		if (bucket.unit === "percent") {
-			if (finite(bucket.used)) used = bucket.used;
-			else if (finite(bucket.remaining)) used = 100 - bucket.remaining;
-		} else if (finite(bucket.limit) && bucket.limit > 0) {
-			if (finite(bucket.used)) used = 100 * bucket.used / bucket.limit;
-			else if (finite(bucket.remaining)) used = 100 * (1 - bucket.remaining / bucket.limit);
+		if (bucket["unit"] === "percent") {
+			if (finite(bucket["used"])) used = bucket["used"];
+			else if (finite(bucket["remaining"])) used = 100 - bucket["remaining"];
+		} else if (finite(bucket["limit"]) && bucket["limit"] > 0) {
+			if (finite(bucket["used"])) used = 100 * bucket["used"] / bucket["limit"];
+			else if (finite(bucket["remaining"])) used = 100 * (1 - bucket["remaining"] / bucket["limit"]);
 		}
 		if (used === undefined || !Number.isFinite(used)) return [];
 		return [{
-			label: /^(672|696|720|744)h$/.test(bucket.label) ? "Month" : bucket.label,
+			label: /^(672|696|720|744)h$/.test(bucket["label"]) ? "Month" : bucket["label"],
 			usedPercent: Math.max(0, Math.min(100, used)),
-			...(finite(bucket.resetsAt) ? { resetsAt: bucket.resetsAt } : {}),
+			...(finite(bucket["resetsAt"]) ? { resetsAt: bucket["resetsAt"] } : {}),
 		}];
 	});
 }
@@ -136,9 +136,9 @@ export default function usageStatus(pi: PiAPI): void {
 				void Promise.resolve(result).then((value: unknown) => {
 					if (signal.aborted || owner !== generation || ctx !== context) return;
 					const response = record(value);
-					const report = record(response?.report);
-					if (response?.status === "ready" && report && report.providerId === ctx.model?.provider && finite(response.expiresAt) && response.expiresAt > Date.now()) {
-						const expiresAt = response.expiresAt;
+					const report = record(response?.["report"]);
+					if (response?.["status"] === "ready" && report && report["providerId"] === ctx.model?.provider && finite(response["expiresAt"]) && response["expiresAt"] > Date.now()) {
+						const expiresAt = response["expiresAt"];
 						publish(reportWindows(report).map((window) => ({ ...window, expiresAt })));
 					} else {
 						publish([]);
@@ -154,7 +154,7 @@ export default function usageStatus(pi: PiAPI): void {
 
 	pi.events.on("usage:changed:v1", (value) => {
 		const event = record(value);
-		if (!context || event?.session !== context.sessionManager || event.sessionId !== context.sessionManager.getSessionId() || event.providerId !== context.model?.provider) return;
+		if (!context || event?.["session"] !== context.sessionManager || event["sessionId"] !== context.sessionManager.getSessionId() || event["providerId"] !== context.model?.provider) return;
 		query();
 	});
 

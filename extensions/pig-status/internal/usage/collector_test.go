@@ -18,8 +18,9 @@ func (h *admissionHost) Metadata(context.Context) (HostMetadata, error) {
 	return HostMetadata{SessionID: "synthetic-session", ProviderID: h.provider, ModelID: "fixture"}, nil
 }
 
-func (h *admissionHost) SessionAuth(context.Context, map[string]any) (map[string]any, error) {
-	h.authProviders = append(h.authProviders, h.provider)
+func (h *admissionHost) SessionAuth(_ context.Context, request map[string]any) (map[string]any, error) {
+	provider, _ := request["provider"].(string)
+	h.authProviders = append(h.authProviders, provider)
 	return nil, errors.New("synthetic authentication refused")
 }
 

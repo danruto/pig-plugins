@@ -33,6 +33,7 @@
   "devDependencies": {
     "@types/node": "26.6.5",
     "markdown-it": "14.3.3",
+    "oxlint": "1.93.0",
     "pi-openai-server-compaction": "https://github.com/algal/pi-openai-server-compaction/archive/8a3de2f3b0c178fdd6f73f2f94172dfc3943e466.tar.gz",
     "tsx": "4.23.15",
     "typescript": "7.0.2"
@@ -40,10 +41,12 @@
   "scripts": {
     "docs:dev": "node scripts/docs-dev.mjs",
     "test": "bash scripts/check.sh",
+    "test:native-usage-host": "python3 scripts/check-native-usage.py",
     "test:usage-baseline": "bash scripts/check-usage-baseline.sh",
-    "test:usage-native": "node --import tsx scripts/usage-reference.mjs --check && node --import tsx scripts/usage-billing-reference.mjs --check && node --import tsx scripts/usage-regional-reference.mjs --check && node --import tsx scripts/usage-consumer-reference.mjs --check && cd extensions/pig-status && go test -race ./internal/usage",
+    "test:usage-native": "bash scripts/check.sh usage",
     "test:docs": "node --test test/test-docs.mjs",
     "prepare:compaction": "node scripts/prepare-compaction.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:go-baseline": "bash scripts/check.sh go-lint-baseline"
   }
 }

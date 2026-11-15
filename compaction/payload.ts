@@ -14,7 +14,7 @@ export function applyRemoteHistoryPayloadPatch({ payload, explicitHistory }: {
 	explicitHistory: readonly unknown[] | undefined;
 }): Record<string, unknown> {
 	if (explicitHistory === undefined) return payload;
-	const currentInput: unknown[] = Array.isArray(payload.input) ? payload.input : [];
+	const currentInput: unknown[] = Array.isArray(payload["input"]) ? payload["input"] : [];
 	return {
 		...payload,
 		input: [

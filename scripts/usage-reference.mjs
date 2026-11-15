@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { registerHooks } from "node:module";
-import { cases, now } from "../probes/usage/cases.mjs";
 import pkg from "../node_modules/@narumitw/pi-usage/package.json" with { type: "json" };
 import { normalizeDeepSeekBalancePayload } from "../node_modules/@narumitw/pi-usage/src/providers/deepseek.ts";
 import { normalizeVercelAIGatewayCreditsPayload } from "../node_modules/@narumitw/pi-usage/src/providers/vercel-ai-gateway.ts";
@@ -20,10 +19,20 @@ const normalizers = {
   moonshotai: (payload, time) => normalizeMoonshotBalancePayload("moonshotai", payload, time),
   "moonshotai-cn": (payload, time) => normalizeMoonshotBalancePayload("moonshotai-cn", payload, time),
 };
+const now = 1_900_000_000_000;
+const moonshotBalance = { code: 0, status: true, data: { available_balance: 49.58894, voucher_balance: 50, cash_balance: -0.41106 } };
+const normalPayloads = {
+  deepseek: { is_available: true, balance_infos: [
+    { currency: "USD", total_balance: "1.000000001", granted_balance: "0.000000001", topped_up_balance: "1.000000000" },
+    { currency: "CNY", total_balance: "110.00", granted_balance: "10.00", topped_up_balance: "100.00" },
+  ] },
+  "vercel-ai-gateway": { balance: "95.500000001", total_used: "4.499999999" },
+  moonshotai: moonshotBalance,
+  "moonshotai-cn": moonshotBalance,
+};
 const fixtures = [];
 function add(providerID, name, change = () => {}) {
-  const item = cases.find((item) => item.id === `${providerID}:normal`);
-  const payload = structuredClone(item.routes[providerID === "vercel-ai-gateway" ? "credits" : "balance"]);
+  const payload = structuredClone(normalPayloads[providerID]);
   change(payload);
   const fixture = { name: `${providerID}:${name}`, providerID, capturedAt: now, payload };
   try {

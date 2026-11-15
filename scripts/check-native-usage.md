@@ -1,7 +1,7 @@
 # Staged native usage gate
 
-`scripts/check.sh` invokes `python3 scripts/check-native-usage.py` before the existing
-package checks. A missing prerequisite exits **2**, rather than skipping the nested
+`npm run test:native-usage-host` runs `python3 scripts/check-native-usage.py`, separately
+from `npm test`. A missing prerequisite exits **2**, rather than skipping the nested
 module or substituting the installed host. This is additional gate coverage, not a
 change to the selected mixed collector, `--prod`, package membership or deployment.
 
@@ -11,7 +11,7 @@ Supply both inputs explicitly:
 ```sh
 PIG_NATIVE_USAGE_HOST=/path/to/reviewed/pig \
 PIG_NATIVE_USAGE_SDK=/path/to/its/staged/sdk \
-GOMAXPROCS=2 GOFLAGS=-p=2 npm test
+GOMAXPROCS=2 GOFLAGS=-p=2 npm run test:native-usage-host
 ```
 
 The launcher accepts only host SHA256
@@ -45,7 +45,7 @@ inherited. Runtime HOME/agent/cache/temp roots and model/auth files are created
 from synthetic inputs. A caller running a focused objective should set the
 scratch parent to that objective's disposable directory.
 
-The focused entrypoint is the same command used by `check.sh`:
+The focused entrypoint is the script that target runs:
 
 ```sh
 PIG_NATIVE_USAGE_HOST=/path/to/reviewed/pig \

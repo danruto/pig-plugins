@@ -10,7 +10,9 @@ Owned PiG plugins live here. This package targets PiG only; do not add Pi adapte
 
 ## Checks
 
-Run `npm ci`, then `GOMAXPROCS=2 GOFLAGS=-p=2 npm test`.
+Run checks inside the flake devShell (`nix develop "path:$PWD"`, or direnv); it supplies the pinned golangci-lint and Python. Run `npm ci`, then `GOMAXPROCS=2 GOFLAGS=-p=2 npm test`.
+
+`npm run test:native-usage-host` is a separate target that needs a reviewed PiG host; see `scripts/check-native-usage.md`.
 
 Build the complete package with `nix build "path:$PWD#pig-status"`. The path form includes uncommitted files. Go modules use PiG's version-matched staged SDK; the check script supplies a temporary replacement rather than committing a machine path.
 
