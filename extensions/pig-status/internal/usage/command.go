@@ -34,6 +34,7 @@ type UsageCommand struct {
 	Settings   *SettingsStore
 	Timeout    time.Duration
 	Configure  func(CollectionSettings)
+	Resets     *CodexResets
 }
 
 type menuSession struct {
@@ -65,7 +66,7 @@ func (c UsageCommand) Run(ctx context.Context, ui CommandUI, args string) error 
 
 func (c UsageCommand) menu(ctx context.Context, ui CommandUI, session menuSession) error {
 	for {
-		options := menuOptions(session.outcomes)
+		options := c.menuOptions(session.outcomes)
 		choice, ok, err := ui.Select(ctx, strings.Join(formatOutcomes(session.outcomes), "\n"), options)
 		if err != nil {
 			return err
@@ -92,6 +93,8 @@ func (c UsageCommand) act(ctx context.Context, ui CommandUI, session menuSession
 		return c.target(ctx, ui, session)
 	case UsageActionCodex:
 		return c.toggleCodex(ctx, ui, session)
+	case UsageActionReset:
+		return c.reset(ctx, ui, session)
 	case UsageActionClose:
 		return session, nil
 	default:
@@ -189,6 +192,13 @@ func (c UsageCommand) toggleCodex(ctx context.Context, ui CommandUI, session men
 	return c.afterSave(ctx, ui, state)
 }
 
+func (c UsageCommand) reset(ctx context.Context, ui CommandUI, session menuSession) (menuSession, error) {
+	if err := c.Resets.Run(ctx, ui); err != nil {
+		return session, err
+	}
+	return c.refresh(ctx, ui, session)
+}
+
 func (c UsageCommand) afterSave(ctx context.Context, ui CommandUI, state SettingsState) (menuSession, error) {
 	if c.Configure != nil {
 		c.Configure(state.Settings.Collection())
@@ -281,12 +291,22 @@ func notifySaveFailure(ui CommandUI, err error, changed string) {
 	}
 }
 
-func menuOptions(outcomes []Outcome) []string {
+func (c UsageCommand) menuOptions(outcomes []Outcome) []string {
 	options := []string{UsageActionRefresh, UsageActionAnother, UsageActionAll}
 	if targetSelectable(outcomes) {
 		options = append(options, UsageActionTarget)
 	}
+	if c.Resets != nil && resetSelectable(outcomes) {
+		options = append(options, UsageActionReset)
+	}
 	return append(options, UsageActionCodex, UsageActionClose)
+}
+
+func resetSelectable(outcomes []Outcome) bool {
+	if len(outcomes) != 1 || outcomes[0].Report == nil {
+		return false
+	}
+	return outcomes[0].Report.ProviderID == "openai-codex"
 }
 
 func targetSelectable(outcomes []Outcome) bool {

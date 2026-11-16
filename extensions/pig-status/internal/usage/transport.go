@@ -1,6 +1,7 @@
 package usage
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -20,6 +21,8 @@ type usageRequest struct {
 	description string
 	headers     http.Header
 	maxBytes    int
+	method      string
+	body        []byte
 }
 
 func (c Client) fetch(ctx context.Context, endpoint, description string, headers http.Header) (map[string]any, error) {
@@ -82,13 +85,24 @@ func (c Client) fetchZai(ctx context.Context, request usageRequest) (map[string]
 }
 
 func (c Client) send(ctx context.Context, request usageRequest) (*http.Response, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, request.endpoint, nil)
+	method := request.method
+	if method == "" {
+		method = http.MethodGet
+	}
+	var body io.Reader
+	if request.body != nil {
+		body = bytes.NewReader(request.body)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, request.endpoint, body)
 	if err != nil {
 		return nil, errors.New("could not construct usage request")
 	}
 	req.Header = request.headers.Clone()
 	if req.Header == nil {
 		req.Header = make(http.Header)
+	}
+	if request.body != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
 	if !hasHeader(req.Header, "User-Agent") {
 		req.Header.Set("User-Agent", "pi-usage")

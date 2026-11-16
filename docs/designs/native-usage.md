@@ -114,6 +114,12 @@ The staged `internal/usage/codex_fast.go` holds the Codex Fast model, capability
 
 Capability discovery keys the directory by a hashed account identity and is fenced by the session, the selected provider and model, and a catalog generation, so a stale directory result reaches no successor. A directory failure falls back to the conservative unknown capability with a fixed reason. The request hook reads the saved toggle and records the tier it chose; the message hook corrects the assistant cost from that record. A saved toggle therefore affects only later requests, never one already sent.
 
+### Staged Codex resets
+
+The staged `internal/usage/codex_reset.go` holds the Codex reset credit normalization, the availability values, the picker and confirmation flow, and the consume request with its four outcome values. It is SDK-free, and nothing registers a command: the installed reset flow stays with the TypeScript collector, and registration lands with package-membership replacement. `command.go` offers the reset action ahead of its Codex toggle only when the command holds a staged reset workflow and the shown report belongs to `openai-codex`.
+
+A reset reads the current session, model and resolved Codex account before listing credits, and reads them again before consuming one, so a model or account change between the two steps stops the flow before any consume request is sent. A confirmed selection gets one redemption ID, reused by every retry of that selection, so a retried consume cannot spend a second credit; a new selection gets a new ID. Reset checks drive local synthetic endpoints through an injected `http.RoundTripper` and never reach a provider.
+
 ## Behavior to preserve
 
 ### Collection and presentation
