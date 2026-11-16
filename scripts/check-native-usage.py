@@ -25,8 +25,8 @@ import sys
 import tempfile
 import time
 
-HOST_SHA256 = "caa1427bf3fd721f813b446748408111e4f1eb0138506b66845bf572e1b4ac0a"
-SDK_SHA256 = "f32d435671402b2948d8e14ac010eb8078ce2ceaeb589adab43b8a93f4bb4750"
+HOST_SHA256 = "d21d884ef0cab28224bf3eccfa302c8d70e430bc35d71a9a049f9eb1a612587b"
+SDK_SHA256 = "32342e9e495ac9016e110b1c8d043f8c0a5b59e6bd8a7f084515cd6a25cbf70b"
 SDK_MODULE = "github.com/MichaelKinsy/PiG/extensions/sdk"
 STATUS_MODULE = "github.com/danruto/pig-plugins/extensions/pig-status"
 
@@ -133,6 +133,7 @@ def _drive_lifecycle(work: Path, tools: dict[str, str], *, env: dict[str, str], 
                              stdout=subprocess.PIPE, stderr=errors) as process:
         if process.stdin is None or process.stdout is None:
             raise RuntimeError("missing RPC pipes")
+        stdin, stdout = process.stdin, process.stdout
         _json(work / "host-process.json", {"pid": process.pid, "waitOwner": os.getpid(), "argv": argv})
         selector.register(process.stdout, selectors.EVENT_READ, "rpc")
         selector.register(notify_fd, selectors.EVENT_READ, "receipt")
@@ -160,7 +161,7 @@ def _drive_lifecycle(work: Path, tools: dict[str, str], *, env: dict[str, str], 
                     if key.data == "receipt":
                         os.read(notify_fd, 65536)
                     else:
-                        chunk = os.read(process.stdout.fileno(), 65536)
+                        chunk = os.read(stdout.fileno(), 65536)
                         if not chunk:
                             raise RuntimeError("host exited before fixture completion")
                         output.write(chunk)
@@ -174,8 +175,8 @@ def _drive_lifecycle(work: Path, tools: dict[str, str], *, env: dict[str, str], 
 
         def begin(text: str) -> str:
             identity = str(time.monotonic_ns())
-            process.stdin.write((json.dumps({"id": identity, "type": "prompt", "message": text}) + "\n").encode())
-            process.stdin.flush()
+            stdin.write((json.dumps({"id": identity, "type": "prompt", "message": text}) + "\n").encode())
+            stdin.flush()
             return identity
 
         def finish(identity: str) -> None:
@@ -201,14 +202,14 @@ def _drive_lifecycle(work: Path, tools: dict[str, str], *, env: dict[str, str], 
                 (work / "hold").unlink()
                 command("/lifecycle-close")
         finally:
-            process.stdin.close()
+            stdin.close()
             try:
                 process.wait(timeout=25)
             finally:
                 if process.poll() is None:
                     process.kill()
                     process.wait(timeout=10)
-            output.write(process.stdout.read())
+            output.write(stdout.read())
         if process.returncode:
             raise RuntimeError("fixture host failed; inspect host.stderr")
         _json(work / "host-wait.json", {"pid": process.pid, "waitOwner": os.getpid(), "exit": process.returncode})
@@ -304,6 +305,21 @@ def _qualification(work, events, wait_for, command, begin, finish) -> None:
     (work / "hold").unlink()
     wait_for(lambda: any(row["event"] == "publish" and any(window["UsedPercent"] == 70 for window in row.get("detail", {}).get("windows") or []) for row in events()[start:]))
     phase("session-recovered")
+    phase("fence-session")
+    command("/lifecycle-fence")
+    held = count("fence-held")
+    command("/lifecycle-model deepseek/fixture")
+    wait_for(lambda: count("fence-held") > held)
+    ready = count("ready")
+    command("/lifecycle-session")
+    wait_for(lambda: count("ready") > ready)
+    response()
+    start = len(events())
+    command("/lifecycle-model openrouter/fixture")
+    wait_for(lambda: any(row["event"] == "publish" and any(window["UsedPercent"] == 70 for window in row.get("detail", {}).get("windows") or []) for row in events()[start:]))
+    phase("fence-offers")
+    command("/lifecycle-offers openrouter")
+    phase("fence-recovered")
     (work / "hold").touch()
     held = count("held")
     command("/lifecycle-model deepseek/fixture")
@@ -417,9 +433,9 @@ def _outer(env: dict[str, str], scenario: str = "frozen") -> None:
         shutil.copyfile(source, target)
     shutil.copyfile(__file__, work / "gate.py")
     original = {key: os.readlink("/proc/self/ns/" + key) for key in ("net", "pid", "mnt")}
-    stores = {str(Path(*Path(value).parts[:4])) for value in tools.values()}
-    if any(not value.startswith("/nix/store/") for value in tools.values()):
-        raise PrerequisiteError("native usage gate requires Nix-store toolchain inputs")
+    stores = {str(Path(*Path(value).parts[:4])) for value in (*tools.values(), str(host))}
+    if any(not value.startswith("/nix/store/") for value in (*tools.values(), str(host))):
+        raise PrerequisiteError("native usage gate requires Nix-store inputs")
     closure = subprocess.run(["nix-store", "-qR", *sorted(stores)], executable=tools["nix-store"], env={}, check=True,
                              capture_output=True, text=True, timeout=30).stdout.splitlines()
     if not closure or any(not path.startswith("/nix/store/") or not Path(path).is_dir() for path in closure):

@@ -161,7 +161,7 @@ func registerQualification(ext *sdk.Extension, runtime *native.Runtime, transpor
 	ext.RegisterCommand("lifecycle-collect", sdk.CommandOptions{Handler: func(call sdk.Context, name string) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
-		err := collector.Refresh(ctx, usage.Resolver{Host: hostPort{call: call}})
+		err := collector.Refresh(ctx, usage.Resolver{Host: native.Port(call)})
 		view := collector.Snapshot(time.Now())
 		record("cache-view", map[string]any{"name": name, "windows": view.Windows, "reason": view.Reason, "failed": err != nil})
 		return nil

@@ -110,8 +110,10 @@ func Extension() *sdk.Extension {
 	}
 	registerControls(ext, runtime, held)
 	registerQualification(ext, runtime, clientTransport)
+	unsubscribeFence := registerFence(ext)
 	ext.OnSessionStart(func(_ sdk.Context, _ map[string]any) (any, error) { record("ready", true); return nil, nil })
 	ext.OnSessionShutdown(func(_ sdk.Context, _ map[string]any) (any, error) {
+		unsubscribeFence()
 		transport.CloseIdleConnections()
 		server.Close()
 		record("server-closed", true)

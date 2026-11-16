@@ -6,24 +6,28 @@ module or substituting the installed host. This is additional gate coverage, not
 change to the selected mixed collector, `--prod`, package membership or deployment.
 
 The reviewed prerequisite is an external build artifact, not bundled host source.
-Supply both inputs explicitly:
+The host input is the PiG executable at `libexec/pig/pig` in the PiG package, not
+the `bin/pig` wrapper script that sets PATH and the agent directory before it
+execs that executable. The gate supplies its own PATH and agent roots. Supply
+both inputs explicitly from the devShell:
 
 ```sh
-PIG_NATIVE_USAGE_HOST=/path/to/reviewed/pig \
-PIG_NATIVE_USAGE_SDK=/path/to/its/staged/sdk \
-GOMAXPROCS=2 GOFLAGS=-p=2 npm run test:native-usage-host
+nix develop "path:$PWD" -c env \
+  PIG_NATIVE_USAGE_HOST="$(dirname "$(readlink -f "$(which pig)")")/../libexec/pig/pig" \
+  PIG_NATIVE_USAGE_SDK="$(pig reload --sdk-path)" \
+  GOMAXPROCS=2 GOFLAGS=-p=2 npm run test:native-usage-host
 ```
 
-The launcher accepts only host SHA256
-`caa1427bf3fd721f813b446748408111e4f1eb0138506b66845bf572e1b4ac0a`
+The launcher accepts only PiG `0.7.0+1.5.0` with host SHA256
+`d21d884ef0cab28224bf3eccfa302c8d70e430bc35d71a9a049f9eb1a612587b`
 and SDK tree SHA256
-`f32d435671402b2948d8e14ac010eb8078ce2ceaeb589adab43b8a93f4bb4750`.
+`32342e9e495ac9016e110b1c8d043f8c0a5b59e6bd8a7f084515cd6a25cbf70b`.
 The SDK digest hashes sorted relative POSIX file names, NUL, file bytes, NUL;
-symlinks are rejected. These pins identify the reviewed effective-auth capability
-build. They are not a supported-installed-host claim. The isolated host stages a
-fresh SDK and that tree must match the supplied SDK. Host version and both hashes
-are retained in `identity.json`. Replacing these pins needs prerequisite review;
-a version string alone is insufficient.
+symlinks are rejected. The two pins identify one host executable and the SDK tree
+that host stages for `pig reload --sdk-path`. The isolated host stages a fresh
+SDK and that tree must match the supplied SDK. Host version and both hashes are
+retained in `identity.json`. Changing either pin needs the owner's review of the
+new host and SDK; a version string alone is insufficient.
 
 Run on Linux with working Bubblewrap user/network/PID/mount namespaces and a Nix
 store toolchain. Required executables on PATH: `go`, `cc` (race support), `node`,
@@ -48,9 +52,10 @@ scratch parent to that objective's disposable directory.
 The focused entrypoint is the script that target runs:
 
 ```sh
-PIG_NATIVE_USAGE_HOST=/path/to/reviewed/pig \
-PIG_NATIVE_USAGE_SDK=/path/to/its/staged/sdk \
-python3 scripts/check-native-usage.py
+nix develop "path:$PWD" -c env \
+  PIG_NATIVE_USAGE_HOST="$(dirname "$(readlink -f "$(which pig)")")/../libexec/pig/pig" \
+  PIG_NATIVE_USAGE_SDK="$(pig reload --sdk-path)" \
+  python3 scripts/check-native-usage.py
 ```
 
 It builds, vets and race-tests the nested adapter and conventional lifecycle

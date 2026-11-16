@@ -1,6 +1,7 @@
 /** Real frozen PiG lifecycle acceptance through the private-namespace launcher. */
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -48,6 +49,47 @@ async function json(root, name) {
   return JSON.parse(await readFile(path.join(root, name), "utf8"));
 }
 
+function digest(data) {
+  return createHash("sha256").update(data).digest("hex");
+}
+
+async function treeNames(root, prefix) {
+  const entries = await readdir(path.join(root, prefix), { withFileTypes: true });
+  const names = [];
+  for (const entry of entries) {
+    const name = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isSymbolicLink()) {
+      throw new Error(`reviewed SDK must contain no symlink: ${name}`);
+    }
+    names.push(...(entry.isDirectory() ? await treeNames(root, name) : [name]));
+  }
+  return names.sort();
+}
+
+async function treeDigest(root) {
+  const hash = createHash("sha256");
+  for (const name of await treeNames(root, "")) {
+    hash.update(name);
+    hash.update("\0");
+    hash.update(await readFile(path.join(root, name)));
+    hash.update("\0");
+  }
+  return hash.digest("hex");
+}
+
+function digestsIn(value) {
+  if (typeof value === "string") {
+    return /^[0-9a-f]{64}$/.test(value) ? [value] : [];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap(digestsIn);
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value).flatMap(digestsIn);
+  }
+  return [];
+}
+
 async function launch(scenario = []) {
   const scratch = process.env.PIG_NATIVE_USAGE_SCRATCH;
   assert.ok(scratch, "set PIG_NATIVE_USAGE_SCRATCH to an objective-22 disposable root");
@@ -66,7 +108,7 @@ async function launch(scenario = []) {
   const env = Object.fromEntries(
     keys.filter((key) => process.env[key] !== undefined).map((key) => [key, process.env[key]]),
   );
-  const python = "/nix/store/q1khrhbn506imjxx7kiqcbihycawa6kl-python3-3.13.15/bin/python3";
+  const python = process.env.PIG_NATIVE_USAGE_PYTHON ?? "python3";
   let result;
   try {
     result = await execute(python, ["scripts/check-native-usage.py", ...scenario], {
@@ -124,6 +166,26 @@ test("native usage real-host lifecycle", { timeout: 650_000 }, async (t) => {
     assert.equal(events(rows, "joined")[0].detail, true);
     assert.deepEqual(nonemptyViews(afterJoined(rows)), []);
   });
+
+  await t.test(
+    "AC-identity: gate records the reviewed host and SDK identity",
+    {
+      skip:
+        process.env.PIG_NATIVE_USAGE_HOST && process.env.PIG_NATIVE_USAGE_SDK
+          ? false
+          : "set PIG_NATIVE_USAGE_HOST and PIG_NATIVE_USAGE_SDK",
+    },
+    async () => {
+      const identity = await json(root, "identity.json");
+      const recorded = [...new Set(digestsIn(identity))].sort();
+      const reviewed = [
+        digest(await readFile(process.env.PIG_NATIVE_USAGE_HOST)),
+        await treeDigest(process.env.PIG_NATIVE_USAGE_SDK),
+      ].sort();
+
+      assert.deepEqual(recorded, reviewed);
+    },
+  );
 
   await t.test("AC-shutdown: RPC EOF closes factory server and consumes host wait", async () => {
     const wait = await json(root, "host-wait.json");

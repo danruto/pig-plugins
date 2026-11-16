@@ -3,6 +3,10 @@
 // prompt, cache-only sink and must not retain SDK contexts. No usage bus API is exposed.
 // Each private tick receives a fresh awaited host context; the scheduler and every
 // listener are cancelled and joined before replacement. Contexts never leave a listener.
+// One exception: the readiness emit is a host-owned event-bus dispatch the host
+// cancels only at teardown, so it is never joined. Collection waits for it only
+// until the request timeout or its context ends, and a superseded owner publishes
+// nothing from it.
 package nativeusage
 
 import (
@@ -229,7 +233,7 @@ func (r *Runtime) tick(call sdk.Context, current *owner) error {
 		r.publishCurrent(call, current, view)
 	}
 	if current.refresh.Swap(false) || view.RefreshAt.IsZero() || !time.Now().Before(view.RefreshAt) {
-		err := r.collector.Refresh(ctx, usage.Resolver{Host: hostPort{call: call}})
+		err := r.collector.Refresh(ctx, usage.Resolver{Host: Port(call)})
 		if err != nil && ctx.Err() != nil {
 			return nil
 		}
