@@ -20,7 +20,7 @@ flowchart LR
     host -->|Render request| footer
 ```
 
-Normal extensions run as subprocesses. Compatible Go factories may be fused only after equivalent lifecycle and capability checks. The current executable footer must be converted before fusion; fusion is not required.
+Normal extensions run as subprocesses. Compatible Go factories may be fused only after equivalent lifecycle and capability checks. The footer module is a standalone executable built from `status.New` in `extensions/pig-status/status`. The conventional factory is `nativeusage.Extension`, in its own module. One module root holds either a factory or a standalone main, never both; fusion is not required.
 
 | Owner | Owns | Allowed dependencies |
 | --- | --- | --- |

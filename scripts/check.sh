@@ -19,9 +19,13 @@ else
   sdk=$(pig reload --sdk-path)
 fi
 status_dir="$root/extensions/pig-status"
+native_dir="$status_dir/nativeusage"
 modfile="$tmp/go.mod"
 cp "$status_dir/go.mod" "$modfile"
 go mod edit -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk" "$modfile"
+native_modfile="$tmp/nativeusage.mod"
+cp "$native_dir/go.mod" "$native_modfile"
+go mod edit -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk" -replace="github.com/danruto/pig-plugins/extensions/pig-status=$status_dir" "$native_modfile"
 mkdir "$tmp/lint"
 workfile="$tmp/lint/go.work"
 GOWORK="$workfile" go work init "$status_dir"
@@ -37,6 +41,7 @@ step() {
 }
 
 in_status() { (cd "$status_dir" && "$@"); }
+in_nativeusage() { (cd "$native_dir" && "$@"); }
 
 gofmt_clean() {
   local unformatted
@@ -71,6 +76,8 @@ step "full sandbox" go-vet in_status go vet -modfile="$modfile" ./...
 step "full" go-lint go_lint --check
 step "go-lint-baseline" go-lint-baseline-write go_lint --write
 step "full sandbox" go-test in_status env CGO_ENABLED=1 go test -modfile="$modfile" -race ./...
+step "full sandbox" native-vet in_nativeusage go vet -modfile="$native_modfile" ./...
+step "full sandbox" native-test in_nativeusage env CGO_ENABLED=1 go test -modfile="$native_modfile" -race ./...
 step "usage" go-test-usage in_status env CGO_ENABLED=1 go test -modfile="$modfile" -race ./internal/usage
 step "full" discovery env PIG_STATUS_PACKAGE="$root" node --test test/test-discovery.mjs
 step "full" footer python3 test/check-footer.py

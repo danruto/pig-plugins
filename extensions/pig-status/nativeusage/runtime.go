@@ -1,6 +1,8 @@
 // Package nativeusage stages owned native collection against the reviewed host SDK.
 // Register embeds collection in a conventional factory; Publish is an in-process,
-// prompt, cache-only sink and must not retain SDK contexts. No usage bus API is exposed.
+// prompt, cache-only sink and must not retain SDK contexts. Optional Repaint receives the
+// live host context after each publish made in a session handler or a current owner's
+// tick, and must use it only before returning. No usage bus API is exposed.
 // Each private tick receives a fresh awaited host context; the scheduler and every
 // listener are cancelled and joined before replacement. Contexts never leave a listener.
 // One exception: the readiness emit is a host-owned event-bus dispatch the host
@@ -30,6 +32,7 @@ type Options struct {
 	Client   usage.Client
 	Settings usage.CollectionSettings
 	Publish  func(usage.CachedUsage)
+	Repaint  func(sdk.Context)
 }
 
 type Runtime struct {
@@ -40,6 +43,7 @@ type Runtime struct {
 	settings  usage.CollectionSettings
 	applied   usage.CollectionSettings
 	publish   func(usage.CachedUsage)
+	repaint   func(sdk.Context)
 	owner     *owner
 	active    bool
 	closed    bool
@@ -66,15 +70,29 @@ func Register(ext *sdk.Extension, options Options) (*Runtime, error) {
 	if options.Publish == nil {
 		return nil, errors.New("native usage requires an in-process cache sink")
 	}
-	r := &Runtime{ext: ext, collector: usage.NewCollector(options.Client), settings: copySettings(options.Settings), publish: options.Publish}
+	r := &Runtime{ext: ext, collector: usage.NewCollector(options.Client), settings: copySettings(options.Settings), publish: options.Publish, repaint: options.Repaint}
 	r.applySettings()
-	ext.OnSessionStart(func(_ sdk.Context, _ map[string]any) (any, error) { return nil, r.start() })
+	ext.OnSessionStart(r.onSession(r.start))
 	for _, event := range []string{"model_select", "session_tree"} {
-		ext.OnEvent(event, func(_ sdk.Context, _ map[string]any) (any, error) { return nil, r.start() })
+		ext.OnEvent(event, r.onSession(r.start))
 	}
 	ext.OnEvent("turn_end", func(_ sdk.Context, _ map[string]any) (any, error) { r.wake(); return nil, nil })
-	ext.OnSessionShutdown(func(_ sdk.Context, _ map[string]any) (any, error) { return nil, r.stop() })
+	ext.OnSessionShutdown(r.onSession(r.stop))
 	return r, nil
+}
+
+func (r *Runtime) onSession(change func() error) sdk.EventFunc {
+	return func(call sdk.Context, _ map[string]any) (any, error) {
+		err := change()
+		r.repaintWith(call)
+		return nil, err
+	}
+}
+
+func (r *Runtime) repaintWith(call sdk.Context) {
+	if r.repaint != nil && call.Err() == nil {
+		r.repaint(call)
+	}
 }
 
 func copySettings(settings usage.CollectionSettings) usage.CollectionSettings {
@@ -285,6 +303,7 @@ func (r *Runtime) publishCurrent(call sdk.Context, current *owner, view usage.Ca
 	notify := view.Reason != "" && view.Reason != current.reason
 	current.reason = view.Reason
 	r.mu.Unlock()
+	r.repaintWith(call)
 	if notify {
 		call.Notify("Native usage unavailable: "+view.Reason, "warning")
 	}

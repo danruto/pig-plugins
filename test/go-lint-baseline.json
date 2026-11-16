@@ -2370,37 +2370,37 @@
     "text": "ST1005: error strings should not end with punctuation or newlines"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function fit is 17, max is 10"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function render is 21, max is 10"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "funlen",
     "text": "Function 'fit' has too many statements (39 > 30)"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "funlen",
     "text": "Function 'render' has too many statements (38 > 30)"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "perfsprint",
     "text": "integer-format: fmt.Sprint can be replaced with faster strconv.Itoa"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "revive",
     "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 9"
   },
   {
-    "file": "extensions/pig-status/main.go",
+    "file": "extensions/pig-status/status/status.go",
     "linter": "revive",
     "text": "flag-parameter: parameter 'gauge' seems to be a control flag, avoid control coupling"
   }
