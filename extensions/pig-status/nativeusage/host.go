@@ -274,6 +274,20 @@ func (p hostPort) Collect(ctx context.Context, request usage.CollectionRequest) 
 	if err := observable(request.Kind, usingOAuth, providerAuth); err != nil {
 		return usage.CollectionResult{}, err
 	}
+	if err := p.emit(ctx, request); err != nil {
+		return usage.CollectionResult{}, err
+	}
+	sessionID, err := p.call.GetSessionID()
+	if err != nil {
+		return usage.CollectionResult{}, err
+	}
+	if sessionID != request.SessionID {
+		return usage.CollectionResult{}, usage.ErrUsageChanged
+	}
+	return usage.CollectionResult{SessionID: sessionID}, ctx.Err()
+}
+
+func (p hostPort) emit(ctx context.Context, request usage.CollectionRequest) error {
 	settled := make(chan error, 1)
 	go func() {
 		settled <- p.call.Events().Emit(request.Channel, map[string]any{"provider": request.ProviderID, "sessionId": request.SessionID})
@@ -283,18 +297,14 @@ func (p hostPort) Collect(ctx context.Context, request usage.CollectionRequest) 
 	select {
 	case err := <-settled:
 		if err != nil {
-			return usage.CollectionResult{}, err
+			return usage.ErrUsageChanged
 		}
 	case <-ctx.Done():
-		return usage.CollectionResult{}, ctx.Err()
+		return ctx.Err()
 	case <-timer.C:
-		return usage.CollectionResult{}, context.DeadlineExceeded
+		return context.DeadlineExceeded
 	}
-	sessionID, err := p.call.GetSessionID()
-	if err != nil {
-		return usage.CollectionResult{}, err
-	}
-	return usage.CollectionResult{SessionID: sessionID}, ctx.Err()
+	return nil
 }
 
 func observable(kind string, usingOAuth bool, providerAuth map[string]any) error {

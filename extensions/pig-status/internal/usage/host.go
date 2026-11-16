@@ -200,6 +200,9 @@ func (r Resolver) collect(ctx context.Context, snapshot hostSnapshot, channel, k
 	}
 	result, err := r.Host.Collect(ctx, CollectionRequest{Channel: channel, Kind: kind, ProviderID: snapshot.Provider, SessionID: snapshot.SessionID, TimeoutMS: hostTimeout(ctx)})
 	if err != nil {
+		if errors.Is(err, ErrUsageChanged) {
+			return nil, ErrUsageChanged
+		}
 		return nil, hostFailure(ctx)
 	}
 	if result.SessionID != snapshot.SessionID {

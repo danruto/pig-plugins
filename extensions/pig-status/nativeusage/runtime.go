@@ -6,13 +6,17 @@
 // One exception: the readiness emit is a host-owned event-bus dispatch the host
 // cancels only at teardown, so it is never joined. Collection waits for it only
 // until the request timeout or its context ends, and a superseded owner publishes
-// nothing from it.
+// nothing from it. A bridge emission failure publishes one cleared view carrying a
+// fixed sanitized reason for the length of the failure streak; the scheduler stays
+// alive and retries on the next wake or after the failure backoff. An owner publishes
+// nothing before its own first completed refresh.
 package nativeusage
 
 import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"maps"
 	"sync"
 	"sync/atomic"
@@ -34,6 +38,7 @@ type Runtime struct {
 	ext       *sdk.Extension
 	collector *usage.Collector
 	settings  usage.CollectionSettings
+	applied   usage.CollectionSettings
 	publish   func(usage.CachedUsage)
 	owner     *owner
 	active    bool
@@ -49,15 +54,20 @@ type owner struct {
 	err       error
 	reason    string
 	refresh   atomic.Bool
+	refreshed atomic.Bool
 }
 
 var errBridge = errors.New("native usage host bridge failed")
+
+const bridgeFailureReason = "host-bridge-failed"
+const bridgeFailureBackoff = 30 * time.Second
 
 func Register(ext *sdk.Extension, options Options) (*Runtime, error) {
 	if options.Publish == nil {
 		return nil, errors.New("native usage requires an in-process cache sink")
 	}
 	r := &Runtime{ext: ext, collector: usage.NewCollector(options.Client), settings: copySettings(options.Settings), publish: options.Publish}
+	r.applySettings()
 	ext.OnSessionStart(func(_ sdk.Context, _ map[string]any) (any, error) { return nil, r.start() })
 	for _, event := range []string{"model_select", "session_tree"} {
 		ext.OnEvent(event, func(_ sdk.Context, _ map[string]any) (any, error) { return nil, r.start() })
@@ -75,15 +85,21 @@ func copySettings(settings usage.CollectionSettings) usage.CollectionSettings {
 func (r *Runtime) Configure(settings usage.CollectionSettings) error {
 	r.lifecycle.Lock()
 	defer r.lifecycle.Unlock()
-	if err := r.drain(); err != nil {
-		return err
-	}
 	r.settings = copySettings(settings)
-	r.collector.Configure(r.settings)
+	predecessor := r.drain()
+	r.applySettings()
 	if r.active && !r.closed {
-		return r.launch()
+		return errors.Join(r.launch(), predecessorError(predecessor))
 	}
-	return nil
+	return predecessorError(predecessor)
+}
+
+func (r *Runtime) applySettings() {
+	if maps.Equal(r.settings.Targets, r.applied.Targets) && r.settings.UseCodexUsage == r.applied.UseCodexUsage {
+		return
+	}
+	r.collector.Configure(r.settings)
+	r.applied = copySettings(r.settings)
 }
 
 func (r *Runtime) start() error {
@@ -92,12 +108,9 @@ func (r *Runtime) start() error {
 	if r.closed {
 		return nil
 	}
-	if err := r.drain(); err != nil {
-		return err
-	}
-	r.collector.Configure(r.settings)
+	predecessor := r.drain()
 	r.active = true
-	return r.launch()
+	return errors.Join(r.launch(), predecessorError(predecessor))
 }
 
 func (r *Runtime) stop() error {
@@ -125,7 +138,6 @@ func (r *Runtime) drain() error {
 		previous.listeners.Wait()
 		previous.off()
 	}
-	r.collector.Configure(r.settings)
 	r.publish(usage.CachedUsage{})
 	if previous != nil {
 		return previous.err
@@ -133,9 +145,15 @@ func (r *Runtime) drain() error {
 	return nil
 }
 
+func predecessorError(err error) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("previous native usage owner: %w", err)
+}
+
 func (r *Runtime) launch() error {
 	current := &owner{stop: make(chan struct{}), done: make(chan struct{}), wake: make(chan struct{}, 1)}
-	current.refresh.Store(true)
 	channel := "native-usage-private-" + rand.Text()
 	off, err := r.ext.Events().On(channel, func(call sdk.Context, _ any) error { return r.tick(call, current) })
 	if err != nil {
@@ -185,7 +203,9 @@ func (r *Runtime) schedule(current *owner, channel string) {
 		}
 		if err := r.ext.Events().Emit(channel, nil); err != nil {
 			current.err = errBridge
-			return
+			r.publishBridgeFailure(current)
+			timer.Reset(bridgeFailureBackoff)
+			continue
 		}
 		timer.Reset(nextWake(r.collector.Snapshot(time.Now()), time.Now()))
 	}
@@ -229,18 +249,30 @@ func (r *Runtime) tick(call sdk.Context, current *owner) error {
 	}()
 	defer func() { cancel(); <-joined }()
 	view := r.collector.Snapshot(time.Now())
-	if view.ExpiresAt.IsZero() {
+	refreshed := current.refreshed.Load()
+	if refreshed && view.ExpiresAt.IsZero() {
 		r.publishCurrent(call, current, view)
 	}
-	if current.refresh.Swap(false) || view.RefreshAt.IsZero() || !time.Now().Before(view.RefreshAt) {
+	if current.refresh.Swap(false) || !refreshed || view.RefreshAt.IsZero() || !time.Now().Before(view.RefreshAt) {
 		err := r.collector.Refresh(ctx, usage.Resolver{Host: Port(call)})
 		if err != nil && ctx.Err() != nil {
 			return nil
 		}
+		current.refreshed.Store(true)
 		view = r.collector.Snapshot(time.Now())
 	}
 	r.publishCurrent(call, current, view)
 	return nil
+}
+
+func (r *Runtime) publishBridgeFailure(current *owner) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.owner != current || current.reason == bridgeFailureReason {
+		return
+	}
+	current.reason = bridgeFailureReason
+	r.publish(usage.CachedUsage{Reason: bridgeFailureReason})
 }
 
 func (r *Runtime) publishCurrent(call sdk.Context, current *owner, view usage.CachedUsage) {
