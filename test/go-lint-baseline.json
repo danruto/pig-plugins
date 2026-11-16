@@ -1927,22 +1927,7 @@
   {
     "file": "extensions/pig-status/internal/usage/transport.go",
     "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function fetchJSON is 21, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport.go",
-    "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function validatedHeaders is 19, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport.go",
-    "linter": "errcheck",
-    "text": "Error return value of `response.Body.Close` is not checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport.go",
-    "linter": "funlen",
-    "text": "Function 'fetchJSON' has too many statements (44 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/transport.go",
@@ -1983,11 +1968,6 @@
     "file": "extensions/pig-status/internal/usage/transport.go",
     "linter": "revive",
     "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport.go",
-    "linter": "revive",
-    "text": "flag-parameter: parameter 'zai' seems to be a control flag, avoid control coupling"
   },
   {
     "file": "extensions/pig-status/internal/usage/transport.go",

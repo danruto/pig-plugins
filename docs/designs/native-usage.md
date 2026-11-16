@@ -108,6 +108,12 @@ The staged `internal/usage/settings.go` reads and writes `pi-usage.json` in the 
 
 The staged `internal/usage/command.go` provides the `/usage` menu loop and its presentation: current-provider refresh, another configured provider, all configured providers, Fireworks billing-target selection and the Codex companion toggle, with no-argument handling for terminal and RPC modes and sanitized failure notices. Neither file is SDK-bound or registered. Installed `/usage` remains with the TypeScript collector, and command registration lands with package-membership replacement.
 
+### Staged Codex Fast mode
+
+The staged `internal/usage/codex_fast.go` holds the Codex Fast model, capability and availability values, the request service tier, the payload rewrite, the assistant-message cost correction and the status label. `codex_fast_catalog.go` holds the account-scoped model-directory catalog and `codex_fast_mode.go` the `/fast` runtime with its session lifecycle, request and message hooks. All three files are SDK-free. Nothing registers a command or event hook: the installed `/fast` stays with the TypeScript collector, and registration lands with package-membership replacement.
+
+Capability discovery keys the directory by a hashed account identity and is fenced by the session, the selected provider and model, and a catalog generation, so a stale directory result reaches no successor. A directory failure falls back to the conservative unknown capability with a fixed reason. The request hook reads the saved toggle and records the tier it chose; the message hook corrects the assistant cost from that record. A saved toggle therefore affects only later requests, never one already sent.
+
 ## Behavior to preserve
 
 ### Collection and presentation

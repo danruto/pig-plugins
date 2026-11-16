@@ -15,6 +15,7 @@ import (
 	"reflect"
 	"regexp"
 	"slices"
+	"strconv"
 	"sync"
 	"syscall"
 )
@@ -116,6 +117,21 @@ func (s *SettingsStore) SetCodexUsage(ctx context.Context, enabled bool) (Settin
 	if enabled {
 		next.fields["openaiUseCodexUsage"] = json.RawMessage("true")
 	}
+	if _, err := s.persist(ctx, previous, next); err != nil {
+		return cloneSettingsState(s.state), err
+	}
+	return cloneSettingsState(s.state), nil
+}
+
+func (s *SettingsStore) SetCodexFast(ctx context.Context, enabled bool) (SettingsState, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	previous, err := s.loadForSave(ctx)
+	if err != nil {
+		return cloneSettingsState(s.state), err
+	}
+	next := previous.clone()
+	next.fields["codexFastMode"] = json.RawMessage(strconv.FormatBool(enabled))
 	if _, err := s.persist(ctx, previous, next); err != nil {
 		return cloneSettingsState(s.state), err
 	}
