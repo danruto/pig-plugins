@@ -46,7 +46,7 @@ Offline synthetic checks cover payload preservation, native-provider retention a
 
 The collector uses the backend's versioned `usage:query:v1` / `usage:changed:v1` contract. It rejects late responses after session/model changes and clears quota when its cache entry or window expires.
 
-The target is a Go-only PiG package. The [native usage port plan](docs/designs/native-usage.md) preserves the provider adapters, settings and commands in the native Go collector, which the package now selects; the TypeScript collector is removed. Nix packaging still uses the npm build until it switches to a native Go build. The port translates the pinned open-source modules directly, with focused native tests and representative output comparisons rather than exhaustive branch capture. The native transport and balance adapters are part of the selected native collector.
+This is a Go-only PiG package. The [native usage port plan](docs/designs/native-usage.md) preserves the provider adapters, settings and commands in the native Go collector, which the package now selects; the TypeScript collector is removed. Nix packaging is a native Go build with no Node runtime requirement. The port translates the pinned open-source modules directly, with focused native tests and representative output comparisons rather than exhaustive branch capture. The native transport and balance adapters are part of the selected native collector.
 
 ## Review design docs
 
@@ -73,7 +73,7 @@ npm test
 
 This runs adapter checks, pinned-source native usage comparisons, TypeScript checking and oxlint, Go formatting, `go fix -diff`, build/vet/race tests and golangci-lint, real package discovery and a terminal smoke test at 120 and 80 columns. The terminal fixture sends no model prompt. Use the flake devShell (`nix develop`, or direnv) for the pinned golangci-lint and Python.
 
-`scripts/check.sh` holds the one check list. `npm test` runs every step; the Nix build runs the steps that need no PiG host, except golangci-lint; `npm run test:usage-native` checks only the native usage slice.
+`scripts/check.sh` holds the one check list. `npm test` runs every step; the Nix build runs the Go steps and the cross-builds; `npm run test:usage-native` checks only the native usage slice; `npm run test:package` qualifies a built output (see [Reproducible package](#reproducible-package)).
 
 golangci-lint reports issues that predate the gate in `test/go-lint-baseline.json`. The check fails on any issue outside it, and on a baseline entry that no longer occurs. After fixing issues, run `npm run lint:go-baseline` and review the diff. Do not add new issues to the baseline or raise a limit.
 
@@ -88,7 +88,20 @@ nix build "path:$PWD#pig-status"
 pig install ./result --validate-only --json
 ```
 
-The output contains the prebuilt native footer, status collector, prepared compactor and locked production dependencies. PiG supplies the Node compatibility runtime. Source installation builds the Go footer on first use; the Nix output needs no Go compiler at runtime.
+The build compiles the Go footer natively and prepares the pinned compactor hooks from their fetched tarball; Node is a build-time input only. The output holds `bin/pig-status`, the compactor extension, `compaction/payload.ts`, `compaction/generated/`, the licence, the notices, and a `package.json` naming `bin/pig-status`. It ships no `node_modules` and no Node runtime in its closure; PiG's own closure supplies the Node runtime the compactor runs on.
+
+Qualify the built output inside the flake devShell:
+
+```sh
+nix build "path:$PWD#pig-status"
+PIG_STATUS_PACKAGE=$PWD/result bash scripts/check.sh package
+```
+
+That profile checks the package layout, `pig install --validate-only`, discovery, command registration, the 120/80-column footer and its shutdown, then measures startup, resident memory and shutdown. Every step runs with no `node` on `PATH`.
+
+Runtime evidence exists for `x86_64-linux` only. `aarch64-linux` and `aarch64-darwin` are cross-builds (`GOOS`/`GOARCH`, `CGO_ENABLED=0`) and are reported as such, never as runtime evidence. All of these are fixture checks: live-provider qualification is separate (`npm run test:native-usage-host`, with owner approval).
+
+Source installation builds the Go footer on first use; the Nix output needs no Go compiler at runtime.
 
 Dotfiles should select this package and own personal configuration, not contain its implementation. During development, select the checkout. Use an immutable source/release pin after publication.
 

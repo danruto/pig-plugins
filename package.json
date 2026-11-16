@@ -38,6 +38,7 @@
     "docs:dev": "node scripts/docs-dev.mjs",
     "test": "bash scripts/check.sh",
     "test:native-usage-host": "python3 scripts/check-native-usage.py",
+    "test:package": "bash scripts/check.sh package",
     "test:usage-baseline": "bash scripts/check-usage-baseline.sh",
     "test:usage-native": "bash scripts/check.sh usage",
     "test:docs": "node --test test/test-docs.mjs",

@@ -40,7 +40,11 @@
             url = "https://github.com/MichaelKinsy/PiG/archive/refs/tags/v0.5.3.tar.gz";
             hash = "sha256-XK27VNd799qUCsOUidYPo/leleMWtoan5gNuke9geqk=";
           };
-          status = pkgs.buildNpmPackage {
+          compactionSource = pkgs.fetchurl {
+            url = "https://github.com/algal/pi-openai-server-compaction/archive/8a3de2f3b0c178fdd6f73f2f94172dfc3943e466.tar.gz";
+            hash = "sha512-IBOV38685kVaYyHgx8ZRrDL3p9PSovn8u3krabkVA8kdgE3ypmo5aDt9Y06X08N6tFJF5rr3n3WzgkroVCMY+Q==";
+          };
+          status = pkgs.stdenv.mkDerivation {
             pname = "pig-status";
             version = "0.3.1";
             src = pkgs.lib.cleanSourceWith {
@@ -48,9 +52,7 @@
               filter = path: type: !(builtins.elem (baseNameOf path) [ ".git" ".pb" "node_modules" ".direnv" "result" ])
                 && path != (toString ./. + "/compaction/generated");
             };
-            npmDepsHash = "sha256-z9bsQCnX2vpBw7NYXEiuDvKuWQoKgZvgBLuaQLdR8Ww=";
-            npmFlags = [ "--legacy-peer-deps" "--ignore-scripts" ];
-            nativeBuildInputs = [ pkgs.go pkgs.python3 pkgs.patch ];
+            nativeBuildInputs = [ pkgs.go pkgs.nodejs pkgs.python3 ];
             env = {
               CGO_ENABLED = "0";
               GOTOOLCHAIN = "local";
@@ -59,7 +61,9 @@
             };
             buildPhase = ''
               runHook preBuild
-              npm run prepare:compaction
+              mkdir -p node_modules/pi-openai-server-compaction
+              tar -xzf ${compactionSource} --strip-components=1 -C node_modules/pi-openai-server-compaction
+              node scripts/prepare-compaction.mjs
               export GOCACHE="$TMPDIR/go-cache"
               export GOMAXPROCS="$NIX_BUILD_CORES"
               export GOFLAGS="-p=$NIX_BUILD_CORES"
@@ -75,22 +79,29 @@
               PIG_STATUS_SDK=${sdkSource}/extensions/sdk bash scripts/check.sh sandbox
               runHook postCheck
             '';
+            doInstallCheck = true;
+            installCheckPhase = ''
+              runHook preInstallCheck
+              python3 test/check-package.py "$out"
+              runHook postInstallCheck
+            '';
             installPhase = ''
               runHook preInstall
-              npm prune --omit=dev --ignore-scripts --legacy-peer-deps
-              mkdir -p "$out/extensions" "$out/bin" "$out/compaction"
+              mkdir -p "$out/bin" "$out/extensions" "$out/compaction"
               install -m755 "$TMPDIR/pig-status" "$out/bin/pig-status"
               cp extensions/pig-openai-server-compaction.ts "$out/extensions/"
               cp compaction/payload.ts "$out/compaction/"
               cp -r compaction/generated "$out/compaction/"
-              cp -r node_modules "$out/"
               cp LICENSE THIRD_PARTY_NOTICES.md "$out/"
-              node --input-type=module -e '
-                import fs from "node:fs";
-                const pkg = JSON.parse(fs.readFileSync("package.json"));
-                pkg.pi.extensions[0] = "bin/pig-status";
-                fs.writeFileSync(process.argv[1], JSON.stringify(pkg));
-              ' "$out/package.json"
+              python3 -c '
+import json, sys
+with open("package.json", encoding="utf-8") as source:
+    manifest = json.load(source)
+manifest["pi"]["extensions"][0] = "bin/pig-status"
+with open(sys.argv[1], "w", encoding="utf-8") as sink:
+    json.dump(manifest, sink, indent=2)
+    sink.write("\n")
+' "$out/package.json"
               runHook postInstall
             '';
             meta = {

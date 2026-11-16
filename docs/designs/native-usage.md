@@ -2,9 +2,9 @@
 
 ## Scope and current state
 
-This repository targets PiG only. The target is a Go-only status package with no Node runtime requirement. Pi adapters and Pi-only tests are outside its scope.
+This repository targets PiG only. The status package is Go-only: the Nix output carries the native footer, needs no Node runtime and ships no `node_modules`, and PiG's own closure supplies the Node runtime the compactor runs on. Pi adapters and Pi-only tests are outside its scope.
 
-`extensions/pig-status/` is the selected footer and usage collector: its `main.go` runs the `nativeusage.Extension` factory, which composes `status.New` with native collection, `/usage`, `/fast` and the Codex reset flow. The package ships no TypeScript usage collector and no `@narumitw/pi-usage` runtime dependency; that package stays a pinned development dependency for the source-reference scripts under `scripts/` and `probes/`. Packaging still runs the package's npm build step until checkpoint 7 replaces it.
+`extensions/pig-status/` is the selected footer and usage collector: its `main.go` runs the `nativeusage.Extension` factory, which composes `status.New` with native collection, `/usage`, `/fast` and the Codex reset flow. The package ships no TypeScript usage collector and no `@narumitw/pi-usage` runtime dependency; that package stays a pinned development dependency for the source-reference scripts under `scripts/` and `probes/`.
 
 The native usage port is selected and source-led: it translates the pinned backend module by module. This package does not ship Pi runtime adapters.
 
@@ -164,7 +164,7 @@ The Go/Node bridge characterization in the [compatibility record](../compatibili
 4. [x] Port `/usage`, settings, `/fast` and reset workflows. Prove terminal/RPC behavior, persistence and rollback on failure, request-tier and cost attribution, confirmation and safe reset retry with local fixtures only.
 5. [x] Integrate native collection with the footer. Use conventional Go factories if the package is to support fusion; the current executable footer is not a fusible factory. Keep collection separate from rendering.
 6. [x] Replace package membership atomically after scoped functional and safety qualification. Remove the TypeScript collector, its dependency and obsolete adapter tests only when required workflows have native coverage. Replace Node-dependent status checks and the Claude test fixture; retain package metadata needed for PiG discovery.
-7. [ ] Switch Nix packaging from the npm build to a native Go build. Verify source installation, prebuilt package discovery, validation, 120/80-column terminal rendering, clean shutdown and supported Linux/macOS targets without Node. Measure matched startup, resident memory and shutdown; distinguish fixture proof from live-provider qualification.
+7. [x] Switch Nix packaging from the npm build to a native Go build. Verify source installation, prebuilt package discovery, validation, 120/80-column terminal rendering, clean shutdown and supported Linux/macOS targets without Node. Measure matched startup, resident memory and shutdown; distinguish fixture proof from live-provider qualification.
 
 ## Cutover gate
 

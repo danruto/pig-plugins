@@ -3,7 +3,7 @@
 Owned PiG plugins live here. This package targets PiG only; do not add Pi adapters or Pi-only tests. Personal configuration and host deployment selection belong in the consuming dotfiles repository.
 
 - `extensions/pig-status/` is the native Go footer and the selected usage collector; `extensions/pig-status/nativeusage/` is its conventional factory.
-- Go-only status is the target, not the current runtime. Read `docs/designs/native-usage.md` before changing the collector; retain its provider/account features and commands, and keep the scoped functional and safety checks passing. Exact upstream API, parser and message parity is not required.
+- Go-only status is the packaging reality: the Nix output carries the native Go footer, needs no Node runtime and ships no `node_modules`; PiG supplies the Node runtime the compactor runs on. Read `docs/designs/native-usage.md` before changing the collector; retain its provider/account features and commands, and keep the scoped functional and safety checks passing. Exact upstream API, parser and message parity is not required.
 - `probes/` contains compatibility experiments, not installed extensions.
 - Port usage directly from the pinned open-source backend, module by module. Reuse useful fixtures and compare representative outputs; exhaustive branch capture and the historical pending ledger are not implementation or cutover gates. Keep `npm run test:usage-baseline` optional.
 
@@ -14,6 +14,8 @@ Run checks inside the flake devShell (`nix develop "path:$PWD"`, or direnv); it 
 `npm run test:native-usage-host` is a separate target that needs a reviewed PiG host; see `scripts/check-native-usage.md`.
 
 Build the complete package with `nix build "path:$PWD#pig-status"`. The path form includes uncommitted files. Go modules use PiG's version-matched staged SDK; the check script supplies a temporary replacement rather than committing a machine path.
+
+Qualify a built output with `PIG_STATUS_PACKAGE=$PWD/result bash scripts/check.sh package`: package layout, `pig install --validate-only`, discovery, registration, the 120/80-column footer, and startup/memory/shutdown measurement, all with no `node` on `PATH`.
 
 ## Safety
 

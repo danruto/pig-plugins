@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package-membership checks for the native usage cutover."""
+"""Package-membership checks for the native usage cutover, for a source checkout or a prebuilt package."""
 
 import json
 import os
@@ -8,13 +8,26 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+from typing import Any
 
 project = Path(__file__).resolve().parent.parent
 package = Path(os.environ.get("PIG_STATUS_PACKAGE", project)).resolve()
 
-PACKAGED_EXTENSIONS = ["extensions/pig-status", "extensions/pig-openai-server-compaction.ts"]
-DISCOVERED_EXTENSIONS = ["pig-openai-server-compaction", "pig-status"]
+SOURCE_EXTENSIONS = ["extensions/pig-status", "extensions/pig-openai-server-compaction.ts"]
+PREBUILT_EXTENSIONS = ["bin/pig-status", "extensions/pig-openai-server-compaction.ts"]
 OWNED_COMMANDS = {"fast", "usage"}
+
+
+def read_manifest() -> dict[str, Any]:
+    return json.loads((package / "package.json").read_text(encoding="utf-8"))
+
+
+def declared_extensions(manifest: dict[str, Any]) -> list[str]:
+    pi = manifest["pi"]
+    assert isinstance(pi, dict), pi
+    extensions = pi["extensions"]
+    assert extensions in (SOURCE_EXTENSIONS, PREBUILT_EXTENSIONS), extensions
+    return extensions
 
 
 def disposable_env(root: str) -> dict[str, str]:
@@ -64,19 +77,25 @@ def rpc_responses(process: subprocess.Popen, ids: set[str]) -> dict[str, dict]:
 
 
 def check_metadata() -> None:
-    manifest = json.loads((package / "package.json").read_text())
+    manifest = read_manifest()
+    extensions = declared_extensions(manifest)
+    source_checkout = extensions == SOURCE_EXTENSIONS
 
     assert "@narumitw/pi-usage" not in manifest.get("dependencies", {}), manifest.get("dependencies", {})
-    assert manifest["devDependencies"]["@narumitw/pi-usage"] == "0.68.3", manifest["devDependencies"]
-    assert manifest["overrides"]["@narumitw/pi-tui-kit"] == "0.67.0", manifest["overrides"]
-    assert manifest["pi"]["extensions"] == PACKAGED_EXTENSIONS, manifest["pi"]["extensions"]
-    missing = [entry for entry in PACKAGED_EXTENSIONS + manifest.get("files", []) if not (package / entry).exists()]
+    listed = extensions + (manifest.get("files", []) if source_checkout else [])
+    missing = [entry for entry in listed if not (package / entry).exists()]
 
     assert not missing, f"package.json names missing paths: {missing}"
-    print("Package metadata: no runtime usage dependency, two packaged extensions, every listed path present")
+    if source_checkout:
+        assert manifest["devDependencies"]["@narumitw/pi-usage"] == "0.68.3", manifest["devDependencies"]
+        assert manifest["overrides"]["@narumitw/pi-tui-kit"] == "0.67.0", manifest["overrides"]
+        print("Package metadata: source checkout, no runtime usage dependency, two packaged extensions")
+    else:
+        print("Package metadata: prebuilt package, two packaged extensions, every listed path present")
 
 
 def check_discovery() -> None:
+    extensions = declared_extensions(read_manifest())
     with tempfile.TemporaryDirectory(prefix="pig-status-discovery-") as root:
         env = disposable_env(root)
         discovered = Path(root) / "agent" / "extensions"
@@ -89,18 +108,19 @@ def check_discovery() -> None:
 
         assert result.returncode == 0, result.stderr or result.stdout
         resources = json.loads(result.stdout)["resources"]["items"]
-        extensions = [item for item in resources if item["kind"] == "extensions"]
-        names = sorted(item["name"] for item in extensions)
-        footers = [item for item in extensions if item["name"] == "pig-status"]
+        discovered = [item for item in resources if item["kind"] == "extensions"]
+        names = sorted(item["name"] for item in discovered)
+        footers = [item for item in discovered if item["name"] == "pig-status"]
 
-        assert names == DISCOVERED_EXTENSIONS, names
+        assert names == sorted(extension_name(entry) for entry in extensions), names
         assert len(footers) == 1, footers
         assert footers[0]["enabled"] is True, footers[0]
-        assert Path(footers[0]["path"]).resolve() == (package / "extensions/pig-status").resolve(), footers[0]["path"]
-        print("Discovery: one enabled pig-status extension, no pig-status-usage collector")
+        assert Path(footers[0]["path"]).resolve() == (package / extensions[0]).resolve(), footers[0]["path"]
+        print(f"Discovery: one enabled pig-status extension from {extensions[0]}, no pig-status-usage collector")
 
 
 def check_registration() -> None:
+    extensions = declared_extensions(read_manifest())
     with tempfile.TemporaryDirectory(prefix="pig-status-registration-") as root:
         process = subprocess.Popen(
             ["pig", "--mode", "rpc", "--no-session", "--approve", "--no-extensions", "-e", str(package)],
@@ -136,7 +156,7 @@ def check_registration() -> None:
         assert {extension_name(command["sourceInfo"]["path"]) for command in owned} == {"pig-status"}, owned
         assert not [command for command in owned if Path(command["sourceInfo"]["path"]).suffix], owned
         assert sorted(Path(path).resolve() for path in responses["extensions"]["data"]["paths"]) == sorted(
-            (package / entry).resolve() for entry in PACKAGED_EXTENSIONS
+            (package / entry).resolve() for entry in extensions
         ), responses["extensions"]["data"]["paths"]
         print("Registration: usage and fast registered once each, both from the pig-status extension")
 
