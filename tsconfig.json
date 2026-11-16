@@ -13,5 +13,5 @@
     "allowImportingTsExtensions": true,
     "types": ["node"]
   },
-  "include": ["status/**/*.ts", "extensions/*.ts", "compaction/payload.ts"]
+  "include": ["extensions/*.ts", "compaction/payload.ts"]
 }

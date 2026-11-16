@@ -78,12 +78,11 @@
             installPhase = ''
               runHook preInstall
               npm prune --omit=dev --ignore-scripts --legacy-peer-deps
-              mkdir -p "$out/extensions" "$out/status" "$out/bin" "$out/compaction"
+              mkdir -p "$out/extensions" "$out/bin" "$out/compaction"
               install -m755 "$TMPDIR/pig-status" "$out/bin/pig-status"
-              cp extensions/pig-status-usage.ts extensions/pig-openai-server-compaction.ts "$out/extensions/"
+              cp extensions/pig-openai-server-compaction.ts "$out/extensions/"
               cp compaction/payload.ts "$out/compaction/"
               cp -r compaction/generated "$out/compaction/"
-              cp status/usage.ts "$out/status/"
               cp -r node_modules "$out/"
               cp LICENSE THIRD_PARTY_NOTICES.md "$out/"
               node --input-type=module -e '

@@ -10,7 +10,6 @@
   ],
   "files": [
     "extensions",
-    "status",
     "compaction",
     "scripts",
     "docs",
@@ -20,17 +19,14 @@
   "pi": {
     "extensions": [
       "extensions/pig-status",
-      "extensions/pig-status-usage.ts",
       "extensions/pig-openai-server-compaction.ts"
     ]
-  },
-  "dependencies": {
-    "@narumitw/pi-usage": "0.68.3"
   },
   "overrides": {
     "@narumitw/pi-tui-kit": "0.67.0"
   },
   "devDependencies": {
+    "@narumitw/pi-usage": "0.68.3",
     "@types/node": "26.6.5",
     "markdown-it": "14.3.3",
     "oxlint": "1.93.0",

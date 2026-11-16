@@ -1,8 +1,8 @@
 # Disposable native authentication fixture
 
-This is a staging adapter, not an installed extension. It imports the shipping SDK-free `usage.Resolver` and `usage.Dispatcher`; it does not reproduce their policy. Its SDK calls use only the current awaited command context. The two query workers and the cancellation observer are joined before the handler returns. Its TLS transport maps logical official destinations only to its own declared loopback listener, using the existing production client and a test-certificate trust root.
+This is a disposable host-auth fixture, not an installed extension. It imports the shipping SDK-free `usage.Resolver` and `usage.Dispatcher`; it does not reproduce their policy. Its SDK calls use only the current awaited command context. The two query workers and the cancellation observer are joined before the handler returns. Its TLS transport maps logical official destinations only to its own declared loopback listener, using the existing production client and a test-certificate trust root.
 
-The fixture depends on the frozen reviewed host and its actually staged Go SDK under `.pb/probes/host-auth/`. Do not substitute the installed host or modify that dependency. The root status module and package membership intentionally remain unchanged. No module contains a machine-local replacement: the build coordinator supplies owned temporary modfiles.
+The fixture depends on the frozen reviewed host and its actually staged Go SDK under `.pb/probes/host-auth/`. Do not substitute the installed host or modify that dependency. The fixture does not change the root status module or package membership; the package selects the native Go collector. No module contains a machine-local replacement: the build coordinator supplies owned temporary modfiles.
 
 From the repository root:
 
@@ -23,7 +23,7 @@ env -i "$PY" probes/native-auth/run.py ANOTHER_UNIQUE_NAME checks
 env -i "$PY" probes/native-auth/run.py THIRD_UNIQUE_NAME footer
 ```
 
-`checks` executes the precompiled owning usage/footer race binaries, four pinned-source comparisons, TypeScript checking and existing usage/docs tests. `footer` runs unchanged discovery and terminal checks against an owned byte-copy of the source package, because the host creates its temporary build modfile beside that source. The copied manifest still selects the existing Node collector. This is not activation or deployment.
+`checks` executes the precompiled owning usage/footer race binaries, four pinned-source comparisons, TypeScript checking and the docs test. The package's docs test is `test/test-docs.mjs`; its Go tests run through `scripts/check.sh`. `footer` runs unchanged discovery and terminal checks against an owned byte-copy of the source package, because the host creates its temporary build modfile beside that source. The copied manifest selects the native Go collector. This is not activation or deployment.
 
 The registered fixture commands are `/na-query`, `/na-model` and `/na-control`; no free-form model input or raw reload command is sent. Control state and TLS hold/release files are disposable stimuli, not production options. The fixture never logs snapshots, API keys, OAuth grants or provider error bodies. Request receipts use symbolic credential tags, not credentials.
 

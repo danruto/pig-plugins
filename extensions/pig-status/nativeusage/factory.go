@@ -1,6 +1,7 @@
 package nativeusage
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 
@@ -19,8 +20,11 @@ func Extension() *sdk.Extension {
 }
 
 func collect(ext *sdk.Extension, state *status.State) error {
+	path := settingsPath()
+	settings := usage.NewSettingsStore(path)
 	repaint := func(ctx sdk.Context) { _ = state.Install(ctx) }
-	if _, err := Register(ext, Options{Client: usage.Client{}, Publish: state.Quota, Repaint: repaint}); err != nil {
+	runtime, err := Register(ext, Options{Client: usage.Client{}, Settings: loadCollection(path), Publish: state.Quota, Repaint: repaint})
+	if err != nil {
 		return err
 	}
 	for _, event := range []string{"session_start", "turn_end", "agent_end", "model_select", "session_tree", "session_compact"} {
@@ -33,7 +37,24 @@ func collect(ext *sdk.Extension, state *status.State) error {
 			return nil, state.Install(ctx)
 		})
 	}
+	registerCommands(ext, runtime, settings)
 	return nil
+}
+
+func settingsPath() string {
+	dir, err := sdk.AgentDir()
+	if err != nil {
+		return usage.SettingsFileName
+	}
+	return usage.SettingsPath(dir)
+}
+
+func loadCollection(path string) usage.CollectionSettings {
+	state, err := usage.LoadSettings(context.Background(), path)
+	if err != nil {
+		return usage.CollectionSettings{}
+	}
+	return state.Settings.Collection()
 }
 
 func SessionTokens(entries []json.RawMessage, model string) status.Tokens {

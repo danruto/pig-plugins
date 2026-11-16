@@ -1,18 +1,15 @@
+// Command pig-status renders the PiG footer with native usage collection.
 package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/danruto/pig-plugins/extensions/pig-status/status"
+	"github.com/danruto/pig-plugins/extensions/pig-status/nativeusage"
 )
 
 func main() {
-	ext, err := status.New(status.Options{})
-	if err == nil {
-		err = ext.Run()
-	}
-	if err != nil {
+	if err := nativeusage.Extension().Run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

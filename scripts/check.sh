@@ -22,7 +22,7 @@ status_dir="$root/extensions/pig-status"
 native_dir="$status_dir/nativeusage"
 modfile="$tmp/go.mod"
 cp "$status_dir/go.mod" "$modfile"
-go mod edit -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk" "$modfile"
+go mod edit -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk" -replace="github.com/danruto/pig-plugins/extensions/pig-status/nativeusage=$native_dir" "$modfile"
 native_modfile="$tmp/nativeusage.mod"
 cp "$native_dir/go.mod" "$native_modfile"
 go mod edit -replace="github.com/MichaelKinsy/PiG/extensions/sdk=$sdk" -replace="github.com/danruto/pig-plugins/extensions/pig-status=$status_dir" "$native_modfile"
@@ -66,7 +66,7 @@ step "full sandbox usage" regional-reference node --import tsx scripts/usage-reg
 step "full sandbox usage" consumer-reference node --import tsx scripts/usage-consumer-reference.mjs --check
 step "full sandbox usage" consumer-query-fixtures node --import tsx scripts/usage-consumer-query-fixtures.mjs --check
 step "full sandbox usage" regional-query-fixtures node --import tsx scripts/usage-regional-query-fixtures.mjs --check
-step "full sandbox" usage-docs-tests node --test test/test-usage.mjs test/test-docs.mjs
+step "full sandbox" usage-docs-tests node --test test/test-docs.mjs
 step "full sandbox" typecheck npm run typecheck
 step "full sandbox" oxlint node_modules/.bin/oxlint --deny-warnings
 step "full sandbox" gofmt gofmt_clean
@@ -79,5 +79,5 @@ step "full sandbox" go-test in_status env CGO_ENABLED=1 go test -modfile="$modfi
 step "full sandbox" native-vet in_nativeusage go vet -modfile="$native_modfile" ./...
 step "full sandbox" native-test in_nativeusage env CGO_ENABLED=1 go test -modfile="$native_modfile" -race ./...
 step "usage" go-test-usage in_status env CGO_ENABLED=1 go test -modfile="$modfile" -race ./internal/usage
-step "full" discovery env PIG_STATUS_PACKAGE="$root" node --test test/test-discovery.mjs
+step "full" discovery env PIG_STATUS_PACKAGE="$root" python3 test/check-discovery.py
 step "full" footer python3 test/check-footer.py

@@ -1,6 +1,6 @@
 # Disposable conventional lifecycle fixture
 
-This factory embeds the staged native adapter and consumes its cached projections in process. It is not selected package membership, the installed footer factory, or a public usage event API. The selected Node backend and its production dependency behavior are unchanged.
+This disposable integration fixture embeds the selected native adapter and consumes its cached projections in process. It is not package membership, the installed footer factory, or a public usage event API.
 
 Use only a disposable source copy and private HOME, PIG_HOME, agent, cache and temporary roots. A coordinator must supply temporary module replacements for the status and nativeusage source modules. No authored module contains a machine path. Let the frozen reviewed host stage its matching SDK in the disposable root: pointing the source loader directly at the read-only reviewed SDK makes it try to acquire that root's transaction lock.
 

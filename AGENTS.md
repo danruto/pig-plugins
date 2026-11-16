@@ -2,9 +2,8 @@
 
 Owned PiG plugins live here. This package targets PiG only; do not add Pi adapters or Pi-only tests. Personal configuration and host deployment selection belong in the consuming dotfiles repository.
 
-- `extensions/pig-status/` is the native Go footer.
-- `extensions/pig-status-usage.ts` composes the pinned upstream usage backend with `status/usage.ts`.
-- Go-only status is the target, not the current runtime. Read `docs/designs/native-usage.md` before replacing the collector; retain its provider/account features and commands until scoped functional and safety checks pass. Exact upstream API, parser and message parity is not required.
+- `extensions/pig-status/` is the native Go footer and the selected usage collector; `extensions/pig-status/nativeusage/` is its conventional factory.
+- Go-only status is the target, not the current runtime. Read `docs/designs/native-usage.md` before changing the collector; retain its provider/account features and commands, and keep the scoped functional and safety checks passing. Exact upstream API, parser and message parity is not required.
 - `probes/` contains compatibility experiments, not installed extensions.
 - Port usage directly from the pinned open-source backend, module by module. Reuse useful fixtures and compare representative outputs; exhaustive branch capture and the historical pending ledger are not implementation or cutover gates. Keep `npm run test:usage-baseline` optional.
 

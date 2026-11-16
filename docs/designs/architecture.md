@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-These views specify the target architecture for [native usage](native-usage.md). The installed package still uses the pinned TypeScript collector and a Go footer. [ADR 0005](../adr/0005-feature-level-native-scope.md) defines source-led feature verification rather than exact upstream parity.
+These views specify the target architecture for [native usage](native-usage.md). The installed package uses the native Go collector and footer. [ADR 0005](../adr/0005-feature-level-native-scope.md) defines source-led feature verification rather than exact upstream parity.
 
 This package runs only in PiG. Personal configuration and deployment selection belong in the consuming dotfiles repository. The native usage port preserves provider, account, settings and command workflows before replacing the selected collector.
 
@@ -20,7 +20,7 @@ flowchart LR
     host -->|Render request| footer
 ```
 
-Normal extensions run as subprocesses. Compatible Go factories may be fused only after equivalent lifecycle and capability checks. The footer module is a standalone executable built from `status.New` in `extensions/pig-status/status`. The conventional factory is `nativeusage.Extension`, in its own module. One module root holds either a factory or a standalone main, never both; fusion is not required.
+Normal extensions run as subprocesses. Compatible Go factories may be fused only after equivalent lifecycle and capability checks. The footer module is a standalone executable that runs `nativeusage.Extension()`, which composes `status.New` from `extensions/pig-status/status` with native collection. `nativeusage.Extension` is the conventional factory, in its own module. One module root holds either a factory or a standalone main, never both; fusion is not required.
 
 | Owner | Owns | Allowed dependencies |
 | --- | --- | --- |
@@ -70,7 +70,7 @@ A session owner has cancellation, a generation and tracked outstanding operation
 4. Unregister private listeners and clear cached publication before starting a successor.
 5. Report failed or interrupted cleanup honestly; a timeout is not a clean drain.
 
-The staged adapter's private wakeup carries no reports or credentials. Each timer waits for the prior emission to settle, avoiding overlapping tick queues.
+The selected adapter's private wakeup carries no reports or credentials. Each timer waits for the prior emission to settle, avoiding overlapping tick queues.
 
 ## Trust boundaries and checks
 

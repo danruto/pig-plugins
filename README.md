@@ -14,7 +14,7 @@ npm run prepare:compaction
 pig install .
 ```
 
-Status includes the pinned `@narumitw/pi-usage` backend internally. Do not also load that package as a separate PiG extension: it would duplicate commands and collection. Existing provider adapters, `/usage` and `/fast` remain available. The usage collector still uses Node; the footer is native Go.
+Status collects usage natively in Go and registers its own `/usage` and `/fast` commands, with the provider adapters, billing-target selection and Codex reset flow. Do not also install `@narumitw/pi-usage` as a separate PiG extension: it would register duplicate commands and collection. The package keeps it as a pinned development dependency only, for the source-reference scripts. Claude quota stays opaque text labelled `used`.
 
 For Claude quota, use the tested bridge v0.2.0 commit:
 
@@ -46,7 +46,7 @@ Offline synthetic checks cover payload preservation, native-provider retention a
 
 The collector uses the backend's versioned `usage:query:v1` / `usage:changed:v1` contract. It rejects late responses after session/model changes and clears quota when its cache entry or window expires.
 
-The target is a Go-only PiG package. The [native usage port plan](docs/designs/native-usage.md) preserves the current provider adapters, settings and commands before removing the TypeScript collector and Node dependency. The port translates the pinned open-source modules directly, with focused native tests and representative output comparisons rather than exhaustive branch capture. The initial native transport and balance adapters are staged; the installed collector is unchanged.
+The target is a Go-only PiG package. The [native usage port plan](docs/designs/native-usage.md) preserves the provider adapters, settings and commands in the native Go collector, which the package now selects; the TypeScript collector is removed. Nix packaging still uses the npm build until it switches to a native Go build. The port translates the pinned open-source modules directly, with focused native tests and representative output comparisons rather than exhaustive branch capture. The native transport and balance adapters are part of the selected native collector.
 
 ## Review design docs
 

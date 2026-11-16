@@ -2,7 +2,6 @@
 import errno
 import fcntl
 import os
-from pathlib import Path
 import pty
 import select
 import signal
@@ -11,6 +10,7 @@ import subprocess
 import tempfile
 import termios
 import time
+from pathlib import Path
 
 project = Path(__file__).resolve().parent.parent
 package = Path(os.environ.get("PIG_STATUS_PACKAGE", project))
@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix="pig-status-tui-") as tmp:
         TERM="xterm-256color",
     )
     process = subprocess.Popen(
-        ["pig", "--approve", "--no-extensions", "--no-session", "-e", str(package), "-e", str(project / "test/fixtures/claude-usage.ts"), "--model", "claude-bridge/fixture"],
+        ["pig", "--approve", "--no-extensions", "--no-session", "-e", str(package), "-e", str(project / "test/fixtures/claude-bridge"), "--model", "claude-bridge/fixture"],
         cwd=tmp, env=env, stdin=slave, stdout=slave, stderr=slave, start_new_session=True,
     )
     os.close(slave)
