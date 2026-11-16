@@ -179,7 +179,7 @@ func (d Dispatcher) querySelected(ctx context.Context, plan selectionPlan) []pen
 
 func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, providerID string) pendingOutcome {
 	selection := plan.selection
-	auth, snapshot, err := d.Resolver.resolve(ctx, providerID, ResolveOptions{UseCodexUsage: selection.UseCodexUsage}, &plan.inventory)
+	auth, snapshot, _, err := d.Resolver.resolve(ctx, providerID, ResolveOptions{UseCodexUsage: selection.UseCodexUsage}, &plan.inventory)
 	if err != nil {
 		return pendingOutcome{outcome: failedOutcome(providerID, err)}
 	}

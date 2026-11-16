@@ -94,8 +94,15 @@ func (c *Collector) Refresh(ctx context.Context, resolver Resolver) error {
 	if err != nil {
 		return c.fail(ticket, err)
 	}
+	if err := identity.auth.Revalidate(ctx); err != nil {
+		return c.recordFailure(ticket, identity.key, err)
+	}
 	if c.backingOff(ticket, identity.key, time.Now()) {
-		c.reuse(ticket, identity.key, time.Now())
+		if identity.provider == "fireworks" {
+			c.publishBackoff(ticket, identity.key)
+		} else {
+			c.reuse(ticket, identity.key, time.Now())
+		}
 		return errors.New("usage collection failed")
 	}
 	if err := c.validateTarget(ctx, identity, ticket); err != nil {
@@ -114,16 +121,16 @@ func (c *Collector) fetch(ctx context.Context, resolver Resolver, ticket collect
 		return c.recordFailure(ticket, identity.key, err)
 	}
 	if err := identity.auth.Revalidate(ctx); err != nil {
-		return c.fail(ticket, err)
+		return c.recordFailure(ticket, identity.key, err)
 	}
 	if err := ctx.Err(); err != nil {
-		return c.fail(ticket, err)
+		return c.recordFailure(ticket, identity.key, err)
 	}
 	if len(outcomes) != 1 || outcomes[0].ProviderID != identity.provider {
-		return c.fail(ticket, ErrUsageChanged)
+		return c.recordFailure(ticket, identity.key, ErrUsageChanged)
 	}
 	if outcomes[0].Report != nil && outcomes[0].Report.ProviderID != identity.provider {
-		return c.fail(ticket, ErrUsageChanged)
+		return c.recordFailure(ticket, identity.key, ErrUsageChanged)
 	}
 	return c.commit(ticket, identity.key, outcomes[0], time.Now())
 }
@@ -142,7 +149,7 @@ func acquireCollection(ctx context.Context, resolver Resolver, ticket collection
 	if !Schedulable(metadata.ProviderID) {
 		return collectionIdentity{}, ErrUsageUnsupported
 	}
-	auth, snapshot, err := resolver.resolve(ctx, "", ResolveOptions{UseCodexUsage: ticket.settings.UseCodexUsage}, nil)
+	auth, snapshot, companionRevision, err := resolver.resolve(ctx, "", ResolveOptions{UseCodexUsage: ticket.settings.UseCodexUsage}, nil)
 	if err != nil {
 		return collectionIdentity{}, err
 	}
@@ -153,11 +160,8 @@ func acquireCollection(ctx context.Context, resolver Resolver, ticket collection
 	if err != nil {
 		return collectionIdentity{}, err
 	}
-	key, err := collectionKey(snapshot, state, ticket)
+	key, err := collectionKey(snapshot, state, ticket, companionRevision)
 	if err != nil {
-		return collectionIdentity{}, err
-	}
-	if err := auth.Revalidate(ctx); err != nil {
 		return collectionIdentity{}, err
 	}
 	return collectionIdentity{auth: auth, provider: snapshot.Provider, key: key}, nil
@@ -184,17 +188,18 @@ func hostBudget(ctx context.Context) time.Duration {
 	return maxQueryDuration
 }
 
-func collectionKey(snapshot hostSnapshot, state HostModelState, ticket collectionTicket) ([32]byte, error) {
+func collectionKey(snapshot hostSnapshot, state HostModelState, ticket collectionTicket, companionRevision string) ([32]byte, error) {
 	data, err := json.Marshal(struct {
-		Session    string
-		Model      map[string]any
-		Registered HostModelState
-		Revision   string
-		Provider   string
-		Target     string
-		Generation uint64
-		Companion  bool
-	}{Session: snapshot.SessionID, Model: snapshot.SelectedModel, Registered: state, Revision: snapshot.Revision, Provider: snapshot.Provider, Target: ticket.settings.Targets[snapshot.Provider], Generation: ticket.generation, Companion: ticket.settings.UseCodexUsage})
+		Session           string
+		Model             map[string]any
+		Registered        HostModelState
+		Revision          string
+		CompanionRevision string
+		Provider          string
+		Target            string
+		Generation        uint64
+		Companion         bool
+	}{Session: snapshot.SessionID, Model: snapshot.SelectedModel, Registered: state, Revision: snapshot.Revision, CompanionRevision: companionRevision, Provider: snapshot.Provider, Target: ticket.settings.Targets[snapshot.Provider], Generation: ticket.generation, Companion: ticket.settings.UseCodexUsage})
 	if err != nil {
 		return [32]byte{}, ErrUsageHost
 	}
@@ -206,18 +211,41 @@ func (c *Collector) fail(ticket collectionTicket, err error) error {
 	defer c.mu.Unlock()
 	if c.current(ticket) {
 		c.active = [32]byte{}
-		c.reason = failedOutcome("", err).Reason
-		if errors.Is(err, errCollectionTarget) {
-			c.reason = "selection-required"
-		}
+		c.reason = failureReason(err)
 		c.refreshAt = time.Now().Add(failureBackoff)
 	}
 	return err
 }
 
+func failureReason(err error) string {
+	if errors.Is(err, errCollectionTarget) {
+		return "selection-required"
+	}
+	return failedOutcome("", err).Reason
+}
+
+func (c *Collector) failKeyed(ticket collectionTicket, key [32]byte, err error) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if !c.current(ticket) {
+		return err
+	}
+	now := time.Now()
+	c.sweep(now)
+	entry := c.store(key, func(entry accountEntry) accountEntry {
+		entry.retryAt = now.Add(failureBackoff)
+		entry.reason = failureReason(err)
+		return entry
+	})
+	c.active = [32]byte{}
+	c.reason = entry.reason
+	c.refreshAt = entry.retryAt
+	return err
+}
+
 func (c *Collector) recordFailure(ticket collectionTicket, key [32]byte, err error) error {
-	if errors.Is(err, ErrUsageChanged) || errors.Is(err, context.Canceled) || errors.Is(err, errCollectionTarget) {
-		return c.fail(ticket, err)
+	if errors.Is(err, ErrUsageChanged) || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, errCollectionTarget) {
+		return c.failKeyed(ticket, key, err)
 	}
 	return c.commit(ticket, key, failedOutcome("", err), time.Now())
 }
@@ -235,6 +263,23 @@ func (c *Collector) backingOff(ticket collectionTicket, key [32]byte, now time.T
 		}
 	}
 	return false
+}
+
+func (c *Collector) publishBackoff(ticket collectionTicket, key [32]byte) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if !c.current(ticket) {
+		return
+	}
+	c.sweep(time.Now())
+	for _, entry := range c.entries {
+		if entry.key == key {
+			c.active = [32]byte{}
+			c.reason = entry.reason
+			c.refreshAt = entry.retryAt
+			return
+		}
+	}
 }
 
 func (c *Collector) reuse(ticket collectionTicket, key [32]byte, now time.Time) bool {
@@ -260,6 +305,15 @@ func (c *Collector) commit(ticket collectionTicket, key [32]byte, outcome Outcom
 		return ErrUsageChanged
 	}
 	c.sweep(now)
+	entry := c.store(key, func(entry accountEntry) accountEntry { return completedEntry(entry, outcome, now) })
+	c.activate(entry)
+	if entry.reason != "" {
+		return errors.New("usage collection failed")
+	}
+	return nil
+}
+
+func (c *Collector) store(key [32]byte, update func(accountEntry) accountEntry) accountEntry {
 	entry := accountEntry{key: key}
 	for i, existing := range c.entries {
 		if existing.key == key {
@@ -268,17 +322,13 @@ func (c *Collector) commit(ticket collectionTicket, key [32]byte, outcome Outcom
 			break
 		}
 	}
-	entry = completedEntry(entry, outcome, now)
+	entry = update(entry)
 	c.entries = append(c.entries, entry)
 	if len(c.entries) > accountCacheLimit {
 		clear(c.entries[:len(c.entries)-accountCacheLimit])
 		c.entries = c.entries[len(c.entries)-accountCacheLimit:]
 	}
-	c.activate(entry)
-	if entry.reason != "" {
-		return errors.New("usage collection failed")
-	}
-	return nil
+	return entry
 }
 
 func (c *Collector) activate(entry accountEntry) {

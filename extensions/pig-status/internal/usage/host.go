@@ -391,51 +391,54 @@ func effectiveHostAuth(snapshot hostSnapshot) *hostAuthResult {
 }
 
 func (r Resolver) Resolve(ctx context.Context, providerID string, options ResolveOptions) (ResolvedAuth, error) {
-	auth, _, err := r.resolve(ctx, providerID, options, nil)
+	auth, _, _, err := r.resolve(ctx, providerID, options, nil)
 	return auth, err
 }
 
-func (r Resolver) resolve(ctx context.Context, providerID string, options ResolveOptions, inventory *HostInventory) (ResolvedAuth, hostSnapshot, error) {
+func (r Resolver) resolve(ctx context.Context, providerID string, options ResolveOptions, inventory *HostInventory) (ResolvedAuth, hostSnapshot, string, error) {
 	ctx, cancel := context.WithTimeout(ctx, maxQueryDuration)
 	defer cancel()
 	resolution, err := r.acquire(ctx, providerID, inventory)
 	if err != nil {
-		return ResolvedAuth{}, hostSnapshot{}, err
+		return ResolvedAuth{}, hostSnapshot{}, "", err
 	}
-	auth, err := resolution.resolved(ctx, options)
-	return auth, resolution.snapshot, err
+	auth, companionRevision, err := resolution.resolved(ctx, options)
+	return auth, resolution.snapshot, companionRevision, err
 }
 
-func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (ResolvedAuth, error) {
+func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (ResolvedAuth, string, error) {
 	s := h.snapshot
 	effectiveAuth := effectiveHostAuth(s)
 	effective := requestFromHost(effectiveAuth)
 	if effectiveAuth == nil {
-		return ResolvedAuth{}, ErrNoUsageAuth
+		return ResolvedAuth{}, "", ErrNoUsageAuth
 	}
 	auth := ResolvedAuth{APIKey: effective.APIKey, SelectedProviderID: modelString(s.SelectedModel, "provider"), Source: s.Provenance.Source, SourceLabel: s.Provenance.Label, ModelBaseURL: modelString(s.Model, "baseUrl"), Revalidate: h.revalidate, UseCodexUsage: options.UseCodexUsage}
 	if !moonshotAuthAllowed(s.Provider, auth) {
-		return ResolvedAuth{}, ErrNoUsageAuth
+		return ResolvedAuth{}, "", ErrNoUsageAuth
 	}
 	headers, err := usageAuthorization(effective)
 	if err != nil {
-		return ResolvedAuth{}, err
+		return ResolvedAuth{}, "", err
 	}
 	auth.Headers = headers
+	companionRevision := ""
 	if s.Provider == "openai" && options.UseCodexUsage {
 		companion, err := h.resolver.acquire(ctx, "openai-codex", h.inventory)
 		if err != nil && !errors.Is(err, ErrNoUsageAuth) {
-			return ResolvedAuth{}, err
+			return ResolvedAuth{}, "", err
 		}
 		if err == nil {
 			h.companion = &companion
+			companionRevision = companion.snapshot.Revision
 		}
 	}
 	auth.ResolveOAuth = func(ctx context.Context) (OAuthSnapshot, error) { return h.oauth(ctx, options) }
 	if s.Provider == "openai-codex" {
-		return h.codex(ctx, auth)
+		codexAuth, err := h.codex(ctx, auth)
+		return codexAuth, companionRevision, err
 	}
-	return auth, nil
+	return auth, companionRevision, nil
 }
 
 func usageAuthorization(auth RequestAuth) (http.Header, error) {

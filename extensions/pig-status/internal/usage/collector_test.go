@@ -58,7 +58,7 @@ func TestCollectionKeyFencesCompleteOwnership(t *testing.T) {
 	snapshot := hostSnapshot{SessionID: "session", Revision: "account", Provider: "deepseek", SelectedModel: map[string]any{"id": "same", "provider": "deepseek", "headers": map[string]any{"x-owner": "first"}, "reasoning": false}}
 	ticket := collectionTicket{generation: 3, settings: CollectionSettings{Targets: map[string]string{"deepseek": "target"}}}
 	state := HostModelState{Model: map[string]any{"id": "same"}, ProviderBaseURL: "https://api.deepseek.com"}
-	baseline, err := collectionKey(snapshot, state, ticket)
+	baseline, err := collectionKey(snapshot, state, ticket, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func TestCollectionKeyFencesCompleteOwnership(t *testing.T) {
 			case "registered-origin":
 				st.ProviderBaseURL = "https://api.deepseek.com/v1"
 			}
-			changed, err := collectionKey(s, st, owner)
+			changed, err := collectionKey(s, st, owner, "")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -98,7 +98,7 @@ func TestCollectionKeyFencesCompleteOwnership(t *testing.T) {
 		})
 	}
 	snapshot.SelectedModel = map[string]any{"reasoning": false, "headers": map[string]any{"x-owner": "first"}, "provider": "deepseek", "id": "same"}
-	reordered, err := collectionKey(snapshot, state, ticket)
+	reordered, err := collectionKey(snapshot, state, ticket, "")
 	if err != nil || reordered != baseline {
 		t.Fatalf("equivalent JSON changed identity: %v", err)
 	}
