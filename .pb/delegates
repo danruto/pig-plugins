@@ -9,3 +9,6 @@
 # reviewer        opencode@anthropic/claude-sonnet-5
 # reviewer-light  claude@claude-sonnet-5
 # test-gate       claude@claude-sonnet-5
+test-writer     pig@opencode-go/deepseek-v4.1-flash
+implementer     pig@opencode-go/deepseek-v4.1-flash
+fix             claude@claude-opus-5-5
