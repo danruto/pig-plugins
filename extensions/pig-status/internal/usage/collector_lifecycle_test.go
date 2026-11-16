@@ -27,7 +27,6 @@ type lifecycleHost struct {
 	models      map[string]map[string]any
 	credentials map[string]lifecycleCredential
 	collected   map[string][]any
-	onAuth      func()
 }
 
 func newLifecycleHost(provider, base string) *lifecycleHost {
@@ -73,27 +72,18 @@ func (h *lifecycleHost) setModelOption(provider, key string, value any) {
 	h.models[provider] = changed
 }
 
-func (h *lifecycleHost) setSessionAuthHook(hook func()) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
-	h.onAuth = hook
-}
-
 func (h *lifecycleHost) Metadata(context.Context) (HostMetadata, error) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	model := h.models[h.current]
-	return HostMetadata{SessionID: h.session, ProviderID: h.current, ModelID: model["id"].(string)}, nil
+	modelID, ok := h.models[h.current]["id"].(string)
+	if !ok {
+		return HostMetadata{}, errors.New("synthetic host has no model id for " + h.current)
+	}
+	return HostMetadata{SessionID: h.session, ProviderID: h.current, ModelID: modelID}, nil
 }
 
 func (h *lifecycleHost) SessionAuth(_ context.Context, options map[string]any) (map[string]any, error) {
 	provider, _ := options["provider"].(string)
-	h.mu.Lock()
-	hook := h.onAuth
-	h.mu.Unlock()
-	if hook != nil {
-		hook()
-	}
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	credential, ok := h.credentials[provider]
@@ -144,7 +134,7 @@ func lifecycleReport() *Report {
 	return &Report{Buckets: []Bucket{{Label: "daily", Unit: "percent", Used: new(20.0)}}}
 }
 
-func seedLifecycleReport(t *testing.T, collector *Collector, host *lifecycleHost, outcome Outcome, now time.Time) {
+func seedLifecycleReport(t *testing.T, collector *Collector, host *lifecycleHost, outcome Outcome) {
 	t.Helper()
 	ticket := collector.begin()
 	identity, err := acquireCollection(t.Context(), Resolver{Host: host}, ticket)
@@ -154,7 +144,7 @@ func seedLifecycleReport(t *testing.T, collector *Collector, host *lifecycleHost
 	if outcome.ProviderID == "" {
 		outcome.ProviderID = identity.provider
 	}
-	if err := collector.commit(ticket, identity.key, outcome, now); err != nil {
+	if err := collector.commit(ticket, identity.key, outcome, time.Now()); err != nil {
 		t.Fatalf("seed cached report: %v", err)
 	}
 }
@@ -269,7 +259,7 @@ func TestCollectorRefresh_CodexCompanionRevisionMissesCachedReport(t *testing.T)
 	})
 	collector := NewCollector(client)
 	collector.Configure(CollectionSettings{UseCodexUsage: true})
-	seedLifecycleReport(t, collector, host, Outcome{Status: "ok", Report: lifecycleReport()}, time.Now())
+	seedLifecycleReport(t, collector, host, Outcome{Status: "ok", Report: lifecycleReport()})
 
 	reuseErr := collector.Refresh(t.Context(), Resolver{Host: host})
 	sameCompanion := collector.Snapshot(time.Now())
