@@ -51,7 +51,7 @@ func normalizeKimi(payload map[string]any, capturedAt int64) (Report, error) {
 				explicit[minutes] = true
 				label := displayString(row["name"], 80)
 				if label == "" {
-					label = kimiWindowLabel(minutes)
+					label = windowLabel(minutes)
 				}
 				if bucket := kimiUsageRow(row["detail"], minutes, label); bucket != nil {
 					candidates = append(candidates, *bucket)
@@ -160,7 +160,7 @@ func kimiUsageRow(raw any, minutes float64, label string) *Bucket {
 	return &Bucket{ID: id, Label: label, Used: new(used), Remaining: new(remaining), Limit: new(limit), Unit: "count", WindowMinutes: new(minutes), ResetsAt: kimiEpoch(row["resetTime"])}
 }
 
-func kimiWindowLabel(minutes float64) string {
+func windowLabel(minutes float64) string {
 	if minutes == 10080 {
 		return "Weekly window"
 	}

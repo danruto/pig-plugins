@@ -102,6 +102,12 @@ The adapter fills provider authentication from the registry and effective authen
 
 The [conventional lifecycle fixture](../../extensions/pig-status/nativeusage/testdata/lifecycle/README.md) uses only disposable roots and its own loopback TLS server. It exercises the production registration and collector, not a fake resolver or a retained request context. Source installation, selected-footer factory conversion, native settings/commands and backend cutover remain separate checkpoints. Scoped fixture evidence does not claim those later features or a green whole-package gate.
 
+## Staged commands and settings
+
+The staged `internal/usage/settings.go` reads and writes `pi-usage.json` in the agent directory. It holds Codex companion usage, Fast mode, reset countdown and percentage display, per-provider billing targets and the statusline display object, keeps unknown top-level fields, migrates a legacy `fireworksAccountId` into an explicit Fireworks target, and validates every known field before a value reaches a caller. A save re-reads the file first, refuses to overwrite one it cannot validate, and swaps the new document in through an ordered private atomic write; a failed confirmation restores the previous state.
+
+The staged `internal/usage/command.go` provides the `/usage` menu loop and its presentation: current-provider refresh, another configured provider, all configured providers, Fireworks billing-target selection and the Codex companion toggle, with no-argument handling for terminal and RPC modes and sanitized failure notices. Neither file is SDK-bound or registered. Installed `/usage` remains with the TypeScript collector, and command registration lands with package-membership replacement.
+
 ## Behavior to preserve
 
 ### Collection and presentation
