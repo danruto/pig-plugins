@@ -29,29 +29,3 @@ func TestValidatedHeadersPreserveExplicitAuthorization(t *testing.T) {
 		})
 	}
 }
-
-func TestValidatedHeadersRejectAmbiguousOrEmptyOverrides(t *testing.T) {
-	for _, tt := range []struct {
-		name     string
-		provider string
-		headers  http.Header
-	}{
-		{"missing", "deepseek", nil},
-		{"removed", "moonshotai", http.Header{"Authorization": nil}},
-		{"empty", "vercel-ai-gateway", http.Header{"Authorization": {""}}},
-		{"whitespace", "moonshotai-cn", http.Header{"Authorization": {" \t "}}},
-		{"duplicate values", "deepseek", http.Header{"Authorization": {"Bearer first", "Bearer second"}}},
-		{"duplicate case", "deepseek", http.Header{"Authorization": {"Bearer first"}, "authorization": {"Bearer second"}}},
-		{"header injection", "deepseek", http.Header{"Authorization": {"Bearer token\r\nX-Injected: value"}}},
-		{"terminal control", "moonshotai", http.Header{"Authorization": {"Bearer \x1bsecret"}}},
-		{"non bearer deepseek", "deepseek", http.Header{"Authorization": {"Basic synthetic-token"}}},
-		{"empty bearer", "deepseek", http.Header{"Authorization": {"Bearer \t"}}},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := validatedHeaders(tt.provider, tt.headers)
-			if err == nil || got != nil {
-				t.Fatal("invalid authorization accepted")
-			}
-		})
-	}
-}

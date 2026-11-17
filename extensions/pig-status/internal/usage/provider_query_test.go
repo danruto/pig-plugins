@@ -138,6 +138,7 @@ func TestQueryRejectsControlProviderAuthorization(t *testing.T) {
 			}{
 				{"header injection", "Custom fixture-secret\r\nX-Injected: account-canary-89342"},
 				{"terminal control", "Custom fixture-secret\x1b[31m"},
+				{"non-ASCII", "Custom fixture-secreté"},
 			} {
 				t.Run(tt.name, func(t *testing.T) {
 					queryAuthorizationCase(t, fixture, http.Header{"Authorization": {tt.value}})

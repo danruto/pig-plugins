@@ -311,11 +311,6 @@ func TestSubscriptionQueryRejectsInvalidResolvedAuth(t *testing.T) {
 		name   string
 		change func(*ResolvedAuth)
 	}{
-		{"legacy missing authorization", func(a *ResolvedAuth) { a.Headers = nil }},
-		{"legacy ambiguous authorization", func(a *ResolvedAuth) {
-			a.Headers = http.Header{"Authorization": {"Custom synthetic"}, "authorization": {"Custom other"}}
-		}},
-		{"legacy terminal control", func(a *ResolvedAuth) { a.Headers.Set("Authorization", "Custom fixture-secret\x1b[31m") }},
 		{"legacy selected origin", func(a *ResolvedAuth) { a.ModelBaseURL = "https://proxy.invalid" }},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

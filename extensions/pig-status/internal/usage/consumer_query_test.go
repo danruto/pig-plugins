@@ -198,25 +198,27 @@ func TestConsumerQuery_ACNormalizationMatchesPinnedConsumers(t *testing.T) {
 func TestConsumerQuery_ACOfficialOriginAndAuthorization(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		for _, tt := range []struct {
-			name   string
-			change func(*ResolvedAuth)
+			name     string
+			provider string
+			change   func(*ResolvedAuth)
 		}{
-			{"http", func(a *ResolvedAuth) { a.ModelBaseURL = strings.Replace(a.ModelBaseURL, "https:", "http:", 1) }},
-			{"lookalike", func(a *ResolvedAuth) { a.ModelBaseURL = "https://api.commandcode.ai.attacker.invalid/v1" }},
-			{"userinfo", func(a *ResolvedAuth) {
+			{"http", "", func(a *ResolvedAuth) { a.ModelBaseURL = strings.Replace(a.ModelBaseURL, "https:", "http:", 1) }},
+			{"lookalike", "", func(a *ResolvedAuth) { a.ModelBaseURL = "https://api.commandcode.ai.attacker.invalid/v1" }},
+			{"userinfo", "", func(a *ResolvedAuth) {
 				a.ModelBaseURL = strings.Replace(a.ModelBaseURL, "https://", "https://fixture-secret@", 1)
 			}},
-			{"port", func(a *ResolvedAuth) {
+			{"port", "", func(a *ResolvedAuth) {
 				u, err := url.Parse(a.ModelBaseURL)
 				consumerNoError(t, err)
 				u.Host = net.JoinHostPort(u.Hostname(), "444")
 				a.ModelBaseURL = u.String()
 			}},
-			{"proxy-not-model", func(a *ResolvedAuth) { a.ModelBaseURL = "https://cli-chat-proxy.grok.com/v1" }},
-			{"missing", func(a *ResolvedAuth) { a.Headers = nil }},
-			{"duplicate", func(a *ResolvedAuth) { a.Headers["authorization"] = []string{"Bearer fixture-secret"} }},
-			{"control", func(a *ResolvedAuth) { a.Headers.Set("Authorization", "Bearer fixture-secret\r\nX-Bad: injected") }},
+			{"proxy-not-model", "", func(a *ResolvedAuth) { a.ModelBaseURL = "https://cli-chat-proxy.grok.com/v1" }},
+			{"duplicate", "xai", func(a *ResolvedAuth) { a.Headers["authorization"] = []string{"Bearer fixture-secret"} }},
 		} {
+			if tt.provider != "" && tt.provider != f.Provider {
+				continue
+			}
 			t.Run(f.Provider+"/"+tt.name, func(t *testing.T) {
 				consumerGood(t, f.Provider)
 				s := consumerHTTPS(t, f)

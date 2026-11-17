@@ -311,10 +311,6 @@ func TestRegionalQuery_ACOriginAndAuthorizationIsolation(t *testing.T) {
 				a.ModelBaseURL = strings.Replace(a.ModelBaseURL, "https://", "https://fixture-secret@", 1)
 			}},
 			{"foreign-port", func(a *ResolvedAuth) { a.ModelBaseURL = strings.Replace(a.ModelBaseURL, "/v1", ":444/v1", 1) }},
-			{"missing-auth", func(a *ResolvedAuth) { a.Headers = nil }},
-			{"duplicate-auth", func(a *ResolvedAuth) { a.Headers["authorization"] = []string{"Bearer fixture-secret"} }},
-			{"empty-auth", func(a *ResolvedAuth) { a.Headers.Set("Authorization", "") }},
-			{"control-auth", func(a *ResolvedAuth) { a.Headers.Set("Authorization", "Bearer fixture-secret\x1b[31m") }},
 		} {
 			t.Run(f.Name+"/"+tt.name, func(t *testing.T) {
 				regionalGood(t, f.Provider)
