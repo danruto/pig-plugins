@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -627,7 +628,9 @@ func consumerCapability(t testing.TB) string {
 	doc := exec.Command("go", "doc", "-short", ".")
 	output, err := doc.CombinedOutput()
 	consumerNoError(t, err)
-	if !strings.Contains(string(output), "func Schedulable(providerID string) bool") {
+	discovered, err := regexp.MatchString(`(?m)^func Schedulable\(\w* ?string\) bool$`, string(output))
+	consumerNoError(t, err)
+	if !discovered {
 		t.Fatal("schedulability capability unavailable at existing package boundary")
 	}
 	root, err := filepath.Abs("../..")
