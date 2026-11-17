@@ -36,10 +36,46 @@ func TestSessionTokensSumsAssistantUsageAndSkipsEveryOtherEntry(t *testing.T) {
 			want:  status.Tokens{},
 		},
 		{
+			name: "skips tool entries and non-message entry types",
+			entries: []string{
+				`{"type":"tool","message":{"role":"assistant","usage":{"input":900,"output":900,"cacheRead":900,"cacheWrite":900,"cost":{"total":9}}}}`,
+				`{"type":"session"}`,
+			},
+			model: "openai/gpt-4.1",
+			want:  status.Tokens{},
+		},
+		{
+			name: "keeps valid usage after an invalid entry",
+			entries: []string{
+				`{"type":"message",`,
+				`{"type":"message","message":{"role":"assistant","usage":{"input":100,"output":20,"cacheRead":30,"cacheWrite":5,"cost":{"total":0.5}}}}`,
+			},
+			model: "openai/gpt-4.1",
+			want:  status.Tokens{Input: 100, Output: 20, CacheRead: 30, CacheWrite: 5, Cost: 0.5},
+		},
+		{
 			name:    "claude-bridge provider reports the subscription plan",
 			entries: []string{`{"type":"message","message":{"role":"assistant","usage":{"output":5}}}`},
 			model:   "claude-bridge/anthropic",
 			want:    status.Tokens{Output: 5, Subscription: true},
+		},
+		{
+			name:    "a claude-bridge-qualified model reports the subscription plan",
+			entries: []string{`{"type":"message","message":{"role":"assistant","usage":{"input":100,"output":20,"cacheRead":30,"cacheWrite":5,"cost":{"total":0.5}}}}`},
+			model:   "claude-bridge/claude-sonnet-4-5",
+			want:    status.Tokens{Input: 100, Output: 20, CacheRead: 30, CacheWrite: 5, Cost: 0.5, Subscription: true},
+		},
+		{
+			name:    "an openai model never claims the plan",
+			entries: []string{`{"type":"message","message":{"role":"assistant","usage":{"input":100,"output":20,"cacheRead":30,"cacheWrite":5,"cost":{"total":0.5}}}}`},
+			model:   "openai/gpt-4.1",
+			want:    status.Tokens{Input: 100, Output: 20, CacheRead: 30, CacheWrite: 5, Cost: 0.5},
+		},
+		{
+			name:    "an anthropic model never claims the plan",
+			entries: []string{`{"type":"message","message":{"role":"assistant","usage":{"input":100,"output":20,"cacheRead":30,"cacheWrite":5,"cost":{"total":0.5}}}}`},
+			model:   "anthropic/claude-sonnet-4-5",
+			want:    status.Tokens{Input: 100, Output: 20, CacheRead: 30, CacheWrite: 5, Cost: 0.5},
 		},
 		{
 			name:  "an unqualified model name never claims the plan",

@@ -2,9 +2,13 @@
 // Register embeds collection in a pig-status factory; Publish is an in-process,
 // prompt, cache-only sink and must not retain SDK contexts. Optional Repaint receives the
 // live host context after each publish made in a session handler or a current owner's
-// tick, and must use it only before returning. No usage bus API is exposed.
+// tick. It may hand that context to an SDK callback it installs, as
+// [status.State.Install] does with the footer renderer it sets; the SDK calls that
+// renderer again on width changes and refreshes. Any other use ends before Repaint
+// returns. No usage bus API is exposed.
 // Each private tick receives a fresh awaited host context; the scheduler and every
-// listener are cancelled and joined before replacement. Contexts never leave a listener.
+// listener are cancelled and joined before replacement. Apart from those installed SDK
+// callbacks, contexts never leave a listener.
 // One exception: the readiness emit is a host-owned event-bus dispatch the host
 // cancels only at teardown, so it is never joined. Collection waits for it only
 // until the request timeout or its context ends, and a superseded owner publishes

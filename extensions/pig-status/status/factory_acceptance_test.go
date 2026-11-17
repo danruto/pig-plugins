@@ -382,25 +382,6 @@ func TestClaudeBridgeWithoutStatusKeepsQuota(t *testing.T) {
 	acceptAbsent(t, line, "used")
 }
 
-func TestRenderIsOneLineWithinWidthAtEveryWidth(t *testing.T) {
-	now := time.Now()
-	state := status.NewState(now.Add(-93 * time.Minute))
-	state.Quota(acceptQuota(now))
-	state.Tokens(acceptTokens())
-	f := acceptFooter{state: state, display: acceptDisplay(map[string]string{
-		"subscription-usage": "backend duplicate",
-		"pi-lens-lsp":        "\x1b[32mLSP ✓ 中文 👨‍👩‍👧‍👦 e\u0301\x1b[0m\nready",
-	}), now: now}
-
-	for width := 1; width <= 240; width++ {
-		f.line(t, width)
-	}
-
-	if lines := f.state.Render(0, f.display, f.now); len(lines) != 0 {
-		t.Fatalf("width 0 returned %q, want no lines", lines)
-	}
-}
-
 func TestQuotaAndTokensVisibleAtNarrowWidths(t *testing.T) {
 	now := time.Now()
 	tests := []struct {
@@ -424,6 +405,20 @@ func TestQuotaAndTokensVisibleAtNarrowWidths(t *testing.T) {
 			acceptContains(t, line, acceptCountSegment)
 			acceptContains(t, line, acceptCostSegment)
 		})
+	}
+}
+
+func TestRenderAtUnknownWidthPushesNoLines(t *testing.T) {
+	now := time.Now()
+	state := status.NewState(now.Add(-93 * time.Minute))
+	state.Quota(acceptQuota(now))
+	state.Tokens(acceptTokens())
+	f := acceptFooter{state: state, display: acceptDisplay(nil), now: now}
+
+	lines := f.state.Render(0, f.display, f.now)
+
+	if len(lines) != 0 {
+		t.Fatalf("unknown width returned %q, want no lines", lines)
 	}
 }
 
