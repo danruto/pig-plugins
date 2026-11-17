@@ -729,24 +729,20 @@ func TestBillingClientCancellationStopsHTTPS(t *testing.T) {
 }
 
 func TestBillingClientSharesBoundedAdmission(t *testing.T) {
-	for _, surface := range []string{"baseten", "openrouter", "fireworks", "targets"} {
-		t.Run(surface, func(t *testing.T) {
-			stop := occupyQuerySlots(t)
-			var requests atomic.Int32
-			client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
-				requests.Add(1)
-				writeQueryFixture(t, w, billingBody(t, surface))
-			})
+	stop := occupyQuerySlots(t)
+	var requests atomic.Int32
+	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		requests.Add(1)
+		writeQueryFixture(t, w, billingBody(t, "targets"))
+	})
 
-			result := billingCall(t, client, t.Context(), surface, billingAuth(billingProvider(surface)), 40*time.Millisecond)
-			observedRequests := requests.Load()
-			stop()
-			recovered := billingCall(t, client, t.Context(), surface, billingAuth(billingProvider(surface)), time.Second)
+	result := billingCall(t, client, t.Context(), "targets", billingAuth("fireworks"), 40*time.Millisecond)
+	observedRequests := requests.Load()
+	stop()
+	recovered := billingCall(t, client, t.Context(), "targets", billingAuth("fireworks"), time.Second)
 
-			requireBillingRefusal(t, result)
-			requireDeadline(t, result.err)
-			requireRequestCount(t, observedRequests, 0)
-			requireBillingSuccess(t, recovered)
-		})
-	}
+	requireBillingRefusal(t, result)
+	requireDeadline(t, result.err)
+	requireRequestCount(t, observedRequests, 0)
+	requireBillingSuccess(t, recovered)
 }

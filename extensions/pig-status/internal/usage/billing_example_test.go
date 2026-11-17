@@ -48,9 +48,3 @@ func ExampleClient_ListFireworksTargets() {
 	fmt.Println(targets)
 	// Output: [{selected-org selected-org} {another-org another-org}]
 }
-
-func ExampleTarget() {
-	target := Target{ID: "selected-org", Label: "selected-org"}
-	fmt.Println(target.ID, target.Label)
-	// Output: selected-org selected-org
-}

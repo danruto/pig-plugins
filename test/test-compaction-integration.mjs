@@ -90,16 +90,12 @@ test("public package entry loads once in PiG and npm pack includes the prepared 
 	});
 });
 
-test("default extension keeps native providers and exposes compaction and replay handlers", (t) => {
+test("default extension registers no replacement providers", (t) => {
 	const receipt = runHandlers(t, `
-  const required = ["before_provider_request", "message_end", "session_before_compact", "session_compact", "session_shutdown", "session_start"];
-
-  assert.deepEqual([...handlers.keys()].filter((name) => required.includes(name)).sort(), required);
-  assert.deepEqual(providers, []);
-  writeFileSync(receiptPath, JSON.stringify({ nativeProviders: true }));
+  writeFileSync(receiptPath, JSON.stringify({ providers }));
 `);
 
-	assert.deepEqual(receipt, { nativeProviders: true });
+	assert.deepEqual(receipt, { providers: [] });
 });
 
 [

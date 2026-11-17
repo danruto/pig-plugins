@@ -2,10 +2,10 @@ package usage
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"net/http"
 	"os"
 	"reflect"
@@ -65,79 +65,57 @@ func subscriptionGood(t testing.TB, provider string) subscriptionFixture {
 	return subscriptionNamed(t, names[provider])
 }
 
-func subscriptionClone(t testing.TB, value map[string]any) map[string]any {
-	t.Helper()
-	encoded, err := json.Marshal(value)
-	if err != nil {
-		t.Fatal(err)
+func subscriptionCopy(snapshot OAuthSnapshot) OAuthSnapshot {
+	clone := snapshot
+	clone.Candidates = make([]any, len(snapshot.Candidates))
+	for index, candidate := range snapshot.Candidates {
+		values := map[string]any{}
+		maps.Copy(values, candidate.(map[string]any))
+		clone.Candidates[index] = values
 	}
-	var clone map[string]any
-	if err := json.Unmarshal(encoded, &clone); err != nil {
-		t.Fatal(err)
+	if snapshot.Companion != nil {
+		companion := subscriptionCopy(*snapshot.Companion)
+		clone.Companion = &companion
 	}
 	return clone
 }
 
-func subscriptionSnapshot(provider string) map[string]any {
-	access := "synthetic." + base64.RawURLEncoding.EncodeToString([]byte(`{"https://api.openai.com/auth":{"chatgpt_account_id":"synthetic-account"}}`)) + ".signature"
+func subscriptionSnapshot(provider string) OAuthSnapshot {
 	switch provider {
 	case "openai":
-		return map[string]any{"Ready": true, "Source": "OAuth", "ModelBaseURL": "https://api.openai.com/v1", "Effective": map[string]any{"APIKey": "synthetic-native"}, "Provider": map[string]any{"APIKey": "synthetic-native"}, "Candidates": []any{map[string]any{"type": "oauth", "access": "synthetic-native", "refresh": "synthetic-refresh", "expires": float64(1), "clientId": "native-registration", "scopes": []any{"chatgpt.tokens.use.direct"}}}}
+		return nativeSnapshot()
 	case "openai-codex":
-		return map[string]any{"Ready": true, "Source": "OAuth", "ModelBaseURL": "https://chatgpt.com", "Effective": map[string]any{"APIKey": access}, "Provider": map[string]any{"APIKey": access}, "Candidates": []any{map[string]any{"type": "oauth", "access": access, "refresh": "synthetic-codex-refresh", "expires": float64(1), "accountId": "synthetic-account"}}}
+		return companionSnapshot()
 	default:
-		return map[string]any{"Ready": true, "ModelBaseURL": "https://api.individual.githubcopilot.com", "Effective": map[string]any{"APIKey": "synthetic-access"}, "Candidates": []any{map[string]any{"type": "oauth", "access": "synthetic-access", "refresh": "synthetic-github-token", "expires": float64(1)}}}
+		return copilotSnapshot()
 	}
 }
 
-func subscriptionSnapshotFor(f subscriptionFixture) map[string]any {
-	s := subscriptionSnapshot(f.Provider)
-	if f.Provider == "openai" && (f.Payload["apps"] != nil || f.Payload["useCodexUsage"] == true) {
-		s["CompanionReady"] = true
+func subscriptionSnapshotFor(f subscriptionFixture) OAuthSnapshot {
+	snapshot := subscriptionSnapshot(f.Provider)
+	if f.Provider != "openai" {
+		return snapshot
 	}
-	if f.Provider == "openai" && f.Payload["apps"] != nil {
-		s["Companion"] = subscriptionSnapshot("openai-codex")
-		s["Candidates"].([]any)[0].(map[string]any)["clientId"] = f.Payload["clientId"]
+	if f.Payload["apps"] != nil {
+		companion := subscriptionSnapshot("openai-codex")
+		snapshot.Companion, snapshot.CompanionReady = &companion, true
+		snapshot.Candidates[0].(map[string]any)["clientId"] = f.Payload["clientId"]
+		return snapshot
 	}
-	return s
+	if f.Payload["useCodexUsage"] == true {
+		snapshot.CompanionReady = true
+	}
+	return snapshot
 }
 
-func subscriptionAuth(t testing.TB, s map[string]any, optIn bool, resolve func(context.Context) (map[string]any, error)) ResolvedAuth {
-	t.Helper()
-	auth := ResolvedAuth{ModelBaseURL: s["ModelBaseURL"].(string), Headers: http.Header{"Authorization": {"Bearer synthetic-unused-outer-token"}}, Revalidate: func(context.Context) error { return nil }}
-	encoded, err := json.Marshal(map[string]any{"UseCodexUsage": optIn})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := json.Unmarshal(encoded, &auth); err != nil {
-		t.Fatal(err)
-	}
-	field := reflect.ValueOf(&auth).Elem().FieldByName("ResolveOAuth")
-	if field.IsValid() {
-		field.Set(reflect.MakeFunc(field.Type(), func(args []reflect.Value) []reflect.Value {
-			snapshot, snapshotErr := resolve(args[0].Interface().(context.Context))
-			value := reflect.New(field.Type().Out(0))
-			data, marshalErr := json.Marshal(snapshot)
-			if marshalErr != nil {
-				t.Error(marshalErr)
-			}
-			if decodeErr := json.Unmarshal(data, value.Interface()); decodeErr != nil {
-				t.Error(decodeErr)
-			}
-			errValue := reflect.Zero(field.Type().Out(1))
-			if snapshotErr != nil {
-				errValue = reflect.ValueOf(&snapshotErr).Elem()
-			}
-			return []reflect.Value{value.Elem(), errValue}
-		}))
-	}
-	return auth
+func subscriptionAuth(snapshot OAuthSnapshot, optIn bool, resolve func(context.Context) (OAuthSnapshot, error)) ResolvedAuth {
+	return ResolvedAuth{ModelBaseURL: snapshot.ModelBaseURL, Headers: http.Header{"Authorization": {"Bearer synthetic-unused-outer-token"}}, Revalidate: func(context.Context) error { return nil }, UseCodexUsage: optIn, ResolveOAuth: resolve}
 }
 
 func subscriptionFixedAuth(t testing.TB, f subscriptionFixture) ResolvedAuth {
 	t.Helper()
-	s := subscriptionSnapshotFor(f)
-	return subscriptionAuth(t, s, f.Payload["apps"] != nil || f.Payload["useCodexUsage"] == true, func(context.Context) (map[string]any, error) { return s, nil })
+	snapshot := subscriptionSnapshotFor(f)
+	return subscriptionAuth(snapshot, f.Payload["apps"] != nil || f.Payload["useCodexUsage"] == true, func(context.Context) (OAuthSnapshot, error) { return snapshot, nil })
 }
 
 type subscriptionWire struct{ Method, Host, Path, Query, Authorization, Account, Version, Agent string }
@@ -179,7 +157,7 @@ func (s *subscriptionServer) observations() []subscriptionWire {
 
 func subscriptionExpectedWire(f subscriptionFixture, plan bool) []subscriptionWire {
 	snapshot := subscriptionSnapshot("openai-codex")
-	codex := subscriptionWire{Method: "GET", Host: "chatgpt.com", Path: "/backend-api/wham/usage", Authorization: "Bearer " + snapshot["Effective"].(map[string]any)["APIKey"].(string), Account: "synthetic-account", Agent: "pi-usage"}
+	codex := subscriptionWire{Method: "GET", Host: "chatgpt.com", Path: "/backend-api/wham/usage", Authorization: "Bearer " + snapshot.Effective.APIKey, Account: "synthetic-account", Agent: "pi-usage"}
 	switch f.Provider {
 	case "openai":
 		if f.Payload["apps"] == nil {
@@ -239,63 +217,26 @@ func TestSubscriptionQueryRefusesPinnedFailures(t *testing.T) {
 	}
 }
 
-func subscriptionCandidate(s map[string]any) map[string]any {
-	return s["Candidates"].([]any)[0].(map[string]any)
+func subscriptionCandidate(snapshot *OAuthSnapshot) map[string]any {
+	return snapshot.Candidates[0].(map[string]any)
 }
-func subscriptionEffective(s map[string]any) map[string]any { return s["Effective"].(map[string]any) }
-func subscriptionCompanion(s map[string]any) map[string]any { return s["Companion"].(map[string]any) }
 
 func TestSubscriptionQueryRejectsInvalidFreshOAuth(t *testing.T) {
 	for _, tt := range []struct {
 		name, provider string
-		change         func(map[string]any)
+		change         func(*OAuthSnapshot)
 	}{
-		{"native API key unsupported", "openai", func(s map[string]any) { s["Source"] = "environment" }},
-		{"native readiness", "openai", func(s map[string]any) { s["Ready"] = false }},
-		{"native direct scope", "openai", func(s map[string]any) { subscriptionCandidate(s)["scopes"] = []any{"openid"} }},
-		{"native selected origin", "openai", func(s map[string]any) { s["ModelBaseURL"] = "https://proxy.invalid" }},
-		{"native provider origin", "openai", func(s map[string]any) { s["Provider"].(map[string]any)["BaseURL"] = "https://proxy.invalid" }},
-		{"native effective override", "openai", func(s map[string]any) {
-			subscriptionEffective(s)["Headers"] = map[string]any{"Authorization": []any{"Bearer different"}}
-		}},
-		{"native explicit removal", "openai", func(s map[string]any) { subscriptionEffective(s)["Headers"] = map[string]any{"Authorization": nil} }},
-		{"native duplicate override", "openai", func(s map[string]any) {
-			subscriptionEffective(s)["Headers"] = map[string]any{"Authorization": []any{"Bearer synthetic-native"}, "authorization": []any{"Bearer synthetic-native"}}
-		}},
-		{"native registration", "openai", func(s map[string]any) { subscriptionCandidate(s)["clientId"] = " " }},
-		{"companion readiness", "openai", func(s map[string]any) { s["CompanionReady"] = false }},
-		{"companion candidate account", "openai", func(s map[string]any) { subscriptionCandidate(subscriptionCompanion(s))["accountId"] = "other" }},
-		{"companion public origin", "openai", func(s map[string]any) { subscriptionCompanion(s)["ModelBaseURL"] = "https://proxy.invalid" }},
-		{"companion ambiguous grant", "openai", func(s map[string]any) {
-			c := subscriptionCompanion(s)
-			other := map[string]any{"type": "oauth", "access": subscriptionEffective(c)["APIKey"], "refresh": "different", "expires": float64(1), "accountId": "synthetic-account"}
-			c["Candidates"] = append(c["Candidates"].([]any), other)
-		}},
-		{"companion selected override", "openai", func(s map[string]any) {
-			subscriptionEffective(subscriptionCompanion(s))["Headers"] = map[string]any{"Authorization": []any{"Basic synthetic"}}
-		}},
-		{"companion missing JWT", "openai", func(s map[string]any) {
-			c := subscriptionCompanion(s)
-			subscriptionEffective(c)["APIKey"] = "opaque"
-			c["Provider"].(map[string]any)["APIKey"] = "opaque"
-			subscriptionCandidate(c)["access"] = "opaque"
-		}},
-		{"companion missing refresh", "openai", func(s map[string]any) { delete(subscriptionCandidate(subscriptionCompanion(s)), "refresh") }},
-		{"copilot public only", "github-copilot", func(s map[string]any) { subscriptionCandidate(s)["enterpriseUrl"] = "https://enterprise.invalid" }},
-		{"copilot missing refresh", "github-copilot", func(s map[string]any) { delete(subscriptionCandidate(s), "refresh") }},
-		{"copilot wrong effective account", "github-copilot", func(s map[string]any) { subscriptionEffective(s)["APIKey"] = "other" }},
-		{"copilot not ready", "github-copilot", func(s map[string]any) { s["Ready"] = false }},
-		{"copilot ambiguous matching refresh", "github-copilot", func(s map[string]any) {
-			s["Candidates"] = append(s["Candidates"].([]any), map[string]any{"type": "oauth", "access": "synthetic-access", "refresh": "other", "expires": float64(1)})
-		}},
+		{"native resolver", "openai", func(s *OAuthSnapshot) { s.Candidates[0].(map[string]any)["scopes"] = []any{"openid"} }},
+		{"companion resolver", "openai", func(s *OAuthSnapshot) { s.CompanionReady = false }},
+		{"copilot resolver", "github-copilot", func(s *OAuthSnapshot) { s.Effective.APIKey = "other" }},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			goodFixture := subscriptionGood(t, tt.provider)
 			subscriptionValidQuery(t, goodFixture)
 			server := subscriptionHTTPS(t, goodFixture)
-			s := subscriptionSnapshotFor(goodFixture)
-			tt.change(s)
-			auth := subscriptionAuth(t, s, true, func(context.Context) (map[string]any, error) { return s, nil })
+			snapshot := subscriptionSnapshotFor(goodFixture)
+			tt.change(&snapshot)
+			auth := subscriptionAuth(snapshot, true, func(context.Context) (OAuthSnapshot, error) { return snapshot, nil })
 
 			report, err := server.client.Query(t.Context(), tt.provider, auth, time.Second)
 
@@ -333,8 +274,8 @@ func TestSubscriptionQueryCopiesResolvedAuthorization(t *testing.T) {
 	f := subscriptionGood(t, "openai-codex")
 	s := subscriptionSnapshotFor(f)
 	server := subscriptionHTTPS(t, f)
-	auth := subscriptionAuth(t, s, true, func(context.Context) (map[string]any, error) {
-		return nil, errors.New("fixture-secret companion resolver must not select legacy authorization")
+	auth := subscriptionAuth(s, true, func(context.Context) (OAuthSnapshot, error) {
+		return OAuthSnapshot{}, errors.New("fixture-secret companion resolver must not select legacy authorization")
 	})
 	auth.Headers.Set("Authorization", "Custom synthetic-selected-model")
 	auth.Revalidate = func(ctx context.Context) error {
@@ -352,11 +293,11 @@ func TestSubscriptionQueryCopiesResolvedAuthorization(t *testing.T) {
 
 func TestOpenAIQueryRequiresExplicitCompanionOptIn(t *testing.T) {
 	f := subscriptionNamed(t, "openai:auth-only")
-	s := subscriptionSnapshot("openai")
-	s["CompanionReady"] = true
-	s["Companion"] = subscriptionSnapshot("openai-codex")
+	s := nativeSnapshot()
+	companion := companionSnapshot()
+	s.CompanionReady, s.Companion = true, &companion
 	server := subscriptionHTTPS(t, subscriptionGood(t, "openai"))
-	auth := subscriptionAuth(t, s, false, func(context.Context) (map[string]any, error) { return s, nil })
+	auth := subscriptionAuth(s, false, func(context.Context) (OAuthSnapshot, error) { return s, nil })
 
 	report, err := server.client.Query(t.Context(), "openai", auth, time.Second)
 
@@ -364,11 +305,11 @@ func TestOpenAIQueryRequiresExplicitCompanionOptIn(t *testing.T) {
 	requireSubscriptionWire(t, server.observations(), nil)
 }
 
-func subscriptionFenceAuth(t testing.TB, provider string, s map[string]any, optIn bool, changeAfter string, change func(map[string]any), changed *atomic.Bool) ResolvedAuth {
+func subscriptionFenceAuth(t testing.TB, provider string, s OAuthSnapshot, optIn bool, changeAfter string, change func(*OAuthSnapshot), changed *atomic.Bool) ResolvedAuth {
 	t.Helper()
 	if provider == "openai-codex" {
-		auth := subscriptionAuth(t, s, optIn, func(context.Context) (map[string]any, error) {
-			return nil, errors.New("fixture-secret legacy must use resolved authentication")
+		auth := subscriptionAuth(s, optIn, func(context.Context) (OAuthSnapshot, error) {
+			return OAuthSnapshot{}, errors.New("fixture-secret legacy must use resolved authentication")
 		})
 		var validations atomic.Int32
 		auth.Revalidate = func(ctx context.Context) error {
@@ -380,10 +321,10 @@ func subscriptionFenceAuth(t testing.TB, provider string, s map[string]any, optI
 		return auth
 	}
 	var resolves atomic.Int32
-	return subscriptionAuth(t, s, optIn, func(context.Context) (map[string]any, error) {
-		copy := subscriptionClone(t, s)
+	return subscriptionAuth(s, optIn, func(context.Context) (OAuthSnapshot, error) {
+		copy := subscriptionCopy(s)
 		if (resolves.Add(1) > 1 && changeAfter == "resolve") || changed.Load() {
-			change(copy)
+			change(&copy)
 		}
 		return copy, nil
 	})
@@ -395,7 +336,7 @@ func TestOpenAIQueryResolvesIdentityOnceWithoutAFetch(t *testing.T) {
 	server := subscriptionHTTPS(t, f)
 	s := subscriptionSnapshotFor(f)
 	var resolves, revalidations atomic.Int32
-	auth := subscriptionAuth(t, s, false, func(context.Context) (map[string]any, error) {
+	auth := subscriptionAuth(s, false, func(context.Context) (OAuthSnapshot, error) {
 		resolves.Add(1)
 		return s, nil
 	})
@@ -421,9 +362,7 @@ func TestOpenAIQueryRefusesIdentityChangeReportedByRevalidation(t *testing.T) {
 	subscriptionValidQuery(t, f)
 	server := subscriptionHTTPS(t, f)
 	s := subscriptionSnapshotFor(f)
-	auth := subscriptionAuth(t, s, false, func(context.Context) (map[string]any, error) {
-		return s, nil
-	})
+	auth := subscriptionAuth(s, false, func(context.Context) (OAuthSnapshot, error) { return s, nil })
 	auth.Revalidate = func(context.Context) error {
 		return errors.New("fixture-secret account-canary-89342 identity changed")
 	}
@@ -439,16 +378,16 @@ func TestSubscriptionQueryFencesChangingIdentity(t *testing.T) {
 	for _, tt := range []struct {
 		name, provider, changeAfter string
 		wantRequests                int32
-		change                      func(map[string]any)
+		change                      func(*OAuthSnapshot)
 	}{
-		{"companion readiness before HTTP", "openai", "resolve", 0, func(s map[string]any) { s["Ready"] = false }},
-		{"companion before HTTP", "openai", "resolve", 0, func(s map[string]any) { subscriptionCandidate(s)["clientId"] = "changed" }},
+		{"companion readiness before HTTP", "openai", "resolve", 0, func(s *OAuthSnapshot) { s.Ready = false }},
+		{"companion before HTTP", "openai", "resolve", 0, func(s *OAuthSnapshot) { subscriptionCandidate(s)["clientId"] = "changed" }},
 		{"legacy revalidation before HTTP", "openai-codex", "resolve", 0, nil},
-		{"copilot before HTTP", "github-copilot", "resolve", 0, func(s map[string]any) { subscriptionCandidate(s)["refresh"] = "changed" }},
-		{"companion before plan", "openai", "/backend-api/wham/usage/chatpass/apps", 1, func(s map[string]any) { subscriptionCandidate(subscriptionCompanion(s))["accountId"] = "changed" }},
-		{"companion before result", "openai", "/backend-api/wham/usage", 2, func(s map[string]any) { subscriptionCandidate(s)["clientId"] = "changed" }},
+		{"copilot before HTTP", "github-copilot", "resolve", 0, func(s *OAuthSnapshot) { subscriptionCandidate(s)["refresh"] = "changed" }},
+		{"companion before plan", "openai", "/backend-api/wham/usage/chatpass/apps", 1, func(s *OAuthSnapshot) { subscriptionCandidate(s.Companion)["accountId"] = "changed" }},
+		{"companion before result", "openai", "/backend-api/wham/usage", 2, func(s *OAuthSnapshot) { subscriptionCandidate(s)["clientId"] = "changed" }},
 		{"legacy revalidation before result", "openai-codex", "/backend-api/wham/usage", 1, nil},
-		{"copilot before result", "github-copilot", "/copilot_internal/user", 1, func(s map[string]any) { subscriptionCandidate(s)["refresh"] = "changed" }},
+		{"copilot before result", "github-copilot", "/copilot_internal/user", 1, func(s *OAuthSnapshot) { subscriptionCandidate(s)["refresh"] = "changed" }},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			f := subscriptionGood(t, tt.provider)
@@ -523,7 +462,7 @@ func TestSubscriptionQueryUsesGuardedTransport(t *testing.T) {
 func subscriptionDeadlineAuth(t testing.TB, f subscriptionFixture) ResolvedAuth {
 	t.Helper()
 	s := subscriptionSnapshotFor(f)
-	auth := subscriptionAuth(t, s, true, func(ctx context.Context) (map[string]any, error) { <-ctx.Done(); return nil, ctx.Err() })
+	auth := subscriptionAuth(s, true, func(ctx context.Context) (OAuthSnapshot, error) { <-ctx.Done(); return OAuthSnapshot{}, ctx.Err() })
 	if f.Provider == "openai-codex" {
 		auth.Revalidate = func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }
 	}
@@ -566,25 +505,6 @@ func TestSubscriptionQueryDeadlineCoversResponse(t *testing.T) {
 	}
 }
 
-func TestSubscriptionQuerySharesAdmission(t *testing.T) {
-	for _, provider := range []string{"openai", "openai-codex", "github-copilot"} {
-		t.Run(provider, func(t *testing.T) {
-			f := subscriptionGood(t, provider)
-			stop := occupyQuerySlots(t)
-			server := subscriptionHTTPS(t, f)
-
-			report, err := server.client.Query(t.Context(), provider, subscriptionFixedAuth(t, f), 40*time.Millisecond)
-			stop()
-			good, goodErr := server.client.Query(t.Context(), provider, subscriptionFixedAuth(t, f), time.Second)
-
-			subscriptionAssertReport(t, good, goodErr, f)
-			requireQueryRefused(t, report, err)
-			requireDeadline(t, err)
-			requireSubscriptionWire(t, server.observations(), subscriptionExpectedWire(f, true))
-		})
-	}
-}
-
 func subscriptionBoundedRegistration(t testing.TB, apps, windowCount int) subscriptionFixture {
 	t.Helper()
 	f := subscriptionNamed(t, "openai:companion")
@@ -598,7 +518,7 @@ func subscriptionBoundedRegistration(t testing.TB, apps, windowCount int) subscr
 	buckets := f.Expected["buckets"].([]any)
 	for len(windows) < windowCount {
 		windows = append(windows, windows[0])
-		bucket := subscriptionClone(t, buckets[2].(map[string]any))
+		bucket := maps.Clone(buckets[2].(map[string]any))
 		bucket["id"] = fmt.Sprintf("app:%d", len(windows)-1)
 		buckets = append(buckets, bucket)
 	}

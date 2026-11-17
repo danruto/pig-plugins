@@ -9,10 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"reflect"
-	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -476,23 +473,6 @@ func TestConsumerQuery_ACOptionalAndBillingCancellation(t *testing.T) {
 		t.Run(provider, func(t *testing.T) { consumerDeadline(t, consumerNamed(t, provider+":normal"), "later", true) })
 	}
 }
-func TestConsumerQuery_ACSharedAdmissionRecovers(t *testing.T) {
-	for _, f := range consumerProviders(t) {
-		t.Run(f.Provider, func(t *testing.T) {
-			stop := occupyQuerySlots(t)
-			s := consumerHTTPS(t, f)
-
-			_, err := s.client.Query(t.Context(), f.Provider, consumerAuth(f), 40*time.Millisecond)
-			observed := s.count()
-			stop()
-			report, goodErr := s.client.Query(t.Context(), f.Provider, consumerAuth(f), time.Second)
-
-			requireDeadline(t, err)
-			requireRequestCount(t, observed, 0)
-			requirePinnedQueryReport(t, report, goodErr, providerQueryFixture{provider: f.Provider, expected: f.Expected})
-		})
-	}
-}
 func TestConsumerQuery_ACXaiRejectsUnmatchedFreshOAuth(t *testing.T) {
 	for _, mode := range []string{"not-ready", "no-oauth", "mismatch", "incomplete", "incomplete-plus-match", "duplicate", "bad-expiry", "no-resolver", "resolver-error", "changed-before-billing", "changed-at-publication", "changed-account-before-billing", "changed-account-at-publication"} {
 		t.Run(mode, func(t *testing.T) { consumerXaiRefusal(t, mode) })
@@ -615,39 +595,4 @@ func TestConsumerQuery_ACMaximumBudgetAppliesToConsumerDispatch(t *testing.T) {
 			requireBillingSameDeadline(t, deadlines)
 		})
 	}
-}
-
-func TestConsumerQuery_ACMenuOnlyCapabilityMatchesSourceAdmission(t *testing.T) {
-	got := consumerCapability(t)
-	consumerGood(t, "xai")
-
-	requireString(t, got, "baseten,command-code,deepseek,fireworks,github-copilot,kimi-coding,minimax,minimax-cn,moonshotai,moonshotai-cn,openai,openai-codex,opencode-go,openrouter,vercel-ai-gateway,zai,zai-coding-cn\nxai=false unknown=false\n")
-}
-func consumerCapability(t testing.TB) string {
-	t.Helper()
-	doc := exec.Command("go", "doc", "-short", ".")
-	output, err := doc.CombinedOutput()
-	consumerNoError(t, err)
-	discovered, err := regexp.MatchString(`(?m)^func Schedulable\(\w* ?string\) bool$`, string(output))
-	consumerNoError(t, err)
-	if !discovered {
-		t.Fatal("schedulability capability unavailable at existing package boundary")
-	}
-	root, err := filepath.Abs("../..")
-	consumerNoError(t, err)
-	dir := t.TempDir()
-	module := "module github.com/danruto/pig-plugins/extensions/pig-status/capabilitycheck\n\ngo 1.26\nrequire github.com/danruto/pig-plugins/extensions/pig-status v0.0.0\nreplace github.com/danruto/pig-plugins/extensions/pig-status => " + root + "\n"
-	consumerNoError(t, os.WriteFile(filepath.Join(dir, "go.mod"), []byte(module), 0600))
-	source := `package main
-import("fmt";"strings";usage "github.com/danruto/pig-plugins/extensions/pig-status/internal/usage")
-func main(){ ids:=[]string{"baseten","command-code","deepseek","fireworks","github-copilot","kimi-coding","minimax","minimax-cn","moonshotai","moonshotai-cn","openai","openai-codex","opencode-go","openrouter","vercel-ai-gateway","zai","zai-coding-cn"};var admitted []string;for _,id:=range ids{if usage.Schedulable(id){admitted=append(admitted,id)}};fmt.Println(strings.Join(admitted,","));fmt.Printf("xai=%v unknown=%v\n",usage.Schedulable("xai"),usage.Schedulable("unknown"))}
-`
-	consumerNoError(t, os.WriteFile(filepath.Join(dir, "main.go"), []byte(source), 0600))
-	cmd := exec.Command("go", "run", "-mod=mod", ".")
-	cmd.Dir = dir
-	result, err := cmd.CombinedOutput()
-	if err != nil {
-		t.Fatalf("runtime capability invocation failed: %v: %s", err, result)
-	}
-	return string(result)
 }

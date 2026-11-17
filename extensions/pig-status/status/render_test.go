@@ -181,13 +181,26 @@ func TestQuotaBoundsAndUnknownWindows(t *testing.T) {
 	}
 }
 
-func TestDisabledThinkingLevel(t *testing.T) {
-	for _, level := range []string{"", "none", "off"} {
-		now := time.Now()
-		lines := render(180, snapshot{thinking: level, started: now}, sdk.UITheme{}, "model", "/example", "", "", nil, now)
-		if strings.Contains(strings.Join(lines, "\n"), " · "+level+" · ") {
-			t.Fatalf("disabled thinking should not get a label: %q", lines)
-		}
+func TestThinkingLevelShownOnlyWhenEnabled(t *testing.T) {
+	now := time.Now()
+	for _, tt := range []struct {
+		name  string
+		level string
+		right string
+	}{
+		{"unset", "", "ctx -- · model"},
+		{"none", "none", "ctx -- · model"},
+		{"off", "off", "ctx -- · model"},
+		{"high", "high", "ctx -- · model · high"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			lines := render(180, snapshot{thinking: tt.level, started: now}, sdk.UITheme{}, "model", "/example", "", "", nil, now)
+			left := "example · open 0m"
+			want := left + strings.Repeat(" ", 180-tui.VisibleWidth(left)-tui.VisibleWidth(tt.right)) + tt.right
+			if len(lines) != 1 || lines[0] != want {
+				t.Fatalf("thinking level %q rendered %q, want %q", tt.level, lines, want)
+			}
+		})
 	}
 }
 

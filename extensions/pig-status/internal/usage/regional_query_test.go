@@ -65,13 +65,6 @@ func regionalSurfaces(t testing.TB) []regionalQueryFixture {
 	})
 }
 
-func regionalOptionalField(auth *ResolvedAuth, name string, value any) {
-	field := reflect.ValueOf(auth).Elem().FieldByName(name)
-	if field.IsValid() {
-		field.Set(reflect.ValueOf(value))
-	}
-}
-
 func regionalAuth(f regionalQueryFixture) ResolvedAuth {
 	auth := deepSeekAuth()
 	auth.ModelBaseURL = f.Base
@@ -83,7 +76,7 @@ func regionalAuth(f regionalQueryFixture) ResolvedAuth {
 		key = "fixture-secret"
 	}
 	auth.Headers.Set("Authorization", "Bearer "+key)
-	regionalOptionalField(&auth, "APIKey", "opposite-kind-snapshot")
+	auth.APIKey = "opposite-kind-snapshot"
 	return auth
 }
 
@@ -167,9 +160,7 @@ func regionalGood(t testing.TB, provider string) {
 }
 
 func TestRegionalQuery_ACParityMatchesActualSource(t *testing.T) {
-	for _, f := range regionalFixtures(t, func(f regionalQueryFixture) bool {
-		return f.Expected != nil && !strings.HasPrefix(f.Provider, "moonshot")
-	}) {
+	for _, f := range append(regionalSurfaces(t), regionalNamed(t, "zai:current-plan"), regionalNamed(t, "zai-coding-cn:current-plan")) {
 		t.Run(f.Name, func(t *testing.T) {
 			server := regionalHTTPS(t, f, 0, "")
 			before := time.Now()
@@ -184,7 +175,8 @@ func TestRegionalQuery_ACParityMatchesActualSource(t *testing.T) {
 }
 
 func TestRegionalQuery_ACMalformedSourceInputsRefuse(t *testing.T) {
-	for _, f := range regionalFixtures(t, func(f regionalQueryFixture) bool { return f.Error != "" && f.Kind != "error" }) {
+	for _, name := range []string{"minimax:balance-numeric-not-decimal", "minimax:no-rows", "zai:no-displayable"} {
+		f := regionalNamed(t, name)
 		t.Run(f.Name, func(t *testing.T) {
 			regionalGood(t, f.Provider)
 			server := regionalHTTPS(t, f, 0, "")
@@ -363,9 +355,9 @@ func TestRegionalQuery_ACMoonshotSiblingProvenance(t *testing.T) {
 				control := regionalHTTPS(t, f, 0, "")
 				server := regionalHTTPS(t, f, 0, "")
 				auth := regionalAuth(f)
-				regionalOptionalField(&auth, "SelectedProviderID", tt.selected)
-				regionalOptionalField(&auth, "Source", tt.source)
-				regionalOptionalField(&auth, "SourceLabel", tt.label)
+				auth.SelectedProviderID = tt.selected
+				auth.Source = tt.source
+				auth.SourceLabel = tt.label
 
 				good, goodErr := control.client.Query(t.Context(), f.Provider, regionalAuth(f), time.Second)
 				report, err := server.client.Query(t.Context(), f.Provider, auth, time.Second)
@@ -532,24 +524,6 @@ func TestRegionalQuery_SafeDeadlineCoversOptionalZaiWork(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeSharedAdmissionRecovers(t *testing.T) {
-	for _, f := range regionalSurfaces(t) {
-		t.Run(f.Name, func(t *testing.T) {
-			stop := occupyQuerySlots(t)
-			server := regionalHTTPS(t, f, 0, "")
-
-			_, err := server.client.Query(t.Context(), f.Provider, regionalAuth(f), 40*time.Millisecond)
-			observed := server.count()
-			stop()
-			good, goodErr := server.client.Query(t.Context(), f.Provider, regionalAuth(f), time.Second)
-
-			requireDeadline(t, err)
-			requireRequestCount(t, observed, 0)
-			requirePinnedQueryReport(t, good, goodErr, providerQueryFixture{provider: f.Provider, expected: f.Expected})
-		})
-	}
-}
-
 func requireRegionalBudget(t testing.TB, deadlines []time.Time) {
 	t.Helper()
 	if len(deadlines) == 0 || deadlines[0].IsZero() || time.Until(deadlines[0]) > 15*time.Second {
@@ -570,7 +544,7 @@ func TestRegionalQuery_ACMiniMaxRuntimeKeyRouting(t *testing.T) {
 				server := regionalHTTPS(t, f, 0, "")
 				auth := regionalAuth(f)
 				auth.Headers.Set("Authorization", tt.authorization)
-				regionalOptionalField(&auth, "APIKey", tt.key)
+				auth.APIKey = tt.key
 				want := regionalWantWires(f)
 				want[0].Auth = tt.authorization
 

@@ -12,6 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"testing/synctest"
 	"time"
 )
 
@@ -331,13 +332,6 @@ func requireDeadline(t testing.TB, err error) {
 	}
 }
 
-func requireDurationAtMost(t testing.TB, got, limit time.Duration) {
-	t.Helper()
-	if got > limit {
-		t.Fatalf("total query duration = %s, exceeds %s including admission", got, limit)
-	}
-}
-
 func TestQueryRejectsUnsafeExplicitAuthorization(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
@@ -413,43 +407,31 @@ func occupyQuerySlots(t testing.TB) context.CancelFunc {
 	return stop
 }
 
-func TestQueryBoundsAdmissionAcrossClients(t *testing.T) {
-	stop := occupyQuerySlots(t)
-	var requests atomic.Int32
-	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
-		requests.Add(1)
-		_, _ = io.WriteString(w, deepSeekBalance)
+func TestQueryBudgetCoversAdmissionWait(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		shared := querySlots
+		querySlots = make(chan struct{}, cap(shared))
+		t.Cleanup(func() { querySlots = shared })
+		var requests atomic.Int32
+		client := Client{Transport: queryRoundTripper(func(*http.Request) (*http.Response, error) {
+			requests.Add(1)
+			return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: io.NopCloser(strings.NewReader(deepSeekBalance))}, nil
+		})}
+		querySlots <- struct{}{}
+		querySlots <- struct{}{}
+		started := time.Now()
+
+		_, err := client.Query(t.Context(), "deepseek", deepSeekAuth(), time.Hour)
+		elapsed := time.Since(started)
+		<-querySlots
+		<-querySlots
+		report, goodErr := client.Query(t.Context(), "deepseek", deepSeekAuth(), time.Second)
+
+		requireDeadline(t, err)
+		if elapsed != maxQueryDuration {
+			t.Fatalf("query budget = %s, want %s including the admission wait", elapsed, maxQueryDuration)
+		}
+		requireRequestCount(t, requests.Load(), 1)
+		requireQuerySuccess(t, report, goodErr)
 	})
-
-	_, err := client.Query(t.Context(), "deepseek", deepSeekAuth(), 100*time.Millisecond)
-	stop()
-	report, successErr := client.Query(t.Context(), "deepseek", deepSeekAuth(), time.Second)
-
-	requireDeadline(t, err)
-	requireRequestCount(t, requests.Load(), 1)
-	requireQuerySuccess(t, report, successErr)
-}
-
-func TestQueryCapsTotalBudgetIncludingAdmission(t *testing.T) {
-	stop := occupyQuerySlots(t)
-	client := fixtureClient(t, func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.(http.Flusher).Flush()
-		<-r.Context().Done()
-	})
-	ctx, cancel := context.WithTimeout(t.Context(), 18*time.Second)
-	defer cancel()
-	started := time.Now()
-
-	_, err := client.Query(ctx, "deepseek", deepSeekAuth(), time.Hour)
-	elapsed := time.Since(started)
-	stop()
-	goodClient := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = io.WriteString(w, deepSeekBalance)
-	})
-	report, goodErr := goodClient.Query(t.Context(), "deepseek", deepSeekAuth(), time.Second)
-
-	requireDeadline(t, err)
-	requireDurationAtMost(t, elapsed, 16*time.Second)
-	requireQuerySuccess(t, report, goodErr)
 }

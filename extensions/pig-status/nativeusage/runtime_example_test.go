@@ -9,7 +9,8 @@ import (
 
 func ExampleRegister() {
 	var cached usage.CachedUsage
-	runtime, err := Register(sdk.New("example"), Options{Publish: func(view usage.CachedUsage) { cached = view }})
+	published := 0
+	runtime, err := Register(sdk.New("example"), Options{Publish: func(view usage.CachedUsage) { published++; cached = view }})
 	if err != nil {
 		panic(err)
 	}
@@ -19,6 +20,6 @@ func ExampleRegister() {
 	if err := runtime.Close(); err != nil {
 		panic(err)
 	}
-	fmt.Println(len(cached.Windows), cached.ExpiresAt.IsZero())
-	// Output: 0 true
+	fmt.Println(published > 0, len(cached.Windows), cached.ExpiresAt.IsZero())
+	// Output: true 0 true
 }

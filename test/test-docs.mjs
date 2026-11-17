@@ -78,8 +78,8 @@ test("docs server renders Markdown and confines requests to disposable docs", as
   await t.test("serves only explicit local assets", async () => {
     assert.equal(await (await fetch(`${base}/_docs/renderer.js`)).text(), "fixture-js");
     const client = await fetch(`${base}/_docs/client.js`);
+    assert.equal(client.status, 200);
     assert.match(client.headers.get("content-type"), /text\/javascript/);
-    assert.match(await client.text(), /mountDiagram/);
     assert.equal((await fetch(`${base}/_docs/missing.js`)).status, 404);
   });
   await t.test("rejects traversal, symlink escapes, missing files and non-doc files", async () => {

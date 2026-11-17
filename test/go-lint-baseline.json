@@ -296,16 +296,6 @@
   },
   {
     "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
-    "linter": "noctx",
-    "text": "os/exec.Command must not be called. use os/exec.CommandContext"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
-    "linter": "noctx",
-    "text": "os/exec.Command must not be called. use os/exec.CommandContext"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
     "linter": "prealloc",
     "text": "Consider preallocating want with capacity len(f.Wires)"
   },
@@ -318,11 +308,6 @@
     "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
     "linter": "revive",
     "text": "flag-parameter: parameter 'canceled' seems to be a control flag, avoid control coupling"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
   },
   {
     "file": "extensions/pig-status/internal/usage/consumer_query_test.go",
@@ -1352,21 +1337,6 @@
   {
     "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
     "linter": "forcetypeassert",
-    "text": "right hand must be only type assertion"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "right hand must be only type assertion"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "right hand must be only type assertion"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
     "text": "type assertion must be checked"
   },
   {
@@ -1413,31 +1383,6 @@
     "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
     "linter": "forcetypeassert",
     "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "musttag",
-    "text": "the given struct should be annotated with the `json` tag"
   },
   {
     "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
@@ -1453,16 +1398,6 @@
     "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
     "linter": "revive",
     "text": "flag-parameter: parameter 'success' seems to be a control flag, avoid control coupling"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
   },
   {
     "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
@@ -1688,16 +1623,6 @@
     "file": "extensions/pig-status/internal/usage/transport_test.go",
     "linter": "forcetypeassert",
     "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport_test.go",
-    "linter": "forcetypeassert",
-    "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
   },
   {
     "file": "extensions/pig-status/internal/usage/transport_test.go",

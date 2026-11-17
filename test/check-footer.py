@@ -80,7 +80,7 @@ with tempfile.TemporaryDirectory(prefix="pig-status-tui-") as tmp:
         output = captured.decode(errors="replace")
         assert process.returncode == 0, (process.returncode, output)
         assert b"panic" not in captured.lower(), output
-        print("Native footer: Claude usage visible at 120 and 80 columns; clean exit; no model prompt")
+        print("Native footer: Claude usage visible at 120 and 80 columns; clean exit")
     finally:
         if process.poll() is None:
             os.killpg(process.pid, signal.SIGTERM)
