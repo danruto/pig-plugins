@@ -14,7 +14,9 @@ func TestNormalizeCodexResetCredits(t *testing.T) {
 	t.Parallel()
 	sooner := time.Date(2026, 2, 3, 4, 5, 6, 0, time.UTC).Unix()
 	later := time.Date(2026, 3, 4, 5, 6, 7, 0, time.UTC).Unix()
-	truncatedTitle := strings.Repeat("é", 160)
+	earlier := time.Date(2026, 12, 10, 0, 0, 0, 0, time.UTC).Unix()
+	floored := time.Date(2026, 12, 18, 0, 0, 0, 0, time.UTC).Unix()
+	truncatedText := strings.Repeat("é", 160)
 	credit := func(id, status, resetType string) map[string]any {
 		return map[string]any{"id": id, "status": status, "reset_type": resetType}
 	}
@@ -122,13 +124,63 @@ func TestNormalizeCodexResetCredits(t *testing.T) {
 			wantErr: errCodexResetCredits,
 		},
 		{
-			name:      "truncates a long title to the spec limit",
-			payload:   map[string]any{"available_count": 1, "credits": []any{map[string]any{"id": "c1", "status": "available", "reset_type": "codex_rate_limits", "title": strings.Repeat("é", 200)}}},
+			name: "keeps only the counted options",
+			payload: map[string]any{
+				"available_count": 1,
+				"credits": []any{
+					map[string]any{"id": "c-late", "status": "available", "reset_type": "codex_rate_limits", "title": "Late", "expires_at": "2026-12-20T00:00:00Z"},
+					map[string]any{"id": "c-early", "status": "available", "reset_type": "codex_rate_limits", "title": "Early", "expires_at": "2026-12-10T00:00:00Z"},
+				},
+			},
+			wantCount: 1,
+			wantIDs:   []string{"c-early"},
+			wantOptions: []CodexResetOption{
+				{CreditID: "c-early", Title: "Early", Description: "Reset your current usage limits.", ExpiresAt: &earlier},
+			},
+		},
+		{
+			name:        "offers nothing when the count is zero",
+			payload:     map[string]any{"available_count": 0, "credits": []any{credit("c1", "available", "codex_rate_limits")}},
+			wantCount:   0,
+			wantIDs:     []string{},
+			wantOptions: []CodexResetOption{},
+		},
+		{
+			name:      "sanitizes control characters",
+			payload:   map[string]any{"available_count": 1, "credits": []any{map[string]any{"id": "c1", "status": "available", "reset_type": "codex_rate_limits", "title": "Full\u001b[31m reset", "description": "Reset\u0007 now"}}},
 			wantCount: 1,
 			wantIDs:   []string{"c1"},
 			wantOptions: []CodexResetOption{
-				{CreditID: "c1", Title: truncatedTitle, Description: "Reset your current usage limits."},
+				{CreditID: "c1", Title: "Full[31m reset", Description: "Reset now"},
 			},
+		},
+		{
+			name:      "floors a fractional expiration",
+			payload:   map[string]any{"available_count": 1, "credits": []any{map[string]any{"id": "c1", "status": "available", "reset_type": "codex_rate_limits", "expires_at": "2026-12-18T00:00:00.75Z"}}},
+			wantCount: 1,
+			wantIDs:   []string{"c1"},
+			wantOptions: []CodexResetOption{
+				{CreditID: "c1", Title: "Full reset", Description: "Reset your current usage limits.", ExpiresAt: &floored},
+			},
+		},
+		{
+			name:      "truncates a long title and description to the spec limit",
+			payload:   map[string]any{"available_count": 1, "credits": []any{map[string]any{"id": "c1", "status": "available", "reset_type": "codex_rate_limits", "title": strings.Repeat("é", 200), "description": strings.Repeat("é", 200)}}},
+			wantCount: 1,
+			wantIDs:   []string{"c1"},
+			wantOptions: []CodexResetOption{
+				{CreditID: "c1", Title: truncatedText, Description: truncatedText},
+			},
+		},
+		{
+			name:    "rejects an oversized credit id",
+			payload: map[string]any{"available_count": 1, "credits": []any{credit(strings.Repeat("c", 1025), "available", "codex_rate_limits")}},
+			wantErr: errCodexResetCredits,
+		},
+		{
+			name:    "rejects a non string credit id",
+			payload: map[string]any{"available_count": 1, "credits": []any{map[string]any{"id": 5.0, "status": "available", "reset_type": "codex_rate_limits"}}},
+			wantErr: errCodexResetCredits,
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {

@@ -183,15 +183,21 @@ func (r *CodexResets) Run(ctx context.Context, ui CommandUI) error {
 	return r.redeem(ctx, ui, expected, option)
 }
 
+func boundedCall[T any](ctx context.Context, timeout time.Duration, call func(context.Context) (T, error)) (T, error) {
+	callCtx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	return call(callCtx)
+}
+
 func (r *CodexResets) snapshot(ctx context.Context) (codexResetIdentity, CodexAccount, error) {
-	scope, err := r.current(ctx)
+	scope, err := boundedCall(ctx, r.timeout, r.current)
 	if err != nil {
 		return codexResetIdentity{}, CodexAccount{}, errCodexResetAccount
 	}
 	if !scope.HasModel || providerID(scope.Model.Provider) != providerOpenAICodex {
 		return codexResetIdentity{}, CodexAccount{}, errCodexResetProvider
 	}
-	account, err := r.identify(ctx)
+	account, err := boundedCall(ctx, r.timeout, r.identify)
 	if err != nil {
 		return codexResetIdentity{}, CodexAccount{}, errCodexResetAccount
 	}
@@ -208,11 +214,21 @@ func (r *CodexResets) snapshot(ctx context.Context) (codexResetIdentity, CodexAc
 	return identity, account, nil
 }
 
+func (r *CodexResets) revalidate(ctx context.Context, account CodexAccount) error {
+	if account.Revalidate == nil {
+		return nil
+	}
+	callCtx, cancel := context.WithTimeout(ctx, r.timeout)
+	defer cancel()
+	if err := account.Revalidate(callCtx); err != nil {
+		return errCodexResetAccount
+	}
+	return nil
+}
+
 func (r *CodexResets) load(ctx context.Context, account CodexAccount) (CodexResetAvailability, error) {
-	if account.Revalidate != nil {
-		if err := account.Revalidate(ctx); err != nil {
-			return CodexResetAvailability{}, errCodexResetAccount
-		}
+	if err := r.revalidate(ctx, account); err != nil {
+		return CodexResetAvailability{}, err
 	}
 	payload, err := r.request(ctx, usageRequest{
 		endpoint:    CodexResetCreditsURL,
@@ -291,16 +307,11 @@ func (r *CodexResets) retry(ctx context.Context, ui CommandUI, cause error) (boo
 
 func (r *CodexResets) consume(ctx context.Context, expected codexResetIdentity, option CodexResetOption, requestID string) (CodexResetOutcome, error) {
 	current, account, err := r.snapshot(ctx)
-	if err != nil {
-		return CodexResetOutcome{}, err
-	}
-	if current != expected {
+	if err != nil || current != expected {
 		return CodexResetOutcome{}, errCodexResetChanged
 	}
-	if account.Revalidate != nil {
-		if err := account.Revalidate(ctx); err != nil {
-			return CodexResetOutcome{}, errCodexResetAccount
-		}
+	if err := r.revalidate(ctx, account); err != nil {
+		return CodexResetOutcome{}, err
 	}
 	body, err := json.Marshal(resetConsumeBody(option, requestID))
 	if err != nil {
