@@ -32,6 +32,7 @@ type CodexFastOptions struct {
 	Current       func(context.Context) (FastScope, error)
 	Identify      func(context.Context) (CodexAccount, error)
 	Refresh       func()
+	Spawn         func(func(context.Context))
 	ClientVersion string
 	Timeout       time.Duration
 	Now           func() time.Time
@@ -57,6 +58,7 @@ type CodexFast struct {
 	settings   *SettingsStore
 	current    func(context.Context) (FastScope, error)
 	refresh    func()
+	spawn      func(func(context.Context))
 	timeout    time.Duration
 }
 
@@ -75,6 +77,7 @@ func NewCodexFast(options CodexFastOptions) *CodexFast {
 		settings: options.Settings,
 		current:  options.Current,
 		refresh:  options.Refresh,
+		spawn:    options.Spawn,
 		timeout:  timeout,
 	}
 }
@@ -189,7 +192,7 @@ func (f *CodexFast) saveFastMode(ctx context.Context, ui CommandUI, toggle fastT
 		if ctx.Err() != nil {
 			return false
 		}
-		if errors.Is(err, ErrSettingsInvalid) || errors.Is(err, ErrSettingsChanged) {
+		if errors.Is(err, ErrSettingsInvalid) || errors.Is(err, ErrSettingsChanged) || errors.Is(err, ErrSettingsUnavailable) {
 			ui.Notify(err.Error(), "error")
 		} else {
 			ui.Notify("Could not save pi-usage.json.", "error")
@@ -221,6 +224,10 @@ func (f *CodexFast) PrepareSession(ctx context.Context, ui CommandUI) {
 		f.refresh()
 	}
 	if state.Kind == settingsKindInvalid {
+		return
+	}
+	if f.spawn != nil {
+		f.spawn(func(ctx context.Context) { f.RefreshCapabilities(ctx, false) })
 		return
 	}
 	scope, err := f.scope(ctx)

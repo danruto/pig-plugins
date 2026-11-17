@@ -20,13 +20,19 @@ func Extension() *sdk.Extension {
 }
 
 func collect(ext *sdk.Extension, state *status.State) error {
-	path := settingsPath()
-	settings := usage.NewSettingsStore(path)
-	repaint := func(ctx sdk.Context) { _ = state.Install(ctx) }
-	runtime, err := Register(ext, Options{Client: usage.Client{}, Settings: loadCollection(path), Publish: state.Quota, Repaint: repaint})
+	settings := usage.NewSettingsStore(settingsPath())
+	initial, err := settings.Reload(context.Background())
 	if err != nil {
 		return err
 	}
+	repaint := func(ctx sdk.Context) { _ = state.Install(ctx) }
+	runtime, err := Register(ext, Options{Client: usage.Client{}, Settings: initial.Settings.Collection(), Publish: state.Quota, Repaint: repaint})
+	if err != nil {
+		return err
+	}
+	settings.OnReload(func(state usage.SettingsState) {
+		_ = runtime.Configure(state.Settings.Collection())
+	})
 	for _, event := range []string{"session_start", "turn_end", "agent_end", "model_select", "session_tree", "session_compact"} {
 		ext.OnEvent(event, func(ctx sdk.Context, _ map[string]any) (any, error) {
 			entries, err := ctx.GetEntries()
@@ -44,17 +50,9 @@ func collect(ext *sdk.Extension, state *status.State) error {
 func settingsPath() string {
 	dir, err := sdk.AgentDir()
 	if err != nil {
-		return usage.SettingsFileName
+		return ""
 	}
 	return usage.SettingsPath(dir)
-}
-
-func loadCollection(path string) usage.CollectionSettings {
-	state, err := usage.LoadSettings(context.Background(), path)
-	if err != nil {
-		return usage.CollectionSettings{}
-	}
-	return state.Settings.Collection()
 }
 
 func SessionTokens(entries []json.RawMessage, model string) status.Tokens {

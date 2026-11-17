@@ -286,6 +286,8 @@ func notifySaveFailure(ui CommandUI, err error, changed string) {
 		ui.Notify(ErrSettingsInvalid.Error(), "error")
 	case errors.Is(err, ErrSettingsChanged):
 		ui.Notify(changed, "error")
+	case errors.Is(err, ErrSettingsUnavailable):
+		ui.Notify(ErrSettingsUnavailable.Error(), "error")
 	default:
 		ui.Notify("Could not save usage settings.", "error")
 	}

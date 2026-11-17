@@ -33,9 +33,10 @@ const (
 var usageIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._~-]{0,127}$`)
 
 var (
-	ErrSettingsInvalid = errors.New("pi-usage.json is invalid; repair it before saving")
-	ErrSettingsChanged = errors.New("pi-usage.json changed while saving; retry")
-	ErrInvalidTarget   = errors.New("invalid usage target selection")
+	ErrSettingsInvalid     = errors.New("pi-usage.json is invalid; repair it before saving")
+	ErrSettingsChanged     = errors.New("pi-usage.json changed while saving; retry")
+	ErrSettingsUnavailable = errors.New("pi-usage.json is unavailable because the agent directory is unknown")
+	ErrInvalidTarget       = errors.New("invalid usage target selection")
 )
 
 type Settings struct {
@@ -54,9 +55,10 @@ type SettingsState struct {
 }
 
 type SettingsStore struct {
-	mu    sync.Mutex
-	path  string
-	state SettingsState
+	mu       sync.Mutex
+	path     string
+	state    SettingsState
+	onReload func(SettingsState)
 }
 
 func SettingsPath(agentDir string) string {
@@ -93,15 +95,35 @@ func (s *SettingsStore) Get() SettingsState {
 	return cloneSettingsState(s.state)
 }
 
-func (s *SettingsStore) Reload(ctx context.Context) (SettingsState, error) {
+func (s *SettingsStore) OnReload(fn func(SettingsState)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	document, err := readSettings(ctx, s.path)
+	s.onReload = fn
+}
+
+func (s *SettingsStore) Reload(ctx context.Context) (SettingsState, error) {
+	s.mu.Lock()
+	document, err := s.document(ctx)
 	if err != nil {
-		return cloneSettingsState(s.state), err
+		state := cloneSettingsState(s.state)
+		s.mu.Unlock()
+		return state, err
 	}
 	s.state = document.state(s.path)
-	return cloneSettingsState(s.state), nil
+	state := cloneSettingsState(s.state)
+	onReload := s.onReload
+	s.mu.Unlock()
+	if onReload != nil {
+		onReload(state)
+	}
+	return state, nil
+}
+
+func (s *SettingsStore) document(ctx context.Context) (settingsDocument, error) {
+	if s.path == "" {
+		return settingsDocument{kind: settingsKindMissing, fields: map[string]json.RawMessage{}}, nil
+	}
+	return readSettings(ctx, s.path)
 }
 
 //nolint:revive // the boolean is the value being stored, not a branch selector
@@ -180,6 +202,9 @@ func confirmed(ctx context.Context, confirm func(context.Context) error) error {
 }
 
 func (s *SettingsStore) loadForSave(ctx context.Context) (settingsDocument, error) {
+	if s.path == "" {
+		return settingsDocument{}, ErrSettingsUnavailable
+	}
 	document, err := readSettings(ctx, s.path)
 	if err != nil {
 		return document, err

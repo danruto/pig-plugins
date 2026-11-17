@@ -102,9 +102,16 @@ func copySettings(settings usage.CollectionSettings) usage.CollectionSettings {
 	return settings
 }
 
+func sameCollection(left, right usage.CollectionSettings) bool {
+	return maps.Equal(left.Targets, right.Targets) && left.UseCodexUsage == right.UseCodexUsage
+}
+
 func (r *Runtime) Configure(settings usage.CollectionSettings) error {
 	r.lifecycle.Lock()
 	defer r.lifecycle.Unlock()
+	if sameCollection(r.settings, settings) {
+		return nil
+	}
 	r.settings = copySettings(settings)
 	predecessor := r.drain()
 	r.applySettings()
@@ -115,7 +122,7 @@ func (r *Runtime) Configure(settings usage.CollectionSettings) error {
 }
 
 func (r *Runtime) applySettings() {
-	if maps.Equal(r.settings.Targets, r.applied.Targets) && r.settings.UseCodexUsage == r.applied.UseCodexUsage {
+	if sameCollection(r.settings, r.applied) {
 		return
 	}
 	r.collector.Configure(r.settings)
