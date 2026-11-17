@@ -4,7 +4,6 @@
     "version": "0.68.3",
     "hashes": {
       "src/providers/minimax.ts": "3d3d4fe5664030e9706979abcd4e43573cb4770239dcb2600291a7bcfbf386cf",
-      "src/providers/moonshot.ts": "6d70618a41f6617015522acd5a4e991f3563f9a263ba3d26b701033bbe5f2482",
       "src/providers/zai.ts": "20123d2a7b15f5c7db603748aac4821ad83c8b517fd4613b278ed77ba80f47ae",
       "src/providers/zai-errors.ts": "57b06ab7cc12d80ce4d711b7ef26d4a28c931a9445cc2723a8bdc63fd67a0545",
       "src/query.ts": "e4e72cb52e63ca65ae7d7cf89f8bccf15b43fc022024a432f209a90289643d6e",
@@ -1586,104 +1585,6 @@
       "expected": "token-plan"
     },
     {
-      "name": "moonshotai:regional-balance",
-      "providerID": "moonshotai",
-      "capturedAt": 1735776000000,
-      "payload": {
-        "code": 0,
-        "status": true,
-        "data": {
-          "available_balance": 1e-7,
-          "voucher_balance": 0,
-          "cash_balance": -1.25
-        }
-      },
-      "kind": "report",
-      "expected": {
-        "providerId": "moonshotai",
-        "providerName": "Moonshot AI",
-        "capturedAt": 1735776000000,
-        "source": "moonshot-balance",
-        "semantics": {
-          "kind": "api-key",
-          "label": "Moonshot API account balance"
-        },
-        "buckets": [],
-        "metrics": [
-          {
-            "id": "available-balance",
-            "label": "Available balance",
-            "value": "1e-7",
-            "unit": "currency",
-            "currency": "USD"
-          },
-          {
-            "id": "voucher-balance",
-            "label": "Voucher balance",
-            "value": "0",
-            "unit": "currency",
-            "currency": "USD"
-          },
-          {
-            "id": "cash-balance",
-            "label": "Cash balance",
-            "value": "-1.25",
-            "unit": "currency",
-            "currency": "USD"
-          }
-        ]
-      }
-    },
-    {
-      "name": "moonshotai-cn:regional-balance",
-      "providerID": "moonshotai-cn",
-      "capturedAt": 1735776000000,
-      "payload": {
-        "code": 0,
-        "status": true,
-        "data": {
-          "available_balance": 1e-7,
-          "voucher_balance": 0,
-          "cash_balance": -1.25
-        }
-      },
-      "kind": "report",
-      "expected": {
-        "providerId": "moonshotai-cn",
-        "providerName": "Moonshot AI CN",
-        "capturedAt": 1735776000000,
-        "source": "moonshot-balance",
-        "semantics": {
-          "kind": "api-key",
-          "label": "Moonshot API account balance"
-        },
-        "buckets": [],
-        "metrics": [
-          {
-            "id": "available-balance",
-            "label": "Available balance",
-            "value": "1e-7",
-            "unit": "currency",
-            "currency": "CNY"
-          },
-          {
-            "id": "voucher-balance",
-            "label": "Voucher balance",
-            "value": "0",
-            "unit": "currency",
-            "currency": "CNY"
-          },
-          {
-            "id": "cash-balance",
-            "label": "Cash balance",
-            "value": "-1.25",
-            "unit": "currency",
-            "currency": "CNY"
-          }
-        ]
-      }
-    },
-    {
       "name": "zai:window-overflow",
       "providerID": "zai",
       "capturedAt": 1735776000000,
@@ -1854,7 +1755,7 @@
             {
               "type": "TOKENS_LIMIT",
               "unit": 3,
-              "number": 0.008333333333333333,
+              "number": 0.008333333333333331,
               "percentage": 25
             }
           ]
@@ -1878,7 +1779,7 @@
             "remaining": 75,
             "limit": 100,
             "unit": "percent",
-            "windowMinutes": 1
+            "windowMinutes": 0
           }
         ],
         "metrics": []
@@ -2214,7 +2115,7 @@
             {
               "type": "TOKENS_LIMIT",
               "unit": 3,
-              "number": 0.008333333333333333,
+              "number": 0.008333333333333331,
               "percentage": 25
             }
           ]
@@ -2238,7 +2139,7 @@
             "remaining": 75,
             "limit": 100,
             "unit": "percent",
-            "windowMinutes": 1
+            "windowMinutes": 0
           }
         ],
         "metrics": []
