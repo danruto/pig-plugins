@@ -793,3 +793,117 @@ func TestUsageCommandReportsGenericSaveFailure(t *testing.T) {
 	acceptNoFile(t, settingsPath, "settings file after a failed save")
 	acceptEqual(t, false, store.Get().Settings.OpenAIUseCodexUsage, "codex usage after a failed save")
 }
+
+func TestUsageCommandIgnoresUnlistedProviderChoice(t *testing.T) {
+	host := newLifecycleHost("deepseek", "https://api.deepseek.com/v1")
+	host.setCredential("fireworks", "fixture-secret", "https://api.fireworks.ai/inference/v1")
+	host.setCredential("openrouter", "fixture-secret", "https://openrouter.ai/api/v1")
+	log := new(acceptHostLog)
+	var requests atomic.Int32
+	client := fixtureClient(t, func(w http.ResponseWriter, request *http.Request) {
+		requests.Add(1)
+		log.add(request.Host + request.URL.Path)
+		if request.URL.Path == "/v1/accounts" {
+			writeQueryFixture(t, w, acceptAccountsBody(t, "first", "second"))
+			return
+		}
+		writeQueryFixture(t, w, []byte(deepSeekBalance))
+	})
+	ui := &acceptUI{interactive: true, script: []acceptSelection{
+		{choice: acceptActionAnother, ok: true},
+		{choice: "deepseek", ok: true},
+		{choice: acceptActionClose, ok: true},
+	}}
+
+	command := UsageCommand{
+		Dispatcher: Dispatcher{Resolver: Resolver{Host: acceptSelectedModelHost{lifecycleHost: host}}, Client: client},
+		Settings:   NewSettingsStore(SettingsPath(t.TempDir())),
+		Timeout:    acceptQueryTimeout,
+	}
+
+	err := command.Run(t.Context(), ui, "")
+
+	acceptNoError(t, err, "unlisted provider choice")
+	offered := slices.Clone(ui.optionSets[1])
+	slices.Sort(offered)
+	acceptEqual(t, []string{"fireworks", "openrouter"}, offered, "offered providers")
+	acceptEqual(t, int32(1), requests.Load(), "provider requests")
+	acceptEqual(t, []string{"api.deepseek.com/user/balance"}, log.snapshot(), "queried origins")
+	acceptContains(t, ui.titles[2], "DeepSeek: ok", "unchanged report after an unlisted choice")
+}
+
+func TestUsageCommandIgnoresUnlistedBillingTargetAction(t *testing.T) {
+	host := newLifecycleHost("deepseek", "https://api.deepseek.com/v1")
+	host.setCredential("fireworks", "fixture-secret", "https://api.fireworks.ai/inference/v1")
+	log := new(acceptHostLog)
+	client := fixtureClient(t, func(w http.ResponseWriter, request *http.Request) {
+		log.add(request.Host + request.URL.Path)
+		if request.URL.Path == "/v1/accounts" {
+			writeQueryFixture(t, w, acceptAccountsBody(t, "first", "second"))
+			return
+		}
+		writeQueryFixture(t, w, []byte(deepSeekBalance))
+	})
+	ui := &acceptUI{interactive: true, script: []acceptSelection{
+		{choice: acceptActionTarget, ok: true},
+		{choice: "first (first)", ok: true},
+		{choice: acceptActionClose, ok: true},
+	}}
+
+	command := UsageCommand{
+		Dispatcher: Dispatcher{Resolver: Resolver{Host: acceptSelectedModelHost{lifecycleHost: host}}, Client: client},
+		Settings:   NewSettingsStore(SettingsPath(t.TempDir())),
+		Timeout:    acceptQueryTimeout,
+	}
+
+	err := command.Run(t.Context(), ui, "")
+
+	acceptNoError(t, err, "unlisted billing target action")
+	acceptEqual(t, 3, len(ui.titles), "menu prompts")
+	acceptEqual(t, false, slices.Contains(ui.optionSets[0], acceptActionTarget), "offered target action")
+	acceptEqual(t, true, slices.Contains(ui.optionSets[0], acceptActionClose), "offered close action")
+	acceptContains(t, ui.titles[0], "DeepSeek: ok", "current report")
+	acceptNotContains(t, strings.Join(ui.titles, "\n"), "Select billing target", "target prompts")
+	acceptEqual(t, []string{"api.deepseek.com/user/balance"}, log.snapshot(), "queried routes")
+}
+
+func TestUsageCommandReportsFireworksDiscoveryFailureReason(t *testing.T) {
+	host := newLifecycleHost("fireworks", "https://api.fireworks.ai/inference/v1")
+	var discoveries atomic.Int32
+	client := fixtureClient(t, func(w http.ResponseWriter, request *http.Request) {
+		if request.URL.Path != "/v1/accounts" {
+			writeQueryFixture(t, w, billingNamed(t, "fireworks:currencies-series-exact").Payload)
+			return
+		}
+		if discoveries.Add(1) == 1 {
+			writeQueryFixture(t, w, acceptAccountsBody(t, "first", "second"))
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		writeQueryFixture(t, w, []byte(`{"error":{"message":"`+settingsCanary+` synthetic discovery failure\u001b[31m"}}`))
+	})
+	ui := &acceptUI{interactive: true, script: []acceptSelection{
+		{choice: acceptActionTarget, ok: true},
+		{choice: acceptActionClose, ok: true},
+	}}
+	settingsPath := SettingsPath(t.TempDir())
+	writeSettingsFile(t, settingsPath, `{"selectedTargets": {"fireworks": "first"}}`)
+
+	command := UsageCommand{
+		Dispatcher: Dispatcher{Resolver: Resolver{Host: host}, Client: client},
+		Settings:   NewSettingsStore(settingsPath),
+		Timeout:    acceptQueryTimeout,
+	}
+
+	err := command.Run(t.Context(), ui, "")
+
+	acceptNoError(t, err, "failed discovery flow")
+	acceptEqual(t, 1, len(ui.notices), "discovery failure notices")
+	notice := ui.notices[0]
+	acceptContains(t, notice, "query-failed", "discovery failure reason")
+	acceptNotContains(t, notice, "returned no choices", "discovery failure notice text")
+	acceptNotContains(t, notice, settingsCanary, "provider failure text")
+	acceptNotContains(t, notice, "\x1b", "control characters")
+	acceptEqual(t, []string{"error"}, ui.levels, "discovery failure notice level")
+	acceptNotContains(t, strings.Join(ui.titles, "\n"), "Select billing target", "target prompts after a failed discovery")
+}

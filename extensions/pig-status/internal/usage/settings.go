@@ -24,10 +24,12 @@ const SettingsFileName = "pi-usage.json"
 
 const maxSettingsBytes = 64 * 1024
 
+type SettingsKind string
+
 const (
-	settingsKindMissing = "missing"
-	settingsKindLoaded  = "loaded"
-	settingsKindInvalid = "invalid"
+	SettingsKindMissing SettingsKind = "missing"
+	SettingsKindLoaded  SettingsKind = "loaded"
+	SettingsKindInvalid SettingsKind = "invalid"
 )
 
 var usageIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._~-]{0,127}$`)
@@ -48,7 +50,7 @@ type Settings struct {
 }
 
 type SettingsState struct {
-	Kind     string
+	Kind     SettingsKind
 	Path     string
 	Settings Settings
 	Issue    string
@@ -85,7 +87,7 @@ func LoadSettings(ctx context.Context, path string) (SettingsState, error) {
 func NewSettingsStore(path string) *SettingsStore {
 	return &SettingsStore{
 		path:  path,
-		state: SettingsState{Kind: settingsKindMissing, Path: path, Settings: DefaultSettings()},
+		state: SettingsState{Kind: SettingsKindMissing, Path: path, Settings: DefaultSettings()},
 	}
 }
 
@@ -121,7 +123,7 @@ func (s *SettingsStore) Reload(ctx context.Context) (SettingsState, error) {
 
 func (s *SettingsStore) document(ctx context.Context) (settingsDocument, error) {
 	if s.path == "" {
-		return settingsDocument{kind: settingsKindMissing, fields: map[string]json.RawMessage{}}, nil
+		return settingsDocument{kind: SettingsKindMissing, fields: map[string]json.RawMessage{}}, nil
 	}
 	return readSettings(ctx, s.path)
 }
@@ -191,7 +193,19 @@ func (s *SettingsStore) SelectTarget(ctx context.Context, id, targetID string, c
 		return cloneSettingsState(s.state), nil
 	}
 	rollbackErr := s.restore(context.WithoutCancel(ctx), previous, saved)
+	if rollbackErr != nil {
+		rollbackErr = errors.Join(rollbackErr, s.refreshState(context.WithoutCancel(ctx)))
+	}
 	return cloneSettingsState(s.state), errors.Join(confirmErr, rollbackErr)
+}
+
+func (s *SettingsStore) refreshState(ctx context.Context) error {
+	document, err := readSettings(ctx, s.path)
+	if err != nil {
+		return err
+	}
+	s.state = document.state(s.path)
+	return nil
 }
 
 func confirmed(ctx context.Context, confirm func(context.Context) error) error {
@@ -209,16 +223,16 @@ func (s *SettingsStore) loadForSave(ctx context.Context) (settingsDocument, erro
 	if err != nil {
 		return document, err
 	}
-	if document.kind == settingsKindInvalid {
+	if document.kind == SettingsKindInvalid {
 		return document, ErrSettingsInvalid
 	}
 	return document, nil
 }
 
 func (s *SettingsStore) persist(ctx context.Context, previous, next settingsDocument) (settingsDocument, error) {
-	next.kind = settingsKindLoaded
+	next = next.loaded()
 	state := next.state(s.path)
-	if state.Kind != settingsKindLoaded {
+	if state.Kind != SettingsKindLoaded {
 		return previous, ErrSettingsInvalid
 	}
 	if err := writeSettings(ctx, s.path, previous, next); err != nil {
@@ -229,7 +243,7 @@ func (s *SettingsStore) persist(ctx context.Context, previous, next settingsDocu
 }
 
 func (s *SettingsStore) restore(ctx context.Context, previous, saved settingsDocument) error {
-	if previous.kind == settingsKindMissing {
+	if previous.kind == SettingsKindMissing {
 		current, err := readSettings(ctx, s.path)
 		if err != nil {
 			return err
@@ -263,9 +277,14 @@ func cloneSettingsState(state SettingsState) SettingsState {
 }
 
 type settingsDocument struct {
-	kind   string
+	kind   SettingsKind
 	fields map[string]json.RawMessage
 	issue  string
+}
+
+func (d settingsDocument) loaded() settingsDocument {
+	d.kind = SettingsKindLoaded
+	return d
 }
 
 func (d settingsDocument) clone() settingsDocument {
@@ -274,25 +293,27 @@ func (d settingsDocument) clone() settingsDocument {
 
 func (d settingsDocument) state(path string) SettingsState {
 	switch d.kind {
-	case settingsKindLoaded:
+	case SettingsKindLoaded:
 		settings, issue := normalizeSettings(d.fields)
 		if issue != "" {
-			return SettingsState{Kind: settingsKindInvalid, Path: path, Settings: DefaultSettings(), Issue: issue}
+			return SettingsState{Kind: SettingsKindInvalid, Path: path, Settings: DefaultSettings(), Issue: issue}
 		}
-		return SettingsState{Kind: settingsKindLoaded, Path: path, Settings: settings}
-	case settingsKindInvalid:
-		return SettingsState{Kind: settingsKindInvalid, Path: path, Settings: DefaultSettings(), Issue: d.issue}
+		return SettingsState{Kind: SettingsKindLoaded, Path: path, Settings: settings}
+	case SettingsKindInvalid:
+		return SettingsState{Kind: SettingsKindInvalid, Path: path, Settings: DefaultSettings(), Issue: d.issue}
+	case SettingsKindMissing:
+		return SettingsState{Kind: SettingsKindMissing, Path: path, Settings: DefaultSettings()}
 	default:
-		return SettingsState{Kind: settingsKindMissing, Path: path, Settings: DefaultSettings()}
+		return SettingsState{Kind: SettingsKindInvalid, Path: path, Settings: DefaultSettings(), Issue: "settings document kind is unknown"}
 	}
 }
 
 func invalidSettingsDocument(issue string) settingsDocument {
-	return settingsDocument{kind: settingsKindInvalid, issue: issue}
+	return settingsDocument{kind: SettingsKindInvalid, issue: issue}
 }
 
 func readSettings(ctx context.Context, path string) (settingsDocument, error) {
-	empty := settingsDocument{kind: settingsKindMissing, fields: map[string]json.RawMessage{}}
+	empty := settingsDocument{kind: SettingsKindMissing, fields: map[string]json.RawMessage{}}
 	if err := ctx.Err(); err != nil {
 		return empty, err
 	}
@@ -339,7 +360,7 @@ func parseSettingsDocument(data []byte) settingsDocument {
 	if _, issue := normalizeSettings(fields); issue != "" {
 		return invalidSettingsDocument(issue)
 	}
-	return settingsDocument{kind: settingsKindLoaded, fields: fields}
+	return settingsDocument{fields: fields}.loaded()
 }
 
 func normalizeSettings(fields map[string]json.RawMessage) (Settings, string) {

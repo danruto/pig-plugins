@@ -54,7 +54,7 @@ func (c UsageCommand) Run(ctx context.Context, ui CommandUI, args string) error 
 	if err != nil {
 		return err
 	}
-	if state.Kind == settingsKindInvalid {
+	if state.Kind == SettingsKindInvalid {
 		ui.Notify("pi-usage.json is invalid ("+state.Issue+"); settings are read-only until it is repaired.", "warning")
 	}
 	outcomes, ok := c.queryNotice(ctx, ui, c.selection(state, "current", ""))
@@ -73,6 +73,9 @@ func (c UsageCommand) menu(ctx context.Context, ui CommandUI, session menuSessio
 		}
 		if !ok || choice == UsageActionClose {
 			return nil
+		}
+		if !slices.Contains(options, choice) {
+			continue
 		}
 		session, err = c.act(ctx, ui, session, choice)
 		if err != nil {
@@ -132,7 +135,7 @@ func (c UsageCommand) another(ctx context.Context, ui CommandUI, session menuSes
 	if err != nil {
 		return session, err
 	}
-	if !ok {
+	if !ok || !slices.Contains(providerIDs, choice) {
 		return session, nil
 	}
 	outcomes, ok := c.queryNotice(ctx, ui, c.selection(session.state, "provider", choice))
@@ -144,6 +147,10 @@ func (c UsageCommand) another(ctx context.Context, ui CommandUI, session menuSes
 
 func (c UsageCommand) target(ctx context.Context, ui CommandUI, session menuSession) (menuSession, error) {
 	choices, err := c.targetChoices(ctx, session)
+	if discoveryErr, found := errors.AsType[targetDiscoveryError](err); found {
+		ui.Notify("Fireworks billing target discovery failed: "+sanitize(discoveryErr.reason), "error")
+		return session, nil
+	}
 	if err != nil {
 		notifyQueryFailure(ui, err)
 		return session, nil
@@ -228,11 +235,23 @@ func (c UsageCommand) discoverTargets(ctx context.Context, state SettingsState) 
 		return nil, err
 	}
 	for _, outcome := range outcomes {
-		if providerID(outcome.ProviderID) == providerFireworks {
+		if providerID(outcome.ProviderID) != providerFireworks {
+			continue
+		}
+		if outcome.Status == "ok" || outcome.Status == "selection-required" {
 			return outcome.Choices, nil
 		}
+		return nil, targetDiscoveryError{reason: outcome.Reason}
 	}
 	return nil, nil
+}
+
+type targetDiscoveryError struct {
+	reason string
+}
+
+func (e targetDiscoveryError) Error() string {
+	return "billing target discovery " + e.reason
 }
 
 func (c UsageCommand) otherProviders(ctx context.Context) ([]string, error) {
@@ -352,7 +371,21 @@ func FormatOutcome(outcome Outcome) []string {
 	if account := accountName(outcome); account != "" {
 		lines = append(lines, provider+" account: "+account)
 	}
+	if label := sanitize(report.Semantics.Label); label != "" {
+		lines = append(lines, provider+" source: "+label)
+	}
+	lines = append(lines, amountLines(report)...)
+	for _, note := range report.Notes {
+		if note = sanitize(note); note != "" {
+			lines = append(lines, provider+" note: "+note)
+		}
+	}
+	return lines
+}
+
+func amountLines(report *Report) []string {
 	seen := make(map[string]bool, len(report.Buckets)+len(report.Metrics))
+	lines := make([]string, 0, len(report.Buckets)+len(report.Metrics))
 	for _, bucket := range report.Buckets {
 		lines = append(lines, uniqueLabel(seen, bucketLabel(bucket), bucket.ID)+": "+bucketAmounts(bucket))
 	}

@@ -14,7 +14,7 @@ func TestSettingsStoreWithoutAPathUsesDefaultsAndRefusesSaves(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reload: %v", err)
 	}
-	if state.Kind != settingsKindMissing || len(state.Settings.SelectedTargets) != 0 {
+	if state.Kind != SettingsKindMissing || len(state.Settings.SelectedTargets) != 0 {
 		t.Fatalf("state = %+v, want defaults without a settings path", state)
 	}
 	saves := []struct {

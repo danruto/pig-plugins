@@ -276,6 +276,10 @@ func TestLoadSettingsRejectsInvalidDocuments(t *testing.T) {
 		{name: "unsafe target id", document: `{"selectedTargets": {"fireworks": "../` + settingsCanary + `"}}`},
 		{name: "unsafe legacy account id", document: `{"fireworksAccountId": "../` + settingsCanary + `"}`},
 		{name: "display is not an object", document: `{"statuslineDisplay": "` + settingsCanary + `"}`},
+		{name: "null boolean", document: `{"codexFastMode": null}`},
+		{name: "targets as array", document: `{"selectedTargets": []}`},
+		{name: "target as number", document: `{"selectedTargets": {"fireworks": 1}}`},
+		{name: "legacy account as number", document: `{"fireworksAccountId": 7}`},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			path := SettingsPath(t.TempDir())
@@ -460,4 +464,23 @@ func TestSettingsSetCodexUsageDisables(t *testing.T) {
 	acceptNoError(t, err, "disable codex usage")
 	acceptEqual(t, false, state.Settings.OpenAIUseCodexUsage, "stored codex usage")
 	acceptEqual[any](t, false, decodeSettingsValue(t, readSettingsDocument(t, path)["openaiUseCodexUsage"]), "saved codex usage")
+}
+
+func TestSelectTargetReportsFileStateWhenRollbackFails(t *testing.T) {
+	path := SettingsPath(t.TempDir())
+	store := NewSettingsStore(path)
+	confirmationErr := errors.New("synthetic confirmation refused")
+
+	state, err := store.SelectTarget(t.Context(), "fireworks", "acct-1", func(context.Context) error {
+		writeSettingsFile(t, path, `{"selectedTargets": {"deepseek": "ds-9"}}`)
+		return confirmationErr
+	})
+
+	acceptEqual(t, true, err != nil, "failed rollback error")
+	onDisk, loadErr := LoadSettings(t.Context(), path)
+	acceptNoError(t, loadErr, "reload after a failed rollback")
+	acceptEqual(t, map[string]string{"deepseek": "ds-9"}, onDisk.Settings.SelectedTargets, "on-disk targets")
+	acceptEqual(t, onDisk.Kind, state.Kind, "returned state kind")
+	acceptEqual(t, onDisk.Settings, state.Settings, "returned state settings")
+	acceptEqual(t, onDisk, store.Get(), "store state after a failed rollback")
 }

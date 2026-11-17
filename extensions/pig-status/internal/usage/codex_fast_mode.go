@@ -156,7 +156,7 @@ func (f *CodexFast) fastTarget(ctx context.Context, ui CommandUI) (FastScope, bo
 		ui.Notify("Fast mode requires the official OpenAI Codex Responses endpoint.", "warning")
 		return FastScope{}, false
 	}
-	if f.settings.Get().Kind == settingsKindInvalid {
+	if f.settings.Get().Kind == SettingsKindInvalid {
 		ui.Notify("pi-usage.json is invalid; repair it and run /reload before changing Fast mode.", "error")
 		return FastScope{}, false
 	}
@@ -217,13 +217,13 @@ func (f *CodexFast) PrepareSession(ctx context.Context, ui CommandUI) {
 		}
 		return
 	}
-	if state.Kind == settingsKindInvalid {
+	if state.Kind == SettingsKindInvalid {
 		notifyIfUI(ui, "Invalid pi-usage.json; using defaults without overwriting it.", "warning")
 	}
 	if f.refresh != nil {
 		f.refresh()
 	}
-	if state.Kind == settingsKindInvalid {
+	if state.Kind == SettingsKindInvalid {
 		return
 	}
 	if f.spawn != nil {
