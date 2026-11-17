@@ -6,7 +6,7 @@ Owned PiG extensions, separate from personal system configuration. This package 
 
 ## Install from a checkout
 
-Requires PiG 0.5.3, Go 1.26+, Node 24+ and npm.
+Requires PiG 0.7.0, Go 1.26+, Node 24+ and npm.
 
 ```sh
 npm ci

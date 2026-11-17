@@ -90,7 +90,7 @@ The SDK-free domain now resolves effective host authentication and dispatches ex
 
 Fireworks discovery returns stable account slugs. Billing requires an explicitly named discovered slug, even for a singleton; an absent or missing selection returns choices, never a substitute or aggregation. Native OpenAI remains authentication-only unless companion collection is explicitly requested. Companion authentication is independently acquired and pinned; no native credential is forwarded to ChatGPT.
 
-The reviewed host capability is exercised at disposable process adapters and installed through `nativeusage.Extension`. The package builds against the installed SDK and the Nix-pinned v0.5.3 SDK through the check script's temporary module replacement. See [the authentication fixture instructions](../../extensions/pig-status/internal/usage/testdata/host/README.md) for that isolated local-HTTPS fixture; fixture proof is not live qualification.
+The reviewed host capability is exercised at disposable process adapters and installed through `nativeusage.Extension`. The package builds against the installed SDK and the Nix-pinned v0.7.0 SDK through the check script's temporary module replacement. See [the authentication fixture instructions](../../extensions/pig-status/internal/usage/testdata/host/README.md) for that isolated local-HTTPS fixture; fixture proof is not live qualification.
 
 ## Staged refresh and cache ownership
 
@@ -110,7 +110,7 @@ Collection is separate from rendering. `nativeusage.Extension` composes `status.
 
 The SDK sends new footer rows only when a live host context installs the renderer. So each update repaints with the context it already holds, inside that context's lifetime: token handlers after storing tokens, session handlers after publishing the cleared view, and each private tick after publishing its view. Ticks wake at the next expiry or reset, so an expired window leaves the screen while the session is idle. A bridge-failure view has no host context, so it reaches the screen on the next host event or tick.
 
-The installed package runs the standalone footer with the native feed selected: `nativeusage/commands.go` registers `/usage`, `/fast` and the Codex Fast hooks. The package gate builds, vets and tests both compositions against the installed SDK and the Nix-pinned v0.5.3 SDK.
+The installed package runs the standalone footer with the native feed selected: `nativeusage/commands.go` registers `/usage`, `/fast` and the Codex Fast hooks. The package gate builds, vets and tests both compositions against the installed SDK and the Nix-pinned v0.7.0 SDK.
 
 ## Staged commands and settings
 

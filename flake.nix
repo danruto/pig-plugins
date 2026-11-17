@@ -37,8 +37,8 @@
         let
           pkgs = import nixpkgs { inherit system; };
           sdkSource = pkgs.fetchzip {
-            url = "https://github.com/MichaelKinsy/PiG/archive/refs/tags/v0.5.3.tar.gz";
-            hash = "sha256-XK27VNd799qUCsOUidYPo/leleMWtoan5gNuke9geqk=";
+            url = "https://github.com/MichaelKinsy/PiG/archive/refs/tags/v0.7.0.tar.gz";
+            hash = "sha256-hMHErCIZscyYx7pNhKXvS+DCA65SZzh9xB+B/dw1L0Q=";
           };
           compactionSource = pkgs.fetchurl {
             url = "https://github.com/algal/pi-openai-server-compaction/archive/8a3de2f3b0c178fdd6f73f2f94172dfc3943e466.tar.gz";
