@@ -1,4 +1,13 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["probes/**", "compaction/generated/**"]
+  "ignorePatterns": ["probes/**", "compaction/generated/**"],
+  "plugins": ["eslint", "typescript", "unicorn", "oxc", "import", "node", "promise"],
+  "rules": {
+    "max-lines-per-function": ["error", { "max": 60 }],
+    "max-statements": ["error", 25],
+    "complexity": ["error", 10],
+    "max-depth": ["error", 3],
+    "max-params": ["error", 4],
+    "max-nested-callbacks": ["error", 3]
+  }
 }

@@ -77,6 +77,8 @@ This runs adapter checks, pinned-source native usage comparisons, TypeScript che
 
 golangci-lint reports issues that predate the gate in `test/go-lint-baseline.json`. The check fails on any issue outside it, and on a baseline entry that no longer occurs. After fixing issues, run `npm run lint:go-baseline` and review the diff. Do not add new issues to the baseline or raise a limit.
 
+oxlint reports issues that predate the gate in `test/ts-lint-baseline.json`, with the plugins and size limits set in `.oxlintrc.json`. The check fails on any issue outside it, and on a baseline entry that no longer occurs. After fixing issues, run `npm run lint:ts-baseline` and review the diff. Do not add new issues to the baseline or raise a limit.
+
 `npm run test:native-usage-host` runs the staged native usage gate against a reviewed PiG host; see [`scripts/check-native-usage.md`](scripts/check-native-usage.md). Without that host it exits 2.
 
 `npm run test:usage-baseline` retains the optional historical capture suite; its branch ledger is not a prerequisite for the source-led port.

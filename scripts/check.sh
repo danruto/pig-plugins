@@ -2,8 +2,8 @@
 set -euo pipefail
 profile=${1:-full}
 case "$profile" in
-  full | sandbox | usage | go-lint-baseline | package) ;;
-  *) echo "usage: check.sh [full|sandbox|usage|go-lint-baseline|package]" >&2; exit 2 ;;
+  full | sandbox | usage | go-lint-baseline | ts-lint-baseline | package) ;;
+  *) echo "usage: check.sh [full|sandbox|usage|go-lint-baseline|ts-lint-baseline|package]" >&2; exit 2 ;;
 esac
 golangci_lint_version=2.15.0
 root=$(cd "$(dirname "$0")/.." && pwd)
@@ -25,7 +25,7 @@ if [[ $profile == package ]]; then
   python_bin=$(type -P python3) || { echo "check.sh package: python3 not found on PATH" >&2; exit 1; }
   pig_bin=$(type -P pig) || { echo "check.sh package: pig not found on PATH" >&2; exit 1; }
   pig_bin=$(readlink -f "$pig_bin")
-else
+elif [[ $profile != ts-lint-baseline ]]; then
   go telemetry off
   if [[ $profile == sandbox ]]; then
     sdk=${PIG_STATUS_SDK:?sandbox profile needs PIG_STATUS_SDK}
@@ -84,7 +84,21 @@ go_lint() {
   found=$(golangci-lint version --short)
   [[ $found == "$golangci_lint_version" ]] || { echo "golangci-lint $golangci_lint_version required, found $found; use the flake devShell" >&2; return 1; }
   in_status env GOWORK="$workfile" golangci-lint run --issues-exit-code=0 --output.json.path="$tmp/go-lint.json" ./...
-  node scripts/go-lint-baseline.mjs "$1" "$tmp/go-lint.json"
+  node scripts/lint-baseline.mjs "$1" go "$tmp/go-lint.json"
+}
+
+ts_lint() {
+  local status
+  set +e
+  node_modules/.bin/oxlint --format json >"$tmp/ts-lint.json"
+  status=$?
+  set -e
+  case $status in
+    0 | 1) ;;
+    *) echo "oxlint exited $status; expected 0 (clean) or 1 (diagnostics reported)" >&2; return 1 ;;
+  esac
+  node -e 'const fs = require("node:fs"); const config = JSON.parse(fs.readFileSync(".oxlintrc.json", "utf8")); const rules = ["max-lines-per-function", "max-statements", "complexity", "max-depth", "max-params", "max-nested-callbacks"]; const limits = rules.map((rule) => `${rule}=${config.rules[rule][1]?.max ?? config.rules[rule][1]}`); console.log(`oxlint plugins: ${config.plugins.join(",")}; limits: ${limits.join(" ")}`);'
+  node scripts/lint-baseline.mjs "$1" ts "$tmp/ts-lint.json"
 }
 
 cross_build() {
@@ -108,7 +122,9 @@ step "full usage" consumer-query-fixtures node --import tsx scripts/usage-consum
 step "full usage" regional-query-fixtures node --import tsx scripts/usage-regional-query-fixtures.mjs --check
 step "full" usage-docs-tests node --test test/test-docs.mjs
 step "full" typecheck npm run typecheck
-step "full" oxlint node_modules/.bin/oxlint --deny-warnings
+step "full" lint-baseline-tests node --test test/test-lint-baseline.mjs
+step "full" ts-lint ts_lint --check
+step "ts-lint-baseline" ts-lint-baseline-write ts_lint --write
 step "full sandbox" gofmt gofmt_clean
 step "full sandbox" go-fix-diff in_status go fix -modfile="$modfile" -diff ./...
 step "full sandbox" go-build in_status go build -modfile="$modfile" -o "$tmp/pig-status" .

@@ -44,6 +44,7 @@
     "test:docs": "node --test test/test-docs.mjs",
     "prepare:compaction": "node scripts/prepare-compaction.mjs",
     "typecheck": "tsc --noEmit",
-    "lint:go-baseline": "bash scripts/check.sh go-lint-baseline"
+    "lint:go-baseline": "bash scripts/check.sh go-lint-baseline",
+    "lint:ts-baseline": "bash scripts/check.sh ts-lint-baseline"
   }
 }
