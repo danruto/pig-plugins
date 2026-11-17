@@ -249,7 +249,7 @@ func (c *Collector) failKeyed(ticket collectionTicket, key [32]byte, err error) 
 }
 
 func (c *Collector) recordFailure(ticket collectionTicket, key [32]byte, err error) error {
-	if errors.Is(err, ErrUsageChanged) || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, errCollectionTarget) {
+	if errors.Is(err, ErrUsageChanged) || errors.Is(err, context.Canceled) || errors.Is(err, errCollectionTarget) {
 		return c.failKeyed(ticket, key, err)
 	}
 	return c.commit(ticket, key, failedOutcome("", err), time.Now())

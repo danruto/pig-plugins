@@ -341,6 +341,16 @@ func (h hostResolution) revalidate(ctx context.Context) error {
 			return err
 		}
 	}
+	if err := h.revalidateModelState(ctx, fresh); err != nil {
+		return err
+	}
+	if h.companion != nil {
+		return h.companion.revalidate(ctx)
+	}
+	return ctx.Err()
+}
+
+func (h hostResolution) revalidateModelState(ctx context.Context, fresh hostSnapshot) error {
 	state, err := h.resolver.modelState(ctx, fresh)
 	if err != nil {
 		return err
@@ -348,7 +358,7 @@ func (h hostResolution) revalidate(ctx context.Context) error {
 	if !reflect.DeepEqual(state, h.modelState) {
 		return ErrUsageChanged
 	}
-	return ctx.Err()
+	return hostResolution{snapshot: fresh, modelState: state}.validateOrigins()
 }
 
 func (r Resolver) modelState(ctx context.Context, snapshot hostSnapshot) (HostModelState, error) {
@@ -424,7 +434,7 @@ func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (R
 	if effectiveAuth == nil {
 		return ResolvedAuth{}, "", ErrNoUsageAuth
 	}
-	auth := ResolvedAuth{APIKey: effective.APIKey, SelectedProviderID: modelString(s.SelectedModel, "provider"), Source: s.Provenance.Source, SourceLabel: s.Provenance.Label, ModelBaseURL: modelString(s.Model, "baseUrl"), Revalidate: h.revalidate, UseCodexUsage: options.UseCodexUsage}
+	auth := ResolvedAuth{APIKey: effective.APIKey, SelectedProviderID: modelString(s.SelectedModel, "provider"), Source: s.Provenance.Source, SourceLabel: s.Provenance.Label, ModelBaseURL: modelString(s.Model, "baseUrl"), UseCodexUsage: options.UseCodexUsage}
 	if !moonshotAuthAllowed(providerID(s.Provider), auth) {
 		return ResolvedAuth{}, "", ErrNoUsageAuth
 	}
@@ -444,6 +454,7 @@ func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (R
 			companionRevision = companion.snapshot.Revision
 		}
 	}
+	auth.Revalidate = h.revalidate
 	auth.ResolveOAuth = func(ctx context.Context) (OAuthSnapshot, error) { return h.oauth(ctx, options) }
 	if providerID(s.Provider) == providerOpenAICodex {
 		codexAuth, err := h.codex(ctx, auth)
