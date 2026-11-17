@@ -14,8 +14,31 @@ const (
 	basetenModelOrigin   = "https://inference.baseten.co"
 )
 
+type providerID string
+
+const (
+	providerBaseten         providerID = "baseten"
+	providerOpenAI          providerID = "openai"
+	providerOpenAICodex     providerID = "openai-codex"
+	providerDeepSeek        providerID = "deepseek"
+	providerGitHubCopilot   providerID = "github-copilot"
+	providerOpenRouter      providerID = "openrouter"
+	providerVercelAIGateway providerID = "vercel-ai-gateway"
+	providerCommandCode     providerID = "command-code"
+	providerFireworks       providerID = "fireworks"
+	providerOpenCodeGo      providerID = "opencode-go"
+	providerKimiCoding      providerID = "kimi-coding"
+	providerMiniMax         providerID = "minimax"
+	providerMiniMaxCN       providerID = "minimax-cn"
+	providerMoonshotAI      providerID = "moonshotai"
+	providerMoonshotAICN    providerID = "moonshotai-cn"
+	providerZai             providerID = "zai"
+	providerZaiCodingCN     providerID = "zai-coding-cn"
+	providerXai             providerID = "xai"
+)
+
 type provider struct {
-	id          string
+	id          providerID
 	endpoint    string
 	description string
 	origin      func(base string) bool
@@ -24,19 +47,19 @@ type provider struct {
 	identity    func(OAuthSnapshot, ResolvedAuth) (subscriptionIdentity, error)
 	query       func(Client, context.Context, provider, ResolvedAuth, http.Header) (Report, error)
 	url         func(ResolvedAuth, http.Header, string, time.Time) (string, error)
-	normalize   func(providerID, endpoint, targetID string, payload map[string]any, capturedAt int64) (Report, error)
+	normalize   func(id providerID, endpoint, targetID string, payload map[string]any, capturedAt int64) (Report, error)
 }
 
 //nolint:gochecknoglobals // the index is filled once from the read-only table
 var providerIndex struct {
 	once sync.Once
-	byID map[string]provider
+	byID map[providerID]provider
 }
 
 func providerTable() []provider {
 	return []provider{
 		{
-			id: "baseten", endpoint: basetenUsageEndpoint, description: "Baseten billing usage endpoint", scheduled: true,
+			id: providerBaseten, endpoint: basetenUsageEndpoint, description: "Baseten billing usage endpoint", scheduled: true,
 			origin: func(base string) bool {
 				return sameHTTPSOrigin(base, basetenModelOrigin) || sameHTTPSOrigin(base, basetenUsageEndpoint)
 			},
@@ -44,22 +67,22 @@ func providerTable() []provider {
 			normalize: payloadNormalizer(normalizeBaseten),
 		},
 		{
-			id: "openai", endpoint: "https://api.openai.com", description: "OpenAI authentication status", skipHeaders: true, scheduled: true,
+			id: providerOpenAI, endpoint: "https://api.openai.com", description: "OpenAI authentication status", skipHeaders: true, scheduled: true,
 			identity:  openAIIdentity,
 			query:     Client.queryOAuth,
 			normalize: payloadNormalizer(normalizeOpenAI),
 		},
 		{
-			id: "openai-codex", endpoint: "https://chatgpt.com/backend-api/wham/usage", description: "Codex usage endpoint", scheduled: true,
+			id: providerOpenAICodex, endpoint: "https://chatgpt.com/backend-api/wham/usage", description: "Codex usage endpoint", scheduled: true,
 			identity:  openAIIdentity,
 			normalize: payloadNormalizer(normalizeCodex),
 		},
 		{
-			id: "deepseek", endpoint: "https://api.deepseek.com/user/balance", description: "DeepSeek API balance endpoint", scheduled: true,
+			id: providerDeepSeek, endpoint: "https://api.deepseek.com/user/balance", description: "DeepSeek API balance endpoint", scheduled: true,
 			normalize: payloadNormalizer(normalizeDeepSeek),
 		},
 		{
-			id: "github-copilot", endpoint: "https://api.github.com/copilot_internal/user", description: "GitHub Copilot usage endpoint", skipHeaders: true, scheduled: true,
+			id: providerGitHubCopilot, endpoint: "https://api.github.com/copilot_internal/user", description: "GitHub Copilot usage endpoint", skipHeaders: true, scheduled: true,
 			origin: func(base string) bool {
 				u, err := url.Parse(base)
 				return err == nil && u.Scheme == "https" && u.User == nil && (u.Port() == "" || u.Port() == "443") && copilotHost.MatchString(strings.ToLower(u.Hostname()))
@@ -71,15 +94,15 @@ func providerTable() []provider {
 			normalize: payloadNormalizer(normalizeCopilot),
 		},
 		{
-			id: "openrouter", endpoint: "https://openrouter.ai/api/v1/key", description: "OpenRouter key endpoint", scheduled: true,
+			id: providerOpenRouter, endpoint: "https://openrouter.ai/api/v1/key", description: "OpenRouter key endpoint", scheduled: true,
 			normalize: payloadNormalizer(normalizeOpenRouter),
 		},
 		{
-			id: "vercel-ai-gateway", endpoint: "https://ai-gateway.vercel.sh/v1/credits", description: "Vercel AI Gateway credits endpoint", scheduled: true,
+			id: providerVercelAIGateway, endpoint: "https://ai-gateway.vercel.sh/v1/credits", description: "Vercel AI Gateway credits endpoint", scheduled: true,
 			normalize: payloadNormalizer(normalizeVercel),
 		},
 		{
-			id: "command-code", endpoint: "https://api.commandcode.ai/alpha/whoami", description: "Command Code account endpoint", scheduled: true,
+			id: providerCommandCode, endpoint: "https://api.commandcode.ai/alpha/whoami", description: "Command Code account endpoint", scheduled: true,
 			query: func(c Client, ctx context.Context, p provider, auth ResolvedAuth, headers http.Header) (Report, error) {
 				if err := auth.revalidate(ctx); err != nil {
 					return Report{}, err
@@ -89,52 +112,52 @@ func providerTable() []provider {
 			normalize: payloadNormalizer(normalizeCommandCode),
 		},
 		{
-			id: "fireworks", endpoint: "https://api.fireworks.ai/v1/accounts", description: "Fireworks billing summary endpoint", scheduled: true,
+			id: providerFireworks, endpoint: "https://api.fireworks.ai/v1/accounts", description: "Fireworks billing summary endpoint", scheduled: true,
 			url: fireworksURL,
-			normalize: func(_ string, _ string, targetID string, payload map[string]any, capturedAt int64) (Report, error) {
+			normalize: func(_ providerID, _ string, targetID string, payload map[string]any, capturedAt int64) (Report, error) {
 				return normalizeFireworks(payload, targetID, capturedAt)
 			},
 		},
 		{
-			id: "opencode-go", endpoint: "https://opencode.ai/zen/go/v1/usage", description: "OpenCode Zen usage endpoint", scheduled: true,
+			id: providerOpenCodeGo, endpoint: "https://opencode.ai/zen/go/v1/usage", description: "OpenCode Zen usage endpoint", scheduled: true,
 			normalize: payloadNormalizer(normalizeOpenCode),
 		},
 		{
-			id: "kimi-coding", endpoint: "https://api.kimi.com/coding/v1/usages", description: "Kimi Coding usage endpoint", scheduled: true,
+			id: providerKimiCoding, endpoint: "https://api.kimi.com/coding/v1/usages", description: "Kimi Coding usage endpoint", scheduled: true,
 			normalize: payloadNormalizer(normalizeKimi),
 		},
 		{
-			id: "minimax", endpoint: miniMaxEndpoint("minimax", "token-plan"), description: "MiniMax usage endpoint", scheduled: true,
+			id: providerMiniMax, endpoint: miniMaxEndpoint(providerMiniMax, "token-plan"), description: "MiniMax usage endpoint", scheduled: true,
 			url: func(auth ResolvedAuth, headers http.Header, _ string, _ time.Time) (string, error) {
-				return miniMaxUsageURL("minimax", auth, headers)
+				return miniMaxUsageURL(providerMiniMax, auth, headers)
 			},
-			normalize: func(providerID, endpoint, _ string, payload map[string]any, capturedAt int64) (Report, error) {
-				return normalizeMiniMax(providerID, miniMaxKind(endpoint), payload, capturedAt)
+			normalize: func(id providerID, endpoint, _ string, payload map[string]any, capturedAt int64) (Report, error) {
+				return normalizeMiniMax(id, miniMaxKind(endpoint), payload, capturedAt)
 			},
 		},
 		{
-			id: "minimax-cn", endpoint: miniMaxEndpoint("minimax-cn", "token-plan"), description: "MiniMax usage endpoint", scheduled: true,
+			id: providerMiniMaxCN, endpoint: miniMaxEndpoint(providerMiniMaxCN, "token-plan"), description: "MiniMax usage endpoint", scheduled: true,
 			url: func(auth ResolvedAuth, headers http.Header, _ string, _ time.Time) (string, error) {
-				return miniMaxUsageURL("minimax-cn", auth, headers)
+				return miniMaxUsageURL(providerMiniMaxCN, auth, headers)
 			},
-			normalize: func(providerID, endpoint, _ string, payload map[string]any, capturedAt int64) (Report, error) {
-				return normalizeMiniMax(providerID, miniMaxKind(endpoint), payload, capturedAt)
-			},
-		},
-		{
-			id: "moonshotai", endpoint: "https://api.moonshot.ai/v1/users/me/balance", description: "Moonshot AI balance endpoint", scheduled: true,
-			normalize: func(_ string, _ string, _ string, payload map[string]any, capturedAt int64) (Report, error) {
-				return normalizeMoonshot("moonshotai", payload, capturedAt)
+			normalize: func(id providerID, endpoint, _ string, payload map[string]any, capturedAt int64) (Report, error) {
+				return normalizeMiniMax(id, miniMaxKind(endpoint), payload, capturedAt)
 			},
 		},
 		{
-			id: "moonshotai-cn", endpoint: "https://api.moonshot.cn/v1/users/me/balance", description: "Moonshot AI balance endpoint", scheduled: true,
-			normalize: func(_ string, _ string, _ string, payload map[string]any, capturedAt int64) (Report, error) {
-				return normalizeMoonshot("moonshotai-cn", payload, capturedAt)
+			id: providerMoonshotAI, endpoint: "https://api.moonshot.ai/v1/users/me/balance", description: "Moonshot AI balance endpoint", scheduled: true,
+			normalize: func(_ providerID, _ string, _ string, payload map[string]any, capturedAt int64) (Report, error) {
+				return normalizeMoonshot(providerMoonshotAI, payload, capturedAt)
 			},
 		},
 		{
-			id: "zai", endpoint: "https://api.z.ai/api/monitor/usage/quota/limit", description: "Z.AI quota endpoint", scheduled: true,
+			id: providerMoonshotAICN, endpoint: "https://api.moonshot.cn/v1/users/me/balance", description: "Moonshot AI balance endpoint", scheduled: true,
+			normalize: func(_ providerID, _ string, _ string, payload map[string]any, capturedAt int64) (Report, error) {
+				return normalizeMoonshot(providerMoonshotAICN, payload, capturedAt)
+			},
+		},
+		{
+			id: providerZai, endpoint: "https://api.z.ai/api/monitor/usage/quota/limit", description: "Z.AI quota endpoint", scheduled: true,
 			query: func(c Client, ctx context.Context, p provider, auth ResolvedAuth, headers http.Header) (Report, error) {
 				if err := auth.revalidate(ctx); err != nil {
 					return Report{}, err
@@ -143,7 +166,7 @@ func providerTable() []provider {
 			},
 		},
 		{
-			id: "zai-coding-cn", endpoint: "https://open.bigmodel.cn/api/monitor/usage/quota/limit", description: "Z.AI Coding CN quota endpoint", scheduled: true,
+			id: providerZaiCodingCN, endpoint: "https://open.bigmodel.cn/api/monitor/usage/quota/limit", description: "Z.AI Coding CN quota endpoint", scheduled: true,
 			query: func(c Client, ctx context.Context, p provider, auth ResolvedAuth, headers http.Header) (Report, error) {
 				if err := auth.revalidate(ctx); err != nil {
 					return Report{}, err
@@ -152,7 +175,7 @@ func providerTable() []provider {
 			},
 		},
 		{
-			id: "xai", endpoint: "https://api.x.ai", description: "xAI consumer usage endpoint", skipHeaders: true,
+			id: providerXai, endpoint: "https://api.x.ai", description: "xAI consumer usage endpoint", skipHeaders: true,
 			identity: func(snapshot OAuthSnapshot, _ ResolvedAuth) (subscriptionIdentity, error) {
 				return resolveXai(snapshot)
 			},
@@ -161,10 +184,10 @@ func providerTable() []provider {
 	}
 }
 
-func lookupProvider(id string) (provider, bool) {
+func lookupProvider(id providerID) (provider, bool) {
 	providerIndex.once.Do(func() {
 		table := providerTable()
-		byID := make(map[string]provider, len(table))
+		byID := make(map[providerID]provider, len(table))
 		for _, p := range table {
 			byID[p.id] = p
 		}
@@ -178,13 +201,13 @@ func providerIDs() []string {
 	table := providerTable()
 	ids := make([]string, len(table))
 	for i, p := range table {
-		ids[i] = p.id
+		ids[i] = string(p.id)
 	}
 	return ids
 }
 
-func payloadNormalizer(normalize func(map[string]any, int64) (Report, error)) func(string, string, string, map[string]any, int64) (Report, error) {
-	return func(_, _, _ string, payload map[string]any, capturedAt int64) (Report, error) {
+func payloadNormalizer(normalize func(map[string]any, int64) (Report, error)) func(providerID, string, string, map[string]any, int64) (Report, error) {
+	return func(_ providerID, _, _ string, payload map[string]any, capturedAt int64) (Report, error) {
 		return normalize(payload, capturedAt)
 	}
 }

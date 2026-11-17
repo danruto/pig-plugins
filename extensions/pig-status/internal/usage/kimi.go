@@ -16,15 +16,15 @@ func kimiInteger(value any) (float64, bool) {
 	if text, ok := value.(string); ok && !unsignedDigits.MatchString(text) {
 		return 0, false
 	}
-	number, ok := finiteNumber(value, true)
+	number, ok := jsNumberValue(value)
 	return number, ok && number >= 0 && safeInteger(number)
 }
 
 func normalizeKimi(payload map[string]any, capturedAt int64) (Report, error) {
 	if payload == nil {
-		return Report{}, errors.New("Kimi Coding usage response was not an object.")
+		return Report{}, errors.New("kimi coding usage response was not an object")
 	}
-	report := Report{ProviderID: "kimi-coding", ProviderName: "Kimi For Coding", CapturedAt: capturedAt, Source: "kimi-managed-usage", Semantics: Semantics{Kind: "consumer-subscription", Label: "Kimi Coding Plan usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
+	report := Report{ProviderID: string(providerKimiCoding), ProviderName: "Kimi For Coding", CapturedAt: capturedAt, Source: "kimi-managed-usage", Semantics: Semantics{Kind: "consumer-subscription", Label: "Kimi Coding Plan usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
 	explicit := map[float64]bool{}
 	candidates := []Bucket{}
 	omitted := false
@@ -121,7 +121,7 @@ func normalizeKimi(payload map[string]any, capturedAt int64) (Report, error) {
 	}
 	report.Metrics = kimiWallet(wallet)
 	if len(report.Buckets) == 0 && len(report.Metrics) == 0 {
-		return Report{}, errors.New("Kimi Coding usage endpoint returned no displayable usage data.")
+		return Report{}, errors.New("kimi coding usage endpoint returned no displayable usage data")
 	}
 	if omitted {
 		report.Notes = []string{"Unsupported, malformed, or duplicate plan windows were unavailable."}

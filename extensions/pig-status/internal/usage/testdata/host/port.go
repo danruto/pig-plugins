@@ -8,6 +8,7 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 	"github.com/danruto/pig-plugins/extensions/pig-status/nativeusage"
 )
@@ -15,7 +16,7 @@ import (
 type hostPort struct{ usage.HostPort }
 
 func pauseBoundary(ctx context.Context, kind string, provider any) error {
-	root := os.Getenv("NA_OUTPUT")
+	root := os.Getenv("PIG_FIXTURE_ROOT")
 	path := filepath.Join(root, "pause.json")
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {

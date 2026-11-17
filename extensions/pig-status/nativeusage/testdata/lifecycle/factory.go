@@ -1,6 +1,6 @@
-// Package lifecycle is a disposable conventional factory exercising the staged adapter.
-// Its trust root and transport admit only the synthetic loopback HTTPS listener.
-// Inputs and receipts belong to a private disposable NA_OUTPUT root, never live data.
+// Package lifecycle is a disposable fixture factory that drives native usage lifecycle
+// scenarios. Its trust root and transport admit only the synthetic loopback HTTPS listener.
+// Inputs and receipts belong to a private disposable PIG_FIXTURE_ROOT directory, never live data.
 package lifecycle
 
 import (
@@ -18,6 +18,7 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 	native "github.com/danruto/pig-plugins/extensions/pig-status/nativeusage"
 )
@@ -27,7 +28,7 @@ var receiptMu sync.Mutex
 func record(kind string, detail any) {
 	receiptMu.Lock()
 	defer receiptMu.Unlock()
-	file, err := os.OpenFile(filepath.Join(os.Getenv("NA_OUTPUT"), "lifecycle.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Join(os.Getenv("PIG_FIXTURE_ROOT"), "lifecycle.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		panic("fixture receipt unavailable")
 	}
@@ -38,7 +39,7 @@ func record(kind string, detail any) {
 }
 
 func hold(ctx context.Context) bool {
-	dir := os.Getenv("NA_OUTPUT")
+	dir := os.Getenv("PIG_FIXTURE_ROOT")
 	fd, err := syscall.InotifyInit1(syscall.IN_NONBLOCK | syscall.IN_CLOEXEC)
 	if err != nil {
 		panic("fixture control unavailable")
@@ -84,7 +85,7 @@ func hold(ctx context.Context) bool {
 
 func serve(w http.ResponseWriter, r *http.Request, held chan<- string) {
 	record("request", r.Host)
-	if _, err := os.Stat(filepath.Join(os.Getenv("NA_OUTPUT"), "hold")); err == nil {
+	if _, err := os.Stat(filepath.Join(os.Getenv("PIG_FIXTURE_ROOT"), "hold")); err == nil {
 		record("held", true)
 		held <- r.Host
 		if hold(r.Context()) {
@@ -93,8 +94,8 @@ func serve(w http.ResponseWriter, r *http.Request, held chan<- string) {
 	} else if !os.IsNotExist(err) {
 		panic("fixture control unavailable")
 	}
-	qualificationResponse(w, r)
-	if qualificationEnabled() {
+	writeFixtureResponse(w, r)
+	if fixtureTransportActive() {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -125,10 +126,10 @@ func Extension() *sdk.Extension {
 	transport := localTransport(server)
 	ext := sdk.New("lifecycle")
 	var clientTransport http.RoundTripper = transport
-	if qualificationEnabled() {
-		clientTransport = &qualifiedTransport{base: transport}
+	if fixtureTransportActive() {
+		clientTransport = &heldTransport{base: transport}
 	}
-	runtime, err := native.Register(ext, native.Options{Client: usage.Client{Transport: clientTransport}, Publish: func(view usage.CachedUsage) {
+	runtime, err := native.Register(ext, native.Options{Client: usage.Client{Transport: clientTransport}, Publish: func(view usage.Cached) {
 		record("publish", map[string]any{"windows": view.Windows, "reason": view.Reason, "expires": !view.ExpiresAt.IsZero()})
 	}})
 	if err != nil {
@@ -137,7 +138,7 @@ func Extension() *sdk.Extension {
 		panic("fixture registration failed")
 	}
 	registerControls(ext, runtime, held)
-	registerQualification(ext, runtime, clientTransport)
+	registerFixtureControls(ext, runtime, clientTransport)
 	unsubscribeFence := registerFence(ext)
 	ext.OnSessionStart(func(_ sdk.Context, _ map[string]any) (any, error) { record("ready", true); return nil, nil })
 	ext.OnSessionShutdown(func(_ sdk.Context, _ map[string]any) (any, error) {
@@ -168,7 +169,7 @@ func registerControls(ext *sdk.Extension, runtime *native.Runtime, held <-chan s
 		return err
 	}})
 	ext.RegisterCommand("lifecycle-close", sdk.CommandOptions{Handler: func(call sdk.Context, _ string) error {
-		if err := os.WriteFile(filepath.Join(os.Getenv("NA_OUTPUT"), "hold"), nil, 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(os.Getenv("PIG_FIXTURE_ROOT"), "hold"), nil, 0600); err != nil {
 			return errors.New("fixture hold unavailable")
 		}
 		ok, err := call.SetModel("openrouter/fixture")

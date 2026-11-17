@@ -276,8 +276,16 @@ func codexFastFailureReason(err error) string {
 	case errors.Is(err, errCodexFastTiers):
 		return codexFastTiersReason
 	default:
-		return sanitize(err.Error())
+		return sanitize(displayText(err))
 	}
+}
+
+func displayText(err error) string {
+	var shown interface{ Display() string }
+	if errors.As(err, &shown) {
+		return shown.Display()
+	}
+	return err.Error()
 }
 
 func (c *codexFastCatalog) liveLocked(fetch codexFastFetch) bool {

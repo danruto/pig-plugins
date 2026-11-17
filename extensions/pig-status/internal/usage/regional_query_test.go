@@ -159,7 +159,7 @@ func regionalGood(t testing.TB, provider string) {
 	requirePinnedQueryReport(t, report, err, providerQueryFixture{provider: f.Provider, expected: f.Expected})
 }
 
-func TestRegionalQuery_ACParityMatchesActualSource(t *testing.T) {
+func TestRegionalQueryNormalizesRegionalPayloads(t *testing.T) {
 	for _, f := range append(regionalSurfaces(t), regionalNamed(t, "zai:current-plan"), regionalNamed(t, "zai-coding-cn:current-plan")) {
 		t.Run(f.Name, func(t *testing.T) {
 			server := regionalHTTPS(t, f, 0, "")
@@ -174,7 +174,7 @@ func TestRegionalQuery_ACParityMatchesActualSource(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_ACMalformedSourceInputsRefuse(t *testing.T) {
+func TestRegionalQueryRefusesMalformedSourceInputs(t *testing.T) {
 	for _, name := range []string{"minimax:balance-numeric-not-decimal", "minimax:no-rows", "zai:no-displayable"} {
 		f := regionalNamed(t, name)
 		t.Run(f.Name, func(t *testing.T) {
@@ -190,7 +190,7 @@ func TestRegionalQuery_ACMalformedSourceInputsRefuse(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeZaiFiniteDurationOverflowRefuses(t *testing.T) {
+func TestRegionalQueryRefusesZaiDurationOverflow(t *testing.T) {
 	for _, f := range regionalFixtures(t, func(f regionalQueryFixture) bool { return f.NativeRefusal }) {
 		t.Run(f.Name, func(t *testing.T) {
 			regionalGood(t, f.Provider)
@@ -229,7 +229,7 @@ func requireRegionalError(t testing.TB, err error, want string) {
 	}
 }
 
-func TestRegionalQuery_ACFixedZaiErrorsMatchActualSource(t *testing.T) {
+func TestRegionalQueryReportsFixedZaiErrors(t *testing.T) {
 	for _, f := range regionalFixtures(t, func(f regionalQueryFixture) bool { return f.Kind == "error" }) {
 		t.Run(f.Name, func(t *testing.T) {
 			regionalGood(t, f.Provider)
@@ -245,7 +245,7 @@ func TestRegionalQuery_ACFixedZaiErrorsMatchActualSource(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_ACOptionalZaiFailuresPreserveQuota(t *testing.T) {
+func TestRegionalQueryPreservesQuotaOnOptionalZaiFailure(t *testing.T) {
 	for _, provider := range []string{"zai", "zai-coding-cn"} {
 		for _, tt := range []struct {
 			name      string
@@ -288,7 +288,7 @@ func TestRegionalQuery_ACOptionalZaiFailuresPreserveQuota(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_ACOriginAndAuthorizationIsolation(t *testing.T) {
+func TestRegionalQueryIsolatesOriginAndAuthorization(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		for _, tt := range []struct {
 			name   string
@@ -332,7 +332,7 @@ func requireRegionalProvenance(t testing.TB, report Report, err error, requests 
 	requireRequestCount(t, requests, 0)
 }
 
-func TestRegionalQuery_ACMoonshotSiblingProvenance(t *testing.T) {
+func TestRegionalQueryRequiresMoonshotSiblingProvenance(t *testing.T) {
 	for _, f := range regionalFixtures(t, func(f regionalQueryFixture) bool { return strings.HasPrefix(f.Provider, "moonshot") }) {
 		for _, tt := range []struct {
 			name, selected, source string
@@ -369,7 +369,7 @@ func TestRegionalQuery_ACMoonshotSiblingProvenance(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeTransportRefusesUnsafeResponses(t *testing.T) {
+func TestRegionalQueryRefusesUnsafeResponses(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		for _, tt := range []struct {
 			name   string
@@ -395,7 +395,7 @@ func TestRegionalQuery_SafeTransportRefusesUnsafeResponses(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeTransportAcceptsExactBodyLimit(t *testing.T) {
+func TestRegionalQueryAcceptsExactBodyLimit(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		t.Run(f.Name, func(t *testing.T) {
 			server := regionalHTTPS(t, f, 200, string(f.Payload)+strings.Repeat(" ", 65536-len(f.Payload)))
@@ -437,7 +437,7 @@ func regionalFence(t testing.TB, f regionalQueryFixture, phase string) {
 	requireRequestCount(t, server.count(), wantRequests)
 }
 
-func TestRegionalQuery_SafeRevalidationFencesIdentity(t *testing.T) {
+func TestRegionalQueryFencesIdentityOnRevalidation(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		for _, phase := range []string{"missing", "before", "publication"} {
 			t.Run(f.Name+"/"+phase, func(t *testing.T) { regionalFence(t, f, phase) })
@@ -445,7 +445,7 @@ func TestRegionalQuery_SafeRevalidationFencesIdentity(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeAuthorizationSnapshot(t *testing.T) {
+func TestRegionalQuerySnapshotsAuthorization(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		t.Run(f.Name, func(t *testing.T) {
 			server := regionalHTTPS(t, f, 0, "")
@@ -510,7 +510,7 @@ func regionalDeadline(t testing.TB, f regionalQueryFixture, phase string) {
 	requireRequestCount(t, requests.Load(), wantRequests)
 }
 
-func TestRegionalQuery_SafeDeadlineCoversAuthenticationAndResponses(t *testing.T) {
+func TestRegionalQueryDeadlineCoversAuthenticationAndResponses(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		for _, phase := range []string{"authentication", "response"} {
 			t.Run(f.Name+"/"+phase, func(t *testing.T) { regionalDeadline(t, f, phase) })
@@ -518,7 +518,7 @@ func TestRegionalQuery_SafeDeadlineCoversAuthenticationAndResponses(t *testing.T
 	}
 }
 
-func TestRegionalQuery_SafeDeadlineCoversOptionalZaiWork(t *testing.T) {
+func TestRegionalQueryDeadlineCoversOptionalZaiWork(t *testing.T) {
 	for _, provider := range []string{"zai", "zai-coding-cn"} {
 		t.Run(provider, func(t *testing.T) { regionalDeadline(t, regionalNamed(t, provider+":quota"), "optional") })
 	}
@@ -531,7 +531,7 @@ func requireRegionalBudget(t testing.TB, deadlines []time.Time) {
 	}
 }
 
-func TestRegionalQuery_ACMiniMaxRuntimeKeyRouting(t *testing.T) {
+func TestRegionalQueryRoutesMiniMaxRuntimeKeys(t *testing.T) {
 	for _, provider := range []string{"minimax", "minimax-cn"} {
 		for _, tt := range []struct{ name, fixture, authorization, key string }{
 			{"balance-fallback", "balance", "Custom fixture-secret", "sk-api-fixture"},
@@ -557,7 +557,7 @@ func TestRegionalQuery_ACMiniMaxRuntimeKeyRouting(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_ACZaiPreservesNonBearerAuthorization(t *testing.T) {
+func TestRegionalQueryPreservesZaiNonBearerAuthorization(t *testing.T) {
 	for _, provider := range []string{"zai", "zai-coding-cn"} {
 		t.Run(provider, func(t *testing.T) {
 			f := regionalNamed(t, provider+":quota")
@@ -575,7 +575,7 @@ func TestRegionalQuery_ACZaiPreservesNonBearerAuthorization(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeDependencyFailuresRedactDetails(t *testing.T) {
+func TestRegionalQueryRedactsDependencyDetails(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		for _, mode := range []string{"transport", "body"} {
 			t.Run(f.Name+"/"+mode, func(t *testing.T) {
@@ -638,19 +638,19 @@ func regionalCancel(t testing.TB, f regionalQueryFixture, optional bool) {
 	requireRequestCount(t, requests.Load(), wantRequests)
 }
 
-func TestRegionalQuery_SafeCancellationStopsRegionalHTTPS(t *testing.T) {
+func TestRegionalQueryCancellationStopsRegionalHTTPS(t *testing.T) {
 	for _, f := range regionalSurfaces(t) {
 		t.Run(f.Name, func(t *testing.T) { regionalCancel(t, f, false) })
 	}
 }
 
-func TestRegionalQuery_SafeCancellationStopsOptionalZaiHTTPS(t *testing.T) {
+func TestRegionalQueryCancellationStopsOptionalZaiHTTPS(t *testing.T) {
 	for _, provider := range []string{"zai", "zai-coding-cn"} {
 		t.Run(provider, func(t *testing.T) { regionalCancel(t, regionalNamed(t, provider+":quota"), true) })
 	}
 }
 
-func TestRegionalQuery_SafeRevalidationBeforeOptionalZaiRequest(t *testing.T) {
+func TestRegionalQueryRevalidatesBeforeOptionalZaiRequest(t *testing.T) {
 	for _, provider := range []string{"zai", "zai-coding-cn"} {
 		t.Run(provider, func(t *testing.T) {
 			f := regionalNamed(t, provider+":quota")
@@ -673,7 +673,7 @@ func TestRegionalQuery_SafeRevalidationBeforeOptionalZaiRequest(t *testing.T) {
 	}
 }
 
-func TestRegionalQuery_SafeZaiErrorBodyBound(t *testing.T) {
+func TestRegionalQueryBoundsZaiErrorBody(t *testing.T) {
 	for _, provider := range []string{"zai", "zai-coding-cn"} {
 		t.Run(provider, func(t *testing.T) {
 			f := regionalNamed(t, provider+":quota")

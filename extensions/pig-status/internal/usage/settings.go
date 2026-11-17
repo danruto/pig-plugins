@@ -138,8 +138,8 @@ func (s *SettingsStore) SetCodexFast(ctx context.Context, enabled bool) (Setting
 	return cloneSettingsState(s.state), nil
 }
 
-func (s *SettingsStore) SelectTarget(ctx context.Context, providerID, targetID string, confirm func(context.Context) error) (SettingsState, error) {
-	if !usageIDPattern.MatchString(providerID) || !usageIDPattern.MatchString(targetID) {
+func (s *SettingsStore) SelectTarget(ctx context.Context, id, targetID string, confirm func(context.Context) error) (SettingsState, error) {
+	if !usageIDPattern.MatchString(id) || !usageIDPattern.MatchString(targetID) {
 		return s.Get(), ErrInvalidTarget
 	}
 	s.mu.Lock()
@@ -148,13 +148,13 @@ func (s *SettingsStore) SelectTarget(ctx context.Context, providerID, targetID s
 	if err != nil {
 		return cloneSettingsState(s.state), err
 	}
-	selected, err := selectionField(previous.state(s.path).Settings.SelectedTargets, providerID, targetID)
+	selected, err := selectionField(previous.state(s.path).Settings.SelectedTargets, id, targetID)
 	if err != nil {
 		return cloneSettingsState(s.state), err
 	}
 	next := previous.clone()
 	next.fields["selectedTargets"] = selected
-	if providerID == "fireworks" {
+	if providerID(id) == providerFireworks {
 		delete(next.fields, "fireworksAccountId")
 	}
 	saved, err := s.persist(ctx, previous, next)
@@ -390,13 +390,13 @@ func settingsTargets(fields map[string]json.RawMessage) (map[string]string, stri
 	if err := json.Unmarshal(raw, &entries); err != nil || entries == nil {
 		return targets, "selectedTargets must map provider ids to target ids"
 	}
-	for providerID, entry := range entries {
+	for id, entry := range entries {
 		var targetID *string
 		invalid := json.Unmarshal(entry, &targetID) != nil || targetID == nil || !usageIDPattern.MatchString(*targetID)
-		if invalid || !usageIDPattern.MatchString(providerID) {
+		if invalid || !usageIDPattern.MatchString(id) {
 			return targets, "selectedTargets contains an invalid provider or target id"
 		}
-		targets[providerID] = *targetID
+		targets[id] = *targetID
 	}
 	return targets, ""
 }
@@ -422,18 +422,18 @@ func migrateLegacyTarget(fields map[string]json.RawMessage, settings *Settings) 
 	if err := json.Unmarshal(raw, &accountID); err != nil || accountID == nil || !usageIDPattern.MatchString(*accountID) {
 		return "fireworksAccountId must be a target id"
 	}
-	if _, selected := settings.SelectedTargets["fireworks"]; !selected {
-		settings.SelectedTargets["fireworks"] = *accountID
+	if _, selected := settings.SelectedTargets[string(providerFireworks)]; !selected {
+		settings.SelectedTargets[string(providerFireworks)] = *accountID
 	}
 	return ""
 }
 
-func selectionField(targets map[string]string, providerID, targetID string) (json.RawMessage, error) {
+func selectionField(targets map[string]string, id, targetID string) (json.RawMessage, error) {
 	selected := maps.Clone(targets)
 	if selected == nil {
 		selected = map[string]string{}
 	}
-	selected[providerID] = targetID
+	selected[id] = targetID
 	data, err := json.Marshal(selected)
 	if err != nil {
 		return nil, fmt.Errorf("encode usage target selection: %w", err)

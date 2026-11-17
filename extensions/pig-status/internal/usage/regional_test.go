@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestRegionalNormalizationMatchesPinnedSource(t *testing.T) {
+func TestRegionalNormalization(t *testing.T) {
 	data, err := os.ReadFile("testdata/regional-reference.json")
 	if err != nil {
 		t.Fatal(err)
@@ -53,15 +53,15 @@ func TestRegionalNormalizationMatchesPinnedSource(t *testing.T) {
 			case "response-error":
 				result = zaiResponseError(f.Status, []byte(f.Body))
 			case "auth":
-				result = moonshotAuthAllowed(f.ProviderID, ResolvedAuth{SelectedProviderID: f.SelectedProviderID, Source: f.Source, SourceLabel: f.SourceLabel})
+				result = moonshotAuthAllowed(providerID(f.ProviderID), ResolvedAuth{SelectedProviderID: f.SelectedProviderID, Source: f.Source, SourceLabel: f.SourceLabel})
 			default:
 				switch f.ProviderID {
 				case "minimax", "minimax-cn":
-					result, err = normalizeMiniMax(f.ProviderID, f.UsageKind, f.Payload, f.CapturedAt)
+					result, err = normalizeMiniMax(providerID(f.ProviderID), f.UsageKind, f.Payload, f.CapturedAt)
 				case "zai", "zai-coding-cn":
-					result, err = normalizeZai(f.ProviderID, f.Payload, f.CapturedAt, f.Plan)
+					result, err = normalizeZai(providerID(f.ProviderID), f.Payload, f.CapturedAt, f.Plan)
 				default:
-					result, err = normalizeReport(f.ProviderID, f.Payload, f.CapturedAt)
+					result, err = normalizeReport(providerID(f.ProviderID), f.Payload, f.CapturedAt)
 				}
 			}
 			expectedError := f.Error

@@ -15,11 +15,12 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 	native "github.com/danruto/pig-plugins/extensions/pig-status/nativeusage"
 )
 
-var qualified = struct {
+var providerFixture = struct {
 	sync.Mutex
 	used    int
 	fail    bool
@@ -28,18 +29,18 @@ var qualified = struct {
 	targets bool
 }{used: 20, targets: true}
 
-func qualificationEnabled() bool {
-	_, err := os.Stat(filepath.Join(os.Getenv("NA_OUTPUT"), "qualification"))
+func fixtureTransportActive() bool {
+	_, err := os.Stat(filepath.Join(os.Getenv("PIG_FIXTURE_ROOT"), "qualification"))
 	return err == nil
 }
 
-func qualificationResponse(w http.ResponseWriter, r *http.Request) {
-	if !qualificationEnabled() {
+func writeFixtureResponse(w http.ResponseWriter, r *http.Request) {
+	if !fixtureTransportActive() {
 		return
 	}
-	qualified.Lock()
-	used, fail, targets := qualified.used, qualified.fail, qualified.targets
-	qualified.Unlock()
+	providerFixture.Lock()
+	used, fail, targets := providerFixture.used, providerFixture.fail, providerFixture.targets
+	providerFixture.Unlock()
 	w.Header().Set("Content-Type", "application/json")
 	if fail {
 		record("failure-response", true)
@@ -68,18 +69,18 @@ func qualificationResponse(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, `{"is_available":true,"balance_infos":[{"currency":"USD","total_balance":"12.50","granted_balance":"0","topped_up_balance":"12.50"}]}`)
 }
 
-type qualifiedTransport struct{ base http.RoundTripper }
+type heldTransport struct{ base http.RoundTripper }
 
-func (t *qualifiedTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+func (t *heldTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	response, err := t.base.RoundTrip(r)
 	if err != nil {
 		return nil, err
 	}
-	qualified.Lock()
-	hold := qualified.hold
-	qualified.hold = false
-	release := qualified.release
-	qualified.Unlock()
+	providerFixture.Lock()
+	hold := providerFixture.hold
+	providerFixture.hold = false
+	release := providerFixture.release
+	providerFixture.Unlock()
 	if !hold {
 		return response, nil
 	}
@@ -123,7 +124,7 @@ func (b *lateBody) Read(p []byte) (int, error) {
 
 func (b *lateBody) Close() error { return nil }
 
-func registerQualification(ext *sdk.Extension, runtime *native.Runtime, transport http.RoundTripper) {
+func registerFixtureControls(ext *sdk.Extension, runtime *native.Runtime, transport http.RoundTripper) {
 	collector := usage.NewCollector(usage.Client{Transport: transport})
 	ext.RegisterCommand("lifecycle-stop", sdk.CommandOptions{Handler: func(_ sdk.Context, _ string) error {
 		err := runtime.Close()
@@ -138,23 +139,23 @@ func registerQualification(ext *sdk.Extension, runtime *native.Runtime, transpor
 		if err := json.Unmarshal([]byte(args), &input); err != nil {
 			return err
 		}
-		qualified.Lock()
-		qualified.used, qualified.fail, qualified.hold, qualified.targets = input.Used, input.Fail, input.Hold, input.Targets
+		providerFixture.Lock()
+		providerFixture.used, providerFixture.fail, providerFixture.hold, providerFixture.targets = input.Used, input.Fail, input.Hold, input.Targets
 		if input.Hold {
-			qualified.release = make(chan struct{})
+			providerFixture.release = make(chan struct{})
 		}
-		qualified.Unlock()
+		providerFixture.Unlock()
 		record("response-set", input)
 		return nil
 	}})
 	ext.RegisterCommand("lifecycle-release", sdk.CommandOptions{Handler: func(_ sdk.Context, _ string) error {
-		qualified.Lock()
-		defer qualified.Unlock()
-		if qualified.release == nil {
+		providerFixture.Lock()
+		defer providerFixture.Unlock()
+		if providerFixture.release == nil {
 			return errors.New("fixture response not held")
 		}
-		close(qualified.release)
-		qualified.release = nil
+		close(providerFixture.release)
+		providerFixture.release = nil
 		return nil
 	}})
 	ext.RegisterCommand("lifecycle-owner", sdk.CommandOptions{Handler: updateOwner})

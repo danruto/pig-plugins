@@ -19,7 +19,7 @@ func TestValidatedHeadersPreserveExplicitAuthorization(t *testing.T) {
 		{"basic override", "vercel-ai-gateway", http.Header{"Authorization": {"Basic synthetic-token"}}, "Basic synthetic-token"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := validatedHeaders(tt.provider, tt.headers)
+			got, err := validatedHeaders(providerID(tt.provider), tt.headers)
 			if err != nil {
 				t.Fatal(err)
 			}

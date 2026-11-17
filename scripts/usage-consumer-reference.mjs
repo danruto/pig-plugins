@@ -7,6 +7,7 @@ import { normalizeCommandCodeUsagePayload } from "../node_modules/@narumitw/pi-u
 import { normalizeOpenCodeZenPayload } from "../node_modules/@narumitw/pi-usage/src/providers/opencode-zen.ts";
 import { normalizeKimiCodingUsagePayload } from "../node_modules/@narumitw/pi-usage/src/providers/kimi-coding.ts";
 import { normalizeXaiBillingPayload } from "../node_modules/@narumitw/pi-usage/src/providers/xai.ts";
+import { withNativeErrors } from "./usage-native-messages.mjs";
 
 assert.equal(pkg.version, "0.68.3");
 const capturedAt = 1735776000000;
@@ -26,7 +27,7 @@ function add(providerID, name, payload, extra = {}) {
 }
 const command = { account: { user: { userName: "\u001b[31mSynthetic\u001b[0m\nAccount" }, org: { id: "synthetic-org" } }, credits: { credits: { monthlyCredits: 12.5, purchasedCredits: 2, freeCredits: 1 }, windowLimits: { limited: true, fiveHour: { used: 2.5, cap: 10, resetAt: capturedAt + 999 }, weekly: { used: 40, cap: 30, resetAt: "1735776001" } } }, subscription: { data: { planId: "individual-goat", status: "active", currentPeriodEnd: "2025-02-01T01:00:00+01:00" } }, usage: { totalCost: 4.5, totalCount: 0, totalTokens: 1234 } };
 add("command-code", "normal", command);
-add("command-code", "nonfinite-credit-total", { account: command.account, credits: { credits: { monthlyCredits: 1e308, purchasedCredits: 1e308 } }, usage: { totalCost: 1 } }, { nativeError: "Command Code credit total was not finite." });
+add("command-code", "nonfinite-credit-total", { account: command.account, credits: { credits: { monthlyCredits: 1e308, purchasedCredits: 1e308 } }, usage: { totalCost: 1 } }, { nativeError: "command code credit total was not finite" });
 add("command-code", "optional-failures", { account: command.account, usage: { totalCost: 1, totalTokensIn: 3, totalTokensOut: 4 } });
 add("command-code", "plan-only", { account: { user: { name: "Fallback" } }, subscription: { data: { planId: "individual_new__plan", status: " trial " } } });
 add("command-code", "credits-only", { account: command.account, credits: { credits: { monthlyCredits: 0, freeCredits: -1 }, windowLimits: { limited: false, fiveHour: { used: "1", cap: 10 } } } });
@@ -95,6 +96,7 @@ fixtures.push({ name: "scheduling", kind: "scheduling", expected: usageAdapters(
 hooks.deregister();
 const hashes = {};
 for (const path of ["src/providers/command-code.ts", "src/providers/opencode-zen.ts", "src/providers/kimi-coding.ts", "src/providers/xai.ts", "src/query.ts", "src/usage.ts", "src/usage-helpers.ts", "src/core.ts", "src/types.ts"]) hashes[path] = createHash("sha256").update(await readFile(new URL(`../node_modules/@narumitw/pi-usage/${path}`, import.meta.url))).digest("hex");
+withNativeErrors(fixtures);
 const output = `${JSON.stringify({ upstream: { name: pkg.name, version: pkg.version, hashes }, fixtures }, null, 2)}\n`;
 const destination = new URL("../extensions/pig-status/internal/usage/testdata/consumer-reference.json", import.meta.url);
 if (process.argv[2] === "--check") assert.equal(await readFile(destination, "utf8"), output, "Remaining-provider reference differs from actual pinned source");

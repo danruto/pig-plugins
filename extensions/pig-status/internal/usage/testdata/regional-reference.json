@@ -718,7 +718,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan Rolling window status was unsupported."
+      "error": "MiniMax Token Plan Rolling window status was unsupported.",
+      "nativeError": "minimax token plan Rolling window status was unsupported"
     },
     {
       "name": "minimax:bad-status",
@@ -748,7 +749,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan current_weekly_status was not a nonnegative safe integer."
+      "error": "MiniMax Token Plan current_weekly_status was not a nonnegative safe integer.",
+      "nativeError": "minimax token plan current_weekly_status was not a nonnegative safe integer"
     },
     {
       "name": "minimax:bad-percent",
@@ -778,7 +780,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan current_interval_remaining_percent was not a percentage."
+      "error": "MiniMax Token Plan current_interval_remaining_percent was not a percentage.",
+      "nativeError": "minimax token plan current_interval_remaining_percent was not a percentage"
     },
     {
       "name": "minimax:over-percent",
@@ -808,7 +811,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan current_weekly_remaining_percent was not a percentage."
+      "error": "MiniMax Token Plan current_weekly_remaining_percent was not a percentage.",
+      "nativeError": "minimax token plan current_weekly_remaining_percent was not a percentage"
     },
     {
       "name": "minimax:over-count",
@@ -838,7 +842,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent.",
+      "nativeError": "minimax token plan Rolling window counts were inconsistent"
     },
     {
       "name": "minimax:inconsistent-percent",
@@ -868,7 +873,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent.",
+      "nativeError": "minimax token plan Rolling window counts were inconsistent"
     },
     {
       "name": "minimax:bad-total",
@@ -898,7 +904,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan current_weekly_total_count was not a nonnegative safe integer."
+      "error": "MiniMax Token Plan current_weekly_total_count was not a nonnegative safe integer.",
+      "nativeError": "minimax token plan current_weekly_total_count was not a nonnegative safe integer"
     },
     {
       "name": "minimax:unsafe-count",
@@ -928,7 +935,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan current_interval_usage_count was not a nonnegative safe integer."
+      "error": "MiniMax Token Plan current_interval_usage_count was not a nonnegative safe integer.",
+      "nativeError": "minimax token plan current_interval_usage_count was not a nonnegative safe integer"
     },
     {
       "name": "minimax:fraction-count",
@@ -958,7 +966,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan current_interval_total_count was not a nonnegative safe integer."
+      "error": "MiniMax Token Plan current_interval_total_count was not a nonnegative safe integer.",
+      "nativeError": "minimax token plan current_interval_total_count was not a nonnegative safe integer"
     },
     {
       "name": "minimax:invalid-name",
@@ -988,7 +997,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan model name was not a string."
+      "error": "MiniMax Token Plan model name was not a string.",
+      "nativeError": "minimax token plan model name was not a string"
     },
     {
       "name": "minimax:boost-cap",
@@ -1018,7 +1028,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan weekly boost was unreasonable."
+      "error": "MiniMax Token Plan weekly boost was unreasonable.",
+      "nativeError": "minimax token plan weekly boost was unreasonable"
     },
     {
       "name": "minimax:bad-boost",
@@ -1048,7 +1059,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan weekly_boost_permille was not a nonnegative safe integer."
+      "error": "MiniMax Token Plan weekly_boost_permille was not a nonnegative safe integer.",
+      "nativeError": "minimax token plan weekly_boost_permille was not a nonnegative safe integer"
     },
     {
       "name": "minimax:bad-time",
@@ -1078,7 +1090,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan start_time was not a valid timestamp."
+      "error": "MiniMax Token Plan start_time was not a valid timestamp.",
+      "nativeError": "minimax token plan start_time was not a valid timestamp"
     },
     {
       "name": "minimax:string-time",
@@ -1108,7 +1121,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan weekly_end_time was not a valid timestamp."
+      "error": "MiniMax Token Plan weekly_end_time was not a valid timestamp.",
+      "nativeError": "minimax token plan weekly_end_time was not a valid timestamp"
     },
     {
       "name": "minimax:reverse-time",
@@ -1138,7 +1152,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan Rolling window timestamps were reversed."
+      "error": "MiniMax Token Plan Rolling window timestamps were reversed.",
+      "nativeError": "minimax token plan Rolling window timestamps were reversed"
     },
     {
       "name": "minimax:zero-count-mismatch",
@@ -1168,7 +1183,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan Rolling window counts were inconsistent."
+      "error": "MiniMax Token Plan Rolling window counts were inconsistent.",
+      "nativeError": "minimax token plan Rolling window counts were inconsistent"
     },
     {
       "name": "minimax:zero-without-percent",
@@ -1197,7 +1213,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan Rolling window returned no quota and no percent."
+      "error": "MiniMax Token Plan Rolling window returned no quota and no percent.",
+      "nativeError": "minimax token plan Rolling window returned no quota and no percent"
     },
     {
       "name": "minimax:null-optionals",
@@ -1293,7 +1310,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax usage response did not report success."
+      "error": "MiniMax usage response did not report success.",
+      "nativeError": "minimax usage response did not report success"
     },
     {
       "name": "minimax:empty",
@@ -1306,7 +1324,8 @@
         "model_remains": []
       },
       "kind": "report",
-      "error": "MiniMax Token Plan returned no quota rows."
+      "error": "MiniMax Token Plan returned no quota rows.",
+      "nativeError": "minimax token plan returned no quota rows"
     },
     {
       "name": "minimax:bad-row",
@@ -1321,7 +1340,8 @@
         ]
       },
       "kind": "report",
-      "error": "MiniMax Token Plan quota row was not an object."
+      "error": "MiniMax Token Plan quota row was not an object.",
+      "nativeError": "minimax token plan quota row was not an object"
     },
     {
       "name": "minimax:balance",
@@ -1469,7 +1489,8 @@
       },
       "kind": "report",
       "usageKind": "account-balance",
-      "error": "MiniMax owed amount was not a valid amount."
+      "error": "MiniMax owed amount was not a valid amount.",
+      "nativeError": "minimax owed amount was not a valid amount"
     },
     {
       "name": "minimax:balance-number",
@@ -1487,7 +1508,8 @@
       },
       "kind": "report",
       "usageKind": "account-balance",
-      "error": "MiniMax owed amount was not a valid amount."
+      "error": "MiniMax owed amount was not a valid amount.",
+      "nativeError": "minimax owed amount was not a valid amount"
     },
     {
       "name": "minimax:balance-leading-zero",
@@ -1505,7 +1527,8 @@
       },
       "kind": "report",
       "usageKind": "account-balance",
-      "error": "MiniMax owed amount was not a valid amount."
+      "error": "MiniMax owed amount was not a valid amount.",
+      "nativeError": "minimax owed amount was not a valid amount"
     },
     {
       "name": "minimax:balance-exponent",
@@ -1523,7 +1546,8 @@
       },
       "kind": "report",
       "usageKind": "account-balance",
-      "error": "MiniMax owed amount was not a valid amount."
+      "error": "MiniMax owed amount was not a valid amount.",
+      "nativeError": "minimax owed amount was not a valid amount"
     },
     {
       "name": "minimax:balance-long",
@@ -1541,7 +1565,8 @@
       },
       "kind": "report",
       "usageKind": "account-balance",
-      "error": "MiniMax owed amount was not a valid amount."
+      "error": "MiniMax owed amount was not a valid amount.",
+      "nativeError": "minimax owed amount was not a valid amount"
     },
     {
       "name": "minimax:balance-missing",
@@ -1558,7 +1583,8 @@
       },
       "kind": "report",
       "usageKind": "account-balance",
-      "error": "MiniMax owed amount was not a valid amount."
+      "error": "MiniMax owed amount was not a valid amount.",
+      "nativeError": "minimax owed amount was not a valid amount"
     },
     {
       "name": "minimax:kind-sk-api-synthetic",
@@ -1601,7 +1627,7 @@
         }
       },
       "kind": "report",
-      "nativeError": "Z.AI quota window was not finite.",
+      "nativeError": "z.ai quota window was not finite",
       "expected": {
         "providerId": "zai",
         "providerName": "Z.AI",
@@ -2750,7 +2776,8 @@
         "data": {}
       },
       "kind": "report",
-      "error": "Z.AI quota endpoint returned no displayable usage data."
+      "error": "Z.AI quota endpoint returned no displayable usage data.",
+      "nativeError": "z.ai quota endpoint returned no displayable usage data"
     },
     {
       "name": "zai:invalid-data",
@@ -2760,7 +2787,8 @@
         "data": []
       },
       "kind": "report",
-      "error": "Z.AI quota response data was not an object."
+      "error": "Z.AI quota response data was not an object.",
+      "nativeError": "z.ai quota response data was not an object"
     },
     {
       "name": "zai:only-metrics",
@@ -2782,7 +2810,8 @@
         }
       },
       "kind": "report",
-      "error": "Z.AI quota endpoint returned no displayable usage data."
+      "error": "Z.AI quota endpoint returned no displayable usage data.",
+      "nativeError": "z.ai quota endpoint returned no displayable usage data"
     },
     {
       "name": "zai:error",

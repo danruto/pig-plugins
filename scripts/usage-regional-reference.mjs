@@ -6,6 +6,7 @@ import pkg from "../node_modules/@narumitw/pi-usage/package.json" with { type: "
 import { miniMaxUsageKind, normalizeMiniMaxUsagePayload } from "../node_modules/@narumitw/pi-usage/src/providers/minimax.ts";
 import { normalizeZaiQuotaPayload, normalizeZaiSubscriptionPayload } from "../node_modules/@narumitw/pi-usage/src/providers/zai.ts";
 import { zaiPayloadError, zaiResponseError } from "../node_modules/@narumitw/pi-usage/src/providers/zai-errors.ts";
+import { withNativeErrors } from "./usage-native-messages.mjs";
 
 assert.equal(pkg.version, "0.68.3");
 const capturedAt = 1735776000000;
@@ -61,7 +62,7 @@ for (const provider of ["minimax", "minimax-cn"]) add(provider, "balance", balan
 for (const [name, value] of [["negative", "-0"], ["number", 1], ["leading-zero", "01"], ["exponent", "1e2"], ["long", "1".repeat(65)], ["missing", undefined]]) add("minimax", `balance-${name}`, { ...balance, owed_amount: value }, "report", { usageKind: "account-balance" });
 for (const key of ["sk-api-synthetic", "sk-cp-synthetic", "SK-api-synthetic", ""]) fixtures.push({ name: `minimax:kind-${key}`, kind: "usage-kind", key, expected: miniMaxUsageKind(key) });
 const quota = { data: { level: " Lite\nplan ", limits: [ { type: "TOKENS_LIMIT", unit: 3, percentage: 25, number: 5, nextResetTime: capturedAt + 999 }, { type: "CREDIT_LIMIT", unit: 6, currentValue: 120, usage: 100, number: 2, nextResetTime: 0 }, { type: "TIME_LIMIT", currentValue: 2, usage: 10, usageDetails: [{ modelCode: "Web Search", usage: 2 }, { modelCode: "模型", usage: 0 }, { modelCode: "İModel", usage: 1 }] } ] } };
-add("zai", "window-overflow", { data: { limits: [{ type: "TOKENS_LIMIT", unit: 3, number: 1e308, percentage: 25 }] } }, "report", { nativeError: "Z.AI quota window was not finite." });
+add("zai", "window-overflow", { data: { limits: [{ type: "TOKENS_LIMIT", unit: 3, number: 1e308, percentage: 25 }] } }, "report", { nativeError: "z.ai quota window was not finite" });
 for (const provider of ["zai", "zai-coding-cn"]) {
   for (const [name, unit, number] of [
     ["round-sub-half-week", 6, 0.000049603174603174596],
@@ -108,6 +109,7 @@ for (const providerID of ["moonshotai", "moonshotai-cn"]) {
 hooks.deregister();
 const hashes = {};
 for (const path of ["src/providers/minimax.ts", "src/providers/zai.ts", "src/providers/zai-errors.ts", "src/query.ts", "src/core.ts", "src/types.ts"]) hashes[path] = createHash("sha256").update(await readFile(new URL(`../node_modules/@narumitw/pi-usage/${path}`, import.meta.url))).digest("hex");
+withNativeErrors(fixtures);
 const output = `${JSON.stringify({ upstream: { name: pkg.name, version: pkg.version, hashes }, fixtures }, null, 2)}\n`;
 const destination = new URL("../extensions/pig-status/internal/usage/testdata/regional-reference.json", import.meta.url);
 if (process.argv[2] === "--check") assert.equal(await readFile(destination, "utf8"), output, "Regional reference differs from actual pinned source");

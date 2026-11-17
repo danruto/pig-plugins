@@ -9,10 +9,11 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 )
 
-var errUnobservableCollection = errors.New("OAuth credential collection is not observable over the native event bus")
+var errUnobservableCollection = errors.New("credential collection is not observable over the native event bus")
 
 type hostPort struct{ call sdk.Context }
 

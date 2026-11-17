@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"maps"
+	"slices"
 	"sync"
 	"time"
 )
@@ -28,7 +29,7 @@ type Window struct {
 	Countdown   time.Duration
 }
 
-type CachedUsage struct {
+type Cached struct {
 	Windows   []Window
 	ExpiresAt time.Time
 	RefreshAt time.Time
@@ -95,7 +96,7 @@ func (c *Collector) Refresh(ctx context.Context, resolver Resolver) error {
 		return c.fail(ticket, err)
 	}
 	if c.backingOff(ticket, identity.key, time.Now()) {
-		if identity.provider == "fireworks" {
+		if providerID(identity.provider) == providerFireworks {
 			c.publishBackoff(ticket, identity.key)
 		} else {
 			c.reuse(ticket, identity.key, time.Now())
@@ -115,8 +116,8 @@ func (c *Collector) fetch(ctx context.Context, ticket collectionTicket, identity
 	targetID := ""
 	var report Report
 	var err error
-	if identity.provider == "fireworks" {
-		targetID = ticket.settings.Targets["fireworks"]
+	if providerID(identity.provider) == providerFireworks {
+		targetID = ticket.settings.Targets[string(providerFireworks)]
 		report, err = c.client.QueryFireworks(ctx, identity.auth, targetID, hostBudget(ctx))
 	} else {
 		report, err = c.client.Query(ctx, identity.provider, identity.auth, hostBudget(ctx))
@@ -166,14 +167,14 @@ func acquireCollection(ctx context.Context, resolver Resolver, ticket collection
 }
 
 func (c *Collector) validateTarget(ctx context.Context, identity collectionIdentity, ticket collectionTicket) error {
-	if identity.provider != "fireworks" {
+	if providerID(identity.provider) != providerFireworks {
 		return nil
 	}
 	targets, err := c.client.discoverTargets(ctx, identity.auth, hostBudget(ctx))
 	if err != nil {
 		return err
 	}
-	if !selectedTarget(targets, ticket.settings.Targets["fireworks"]) {
+	if !selectedTarget(targets, ticket.settings.Targets[string(providerFireworks)]) {
 		if err := identity.auth.revalidate(ctx); err != nil {
 			return err
 		}
@@ -261,12 +262,8 @@ func (c *Collector) backingOff(ticket collectionTicket, key [32]byte, now time.T
 		return false
 	}
 	c.sweep(now)
-	for _, entry := range c.entries {
-		if entry.key == key {
-			return now.Before(entry.retryAt)
-		}
-	}
-	return false
+	index := slices.IndexFunc(c.entries, func(entry accountEntry) bool { return entry.key == key })
+	return index >= 0 && now.Before(c.entries[index].retryAt)
 }
 
 func (c *Collector) publishBackoff(ticket collectionTicket, key [32]byte) {
@@ -276,14 +273,14 @@ func (c *Collector) publishBackoff(ticket collectionTicket, key [32]byte) {
 		return
 	}
 	c.sweep(time.Now())
-	for _, entry := range c.entries {
-		if entry.key == key {
-			c.active = [32]byte{}
-			c.reason = entry.reason
-			c.refreshAt = entry.retryAt
-			return
-		}
+	index := slices.IndexFunc(c.entries, func(entry accountEntry) bool { return entry.key == key })
+	if index < 0 {
+		return
 	}
+	entry := c.entries[index]
+	c.active = [32]byte{}
+	c.reason = entry.reason
+	c.refreshAt = entry.retryAt
 }
 
 func (c *Collector) reuse(ticket collectionTicket, key [32]byte, now time.Time) bool {
@@ -308,12 +305,13 @@ func (c *Collector) reusable(ticket collectionTicket, key [32]byte, now time.Tim
 		return accountEntry{}, false
 	}
 	c.sweep(now)
-	for _, entry := range c.entries {
-		if entry.key == key && ((entry.report != nil && entry.retryAt.IsZero()) || now.Before(entry.retryAt)) {
-			return entry, true
-		}
+	index := slices.IndexFunc(c.entries, func(entry accountEntry) bool {
+		return entry.key == key && ((entry.report != nil && entry.retryAt.IsZero()) || now.Before(entry.retryAt))
+	})
+	if index < 0 {
+		return accountEntry{}, false
 	}
-	return accountEntry{}, false
+	return c.entries[index], true
 }
 
 func (c *Collector) commit(ticket collectionTicket, key [32]byte, outcome Outcome, now time.Time) error {
@@ -333,12 +331,9 @@ func (c *Collector) commit(ticket collectionTicket, key [32]byte, outcome Outcom
 
 func (c *Collector) store(key [32]byte, update func(accountEntry) accountEntry) accountEntry {
 	entry := accountEntry{key: key}
-	for i, existing := range c.entries {
-		if existing.key == key {
-			entry = existing
-			c.entries = append(c.entries[:i], c.entries[i+1:]...)
-			break
-		}
+	if index := slices.IndexFunc(c.entries, func(existing accountEntry) bool { return existing.key == key }); index >= 0 {
+		entry = c.entries[index]
+		c.entries = slices.Delete(c.entries, index, index+1)
 	}
 	entry = update(entry)
 	c.entries = append(c.entries, entry)
@@ -386,16 +381,16 @@ func (c *Collector) sweep(now time.Time) {
 	c.entries = entries
 }
 
-func (c *Collector) Snapshot(now time.Time) CachedUsage {
+func (c *Collector) Snapshot(now time.Time) Cached {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	result := CachedUsage{RefreshAt: c.refreshAt, Reason: c.reason}
-	for _, entry := range c.entries {
-		if entry.key == c.active && entry.report != nil && now.Before(entry.expiresAt) {
-			result.ExpiresAt = entry.expiresAt
-			result.Windows = reportWindows(*entry.report, now)
-			break
-		}
+	result := Cached{RefreshAt: c.refreshAt, Reason: c.reason}
+	index := slices.IndexFunc(c.entries, func(entry accountEntry) bool {
+		return entry.key == c.active && entry.report != nil && now.Before(entry.expiresAt)
+	})
+	if index >= 0 {
+		result.ExpiresAt = c.entries[index].expiresAt
+		result.Windows = reportWindows(*c.entries[index].report, now)
 	}
 	return result
 }

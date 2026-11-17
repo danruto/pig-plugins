@@ -1,5 +1,5 @@
-// Package nativeusage stages owned native collection against the reviewed host SDK.
-// Register embeds collection in a conventional factory; Publish is an in-process,
+// Package nativeusage collects provider usage and quota for the PiG status footer.
+// Register embeds collection in a pig-status factory; Publish is an in-process,
 // prompt, cache-only sink and must not retain SDK contexts. Optional Repaint receives the
 // live host context after each publish made in a session handler or a current owner's
 // tick, and must use it only before returning. No usage bus API is exposed.
@@ -25,13 +25,14 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 )
 
 type Options struct {
 	Client   usage.Client
 	Settings usage.CollectionSettings
-	Publish  func(usage.CachedUsage)
+	Publish  func(usage.Cached)
 	Repaint  func(sdk.Context)
 }
 
@@ -42,7 +43,7 @@ type Runtime struct {
 	collector *usage.Collector
 	settings  usage.CollectionSettings
 	applied   usage.CollectionSettings
-	publish   func(usage.CachedUsage)
+	publish   func(usage.Cached)
 	repaint   func(sdk.Context)
 	owner     *owner
 	active    bool
@@ -157,7 +158,7 @@ func (r *Runtime) drain() error {
 		previous.listeners.Wait()
 		previous.off()
 	}
-	r.publish(usage.CachedUsage{})
+	r.publish(usage.Cached{})
 	if previous != nil {
 		return previous.err
 	}
@@ -207,12 +208,7 @@ func (r *Runtime) schedule(current *owner, channel string) {
 		case <-current.stop:
 			return
 		case <-current.wake:
-			if !timer.Stop() {
-				select {
-				case <-timer.C:
-				default:
-				}
-			}
+			timer.Stop()
 		case <-timer.C:
 		}
 		select {
@@ -230,7 +226,7 @@ func (r *Runtime) schedule(current *owner, channel string) {
 	}
 }
 
-func nextWake(view usage.CachedUsage, now time.Time) time.Duration {
+func nextWake(view usage.Cached, now time.Time) time.Duration {
 	next := now.Add(time.Minute)
 	for _, deadline := range []time.Time{view.RefreshAt, view.ExpiresAt} {
 		if !deadline.IsZero() && deadline.Before(next) {
@@ -293,10 +289,10 @@ func (r *Runtime) publishBridgeFailure(current *owner) {
 		return
 	}
 	current.reason = bridgeFailureReason
-	r.publish(usage.CachedUsage{Reason: bridgeFailureReason})
+	r.publish(usage.Cached{Reason: bridgeFailureReason})
 }
 
-func (r *Runtime) publishCurrent(call sdk.Context, current *owner, view usage.CachedUsage) {
+func (r *Runtime) publishCurrent(call sdk.Context, current *owner, view usage.Cached) {
 	r.mu.Lock()
 	if r.owner != current || call.Err() != nil {
 		r.mu.Unlock()

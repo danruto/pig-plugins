@@ -7,6 +7,7 @@ import (
 	"maps"
 	"net/http"
 	"reflect"
+	"slices"
 	"time"
 )
 
@@ -172,7 +173,7 @@ func (r Resolver) inventory(ctx context.Context) (HostInventory, error) {
 func selectedInventory(inventory HostInventory) HostInventory {
 	providers := make(map[string]HostProvider)
 	for id, configured := range inventory.Providers {
-		if _, ok := lookupProvider(id); ok {
+		if _, ok := lookupProvider(providerID(id)); ok {
 			providers[id] = configured
 		}
 	}
@@ -181,13 +182,14 @@ func selectedInventory(inventory HostInventory) HostInventory {
 
 func firstOfficialModels(models []map[string]any) []map[string]any {
 	result := []map[string]any{}
-	seen := make(map[string]bool)
 	for _, model := range models {
 		id := modelString(model, "provider")
-		if seen[id] || !officialProviderOrigin(id, modelString(model, "baseUrl")) {
+		if !officialProviderOrigin(providerID(id), modelString(model, "baseUrl")) {
 			continue
 		}
-		seen[id] = true
+		if slices.ContainsFunc(result, func(seen map[string]any) bool { return modelString(seen, "provider") == id }) {
+			continue
+		}
 		result = append(result, model)
 	}
 	return result
@@ -215,13 +217,13 @@ func (r Resolver) collect(ctx context.Context, snapshot hostSnapshot, channel, k
 	return result.Values, ctx.Err()
 }
 
-func requestedModel(inventory HostInventory, providerID string) (map[string]any, error) {
-	if !inventory.Providers[providerID].Configured {
+func requestedModel(inventory HostInventory, id string) (map[string]any, error) {
+	if !inventory.Providers[id].Configured {
 		return nil, ErrNoUsageAuth
 	}
 	for _, models := range [][]map[string]any{inventory.Available, inventory.Models} {
 		for _, model := range models {
-			if model["provider"] == providerID && officialProviderOrigin(providerID, modelString(model, "baseUrl")) {
+			if model["provider"] == id && officialProviderOrigin(providerID(id), modelString(model, "baseUrl")) {
 				return model, nil
 			}
 		}
@@ -234,40 +236,40 @@ func modelString(model map[string]any, key string) string {
 	return value
 }
 
-func (r Resolver) readyCurrent(ctx context.Context, providerID string) (hostSnapshot, string, error) {
-	if providerID == "" {
+func (r Resolver) readyCurrent(ctx context.Context, id string) (hostSnapshot, string, error) {
+	if id == "" {
 		metadata, err := r.metadata(ctx)
 		if err != nil {
 			return hostSnapshot{}, "", err
 		}
-		providerID = metadata.ProviderID
+		id = metadata.ProviderID
 	}
-	if providerID == "" {
+	if id == "" {
 		return hostSnapshot{}, "", ErrNoUsageAuth
 	}
-	if _, ok := lookupProvider(providerID); !ok {
+	if _, ok := lookupProvider(providerID(id)); !ok {
 		return hostSnapshot{}, "", ErrUsageUnsupported
 	}
-	current, err := r.snapshot(ctx, map[string]any{"provider": providerID})
+	current, err := r.snapshot(ctx, map[string]any{"provider": id})
 	if err != nil {
 		return hostSnapshot{}, "", err
 	}
-	if current.Provider != providerID {
+	if current.Provider != id {
 		return hostSnapshot{}, "", ErrUsageChanged
 	}
-	return current, providerID, nil
+	return current, id, nil
 }
 
-func (r Resolver) acquire(ctx context.Context, providerID string, inventory *HostInventory) (hostResolution, error) {
-	current, providerID, err := r.readyCurrent(ctx, providerID)
+func (r Resolver) acquire(ctx context.Context, id string, inventory *HostInventory) (hostResolution, error) {
+	current, id, err := r.readyCurrent(ctx, id)
 	if err != nil {
 		return hostResolution{}, err
 	}
-	if providerID == modelString(current.SelectedModel, "provider") {
+	if id == modelString(current.SelectedModel, "provider") {
 		if current.Model == nil {
 			return hostResolution{}, ErrNoUsageAuth
 		}
-		return r.pin(ctx, map[string]any{"provider": providerID}, current, inventory)
+		return r.pin(ctx, map[string]any{"provider": id}, current, inventory)
 	}
 	if inventory == nil {
 		owned, err := r.inventory(ctx)
@@ -276,16 +278,16 @@ func (r Resolver) acquire(ctx context.Context, providerID string, inventory *Hos
 		}
 		inventory = &owned
 	}
-	model, err := requestedModel(*inventory, providerID)
+	model, err := requestedModel(*inventory, id)
 	if err != nil {
 		return hostResolution{}, err
 	}
-	options := map[string]any{"provider": providerID, "model": model}
+	options := map[string]any{"provider": id, "model": model}
 	snapshot, err := r.snapshot(ctx, options)
 	if err != nil {
 		return hostResolution{}, err
 	}
-	if snapshot.SessionID != current.SessionID || snapshot.Provider != providerID || !reflect.DeepEqual(snapshot.SelectedModel, current.SelectedModel) {
+	if snapshot.SessionID != current.SessionID || snapshot.Provider != id || !reflect.DeepEqual(snapshot.SelectedModel, current.SelectedModel) {
 		return hostResolution{}, ErrUsageChanged
 	}
 	return r.pin(ctx, options, snapshot, inventory)
@@ -316,7 +318,7 @@ func (h hostResolution) validateOrigins() error {
 		return ErrUsageOrigin
 	}
 	for _, base := range bases {
-		if base != "" && !officialProviderOrigin(s.Provider, base) {
+		if base != "" && !officialProviderOrigin(providerID(s.Provider), base) {
 			return ErrUsageOrigin
 		}
 	}
@@ -393,15 +395,15 @@ func effectiveHostAuth(snapshot hostSnapshot) *hostAuthResult {
 	return snapshot.ProviderAuth
 }
 
-func (r Resolver) Resolve(ctx context.Context, providerID string, options ResolveOptions) (ResolvedAuth, error) {
-	auth, _, _, err := r.resolve(ctx, providerID, options, nil)
+func (r Resolver) Resolve(ctx context.Context, id string, options ResolveOptions) (ResolvedAuth, error) {
+	auth, _, _, err := r.resolve(ctx, id, options, nil)
 	return auth, err
 }
 
-func (r Resolver) resolve(ctx context.Context, providerID string, options ResolveOptions, inventory *HostInventory) (ResolvedAuth, hostSnapshot, string, error) {
+func (r Resolver) resolve(ctx context.Context, id string, options ResolveOptions, inventory *HostInventory) (ResolvedAuth, hostSnapshot, string, error) {
 	ctx, cancel := context.WithTimeout(ctx, maxQueryDuration)
 	defer cancel()
-	resolution, err := r.acquire(ctx, providerID, inventory)
+	resolution, err := r.acquire(ctx, id, inventory)
 	if err != nil {
 		return ResolvedAuth{}, hostSnapshot{}, "", err
 	}
@@ -423,7 +425,7 @@ func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (R
 		return ResolvedAuth{}, "", ErrNoUsageAuth
 	}
 	auth := ResolvedAuth{APIKey: effective.APIKey, SelectedProviderID: modelString(s.SelectedModel, "provider"), Source: s.Provenance.Source, SourceLabel: s.Provenance.Label, ModelBaseURL: modelString(s.Model, "baseUrl"), Revalidate: h.revalidate, UseCodexUsage: options.UseCodexUsage}
-	if !moonshotAuthAllowed(s.Provider, auth) {
+	if !moonshotAuthAllowed(providerID(s.Provider), auth) {
 		return ResolvedAuth{}, "", ErrNoUsageAuth
 	}
 	headers, err := usageAuthorization(effective)
@@ -432,8 +434,8 @@ func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (R
 	}
 	auth.Headers = headers
 	companionRevision := ""
-	if s.Provider == "openai" && options.UseCodexUsage {
-		companion, err := h.resolver.acquire(ctx, "openai-codex", h.inventory)
+	if providerID(s.Provider) == providerOpenAI && options.UseCodexUsage {
+		companion, err := h.resolver.acquire(ctx, string(providerOpenAICodex), h.inventory)
 		if err != nil && !errors.Is(err, ErrNoUsageAuth) {
 			return ResolvedAuth{}, "", err
 		}
@@ -443,7 +445,7 @@ func (h hostResolution) resolved(ctx context.Context, options ResolveOptions) (R
 		}
 	}
 	auth.ResolveOAuth = func(ctx context.Context) (OAuthSnapshot, error) { return h.oauth(ctx, options) }
-	if s.Provider == "openai-codex" {
+	if providerID(s.Provider) == providerOpenAICodex {
 		codexAuth, err := h.codex(ctx, auth)
 		return codexAuth, companionRevision, err
 	}
@@ -490,7 +492,7 @@ func (h hostResolution) oauth(ctx context.Context, options ResolveOptions) (OAut
 		candidates = append(candidates, fresh.Credential)
 	}
 	snapshot := OAuthSnapshot{Ready: true, Source: sourceOf(fresh.ProviderAuth), ModelBaseURL: modelString(fresh.Model, "baseUrl"), Effective: requestFromHost(effectiveHostAuth(fresh)), Provider: requestFromHost(fresh.ProviderAuth), Candidates: candidates}
-	if fresh.Provider != "openai" || !options.UseCodexUsage {
+	if providerID(fresh.Provider) != providerOpenAI || !options.UseCodexUsage {
 		return snapshot, nil
 	}
 	snapshot.CompanionReady = true

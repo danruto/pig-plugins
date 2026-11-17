@@ -16,6 +16,24 @@ const (
 	maxFailureBodyBytes = 4 * 1024
 )
 
+type requestError struct {
+	description string
+	detail      string
+}
+
+func (e requestError) Error() string {
+	return lowerInitial(e.description + " " + e.detail)
+}
+
+func (e requestError) Display() string { return e.description + " " + e.detail + "." }
+
+func lowerInitial(text string) string {
+	if text == "" || text[0] < 'A' || text[0] > 'Z' {
+		return text
+	}
+	return string(text[0]+('a'-'A')) + text[1:]
+}
+
 type usageRequest struct {
 	endpoint     string
 	description  string
@@ -46,7 +64,7 @@ func (c Client) fetchBounded(ctx context.Context, request usageRequest) (map[str
 	case successStatus(status):
 		body, err = readSuccessBody(ctx, response.Body, request)
 	case request.failureError == nil:
-		return nil, status, fmt.Errorf("%s returned %d.", request.description, status)
+		return nil, status, requestError{description: request.description, detail: fmt.Sprintf("returned %d", status)}
 	default:
 		body, err = readFailureBody(ctx, response.Body, request.description)
 	}
@@ -91,7 +109,7 @@ func (c Client) send(ctx context.Context, request usageRequest) (*http.Response,
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		return nil, fmt.Errorf("%s request failed.", request.description)
+		return nil, requestError{description: request.description, detail: "request failed"}
 	}
 	return response, nil
 }
@@ -102,7 +120,7 @@ func refuseRedirect(*http.Request, []*http.Request) error {
 
 func redirectError(status int, description string) error {
 	if status >= 300 && status < 400 {
-		return fmt.Errorf("%s refused a redirected response.", description)
+		return requestError{description: description, detail: "refused a redirected response"}
 	}
 	return nil
 }
@@ -117,7 +135,7 @@ func readSuccessBody(ctx context.Context, body io.Reader, request usageRequest) 
 		return nil, err
 	}
 	if len(data) > request.maxBytes {
-		return nil, fmt.Errorf("%s response exceeded %d bytes.", request.description, request.maxBytes)
+		return nil, requestError{description: request.description, detail: fmt.Sprintf("response exceeded %d bytes", request.maxBytes)}
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -145,7 +163,7 @@ func readLimited(ctx context.Context, body io.Reader, description string, maxByt
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		return nil, fmt.Errorf("%s response could not be read.", description)
+		return nil, requestError{description: description, detail: "response could not be read"}
 	}
 	return data, nil
 }
@@ -153,16 +171,16 @@ func readLimited(ctx context.Context, body io.Reader, description string, maxByt
 func decodeObject(body []byte, description string) (map[string]any, error) {
 	var value any
 	if err := json.Unmarshal(body, &value); err != nil {
-		return nil, fmt.Errorf("%s returned invalid JSON.", description)
+		return nil, requestError{description: description, detail: "returned invalid JSON"}
 	}
 	payload, ok := value.(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("%s response was not an object.", description)
+		return nil, requestError{description: description, detail: "response was not an object"}
 	}
 	return payload, nil
 }
 
-func validatedHeaders(providerID string, headers http.Header) (http.Header, error) {
+func validatedHeaders(id providerID, headers http.Header) (http.Header, error) {
 	var authorization string
 	found := false
 	for name, values := range headers {
@@ -183,7 +201,7 @@ func validatedHeaders(providerID string, headers http.Header) (http.Header, erro
 			return nil, errors.New("usage authorization contains invalid characters")
 		}
 	}
-	if providerID == "deepseek" {
+	if id == providerDeepSeek {
 		if len(authorization) <= 6 || !strings.EqualFold(authorization[:6], "Bearer") ||
 			(authorization[6] != ' ' && authorization[6] != '\t') || strings.TrimSpace(authorization[6:]) == "" {
 			return nil, errors.New("deepseek usage requires bearer authentication")

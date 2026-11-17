@@ -7,19 +7,20 @@ import (
 	"testing"
 )
 
-func TestBalancesMatchPinnedSource(t *testing.T) {
+func TestBalanceNormalization(t *testing.T) {
 	data, err := os.ReadFile("testdata/reference.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	var reference struct {
 		Fixtures []struct {
-			Name       string         `json:"name"`
-			ProviderID string         `json:"providerID"`
-			CapturedAt int64          `json:"capturedAt"`
-			Payload    map[string]any `json:"payload"`
-			Expected   map[string]any `json:"expected"`
-			Error      string         `json:"error"`
+			Name        string         `json:"name"`
+			ProviderID  string         `json:"providerID"`
+			CapturedAt  int64          `json:"capturedAt"`
+			Payload     map[string]any `json:"payload"`
+			Expected    map[string]any `json:"expected"`
+			Error       string         `json:"error"`
+			NativeError string         `json:"nativeError"`
 		} `json:"fixtures"`
 	}
 	if err := json.Unmarshal(data, &reference); err != nil {
@@ -30,10 +31,14 @@ func TestBalancesMatchPinnedSource(t *testing.T) {
 	}
 	for _, fixture := range reference.Fixtures {
 		t.Run(fixture.Name, func(t *testing.T) {
-			report, err := normalizeReport(fixture.ProviderID, fixture.Payload, fixture.CapturedAt)
+			report, err := normalizeReport(providerID(fixture.ProviderID), fixture.Payload, fixture.CapturedAt)
 			if fixture.Error != "" {
-				if err == nil || err.Error() != fixture.Error {
-					t.Fatalf("error = %v, want pinned error %q", err, fixture.Error)
+				expected := fixture.Error
+				if fixture.NativeError != "" {
+					expected = fixture.NativeError
+				}
+				if err == nil || err.Error() != expected {
+					t.Fatalf("error = %v, want pinned error %q", err, expected)
 				}
 				return
 			}

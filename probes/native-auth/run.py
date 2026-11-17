@@ -42,7 +42,7 @@ def _frozen_module(name: str, path: Path) -> Any:
 
 
 def _environment(run: Path) -> dict[str, str]:
-    env = {"PATH": f"{run / 'bin'}:{Path(GO).parent}:/usr/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "GOMAXPROCS": "2", "GOFLAGS": "-p=2 -trimpath", "GOWORK": "off", "GOTOOLCHAIN": "local", "GOENV": "off", "GOPROXY": "off", "GOSUMDB": "off", "GOTELEMETRY": "off", "PIG_REQUIRE_EXTENSION_TOOLCHAINS": "1", "NA_OUTPUT": str(run), "PIG_STATUS_PACKAGE": str(ROOT)}
+    env = {"PATH": f"{run / 'bin'}:{Path(GO).parent}:/usr/bin", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "GOMAXPROCS": "2", "GOFLAGS": "-p=2 -trimpath", "GOWORK": "off", "GOTOOLCHAIN": "local", "GOENV": "off", "GOPROXY": "off", "GOSUMDB": "off", "GOTELEMETRY": "off", "PIG_REQUIRE_EXTENSION_TOOLCHAINS": "1", "PIG_FIXTURE_ROOT": str(run), "PIG_STATUS_PACKAGE": str(ROOT)}
     for key in ("HOME", "PIG_HOME", "PI_HOME", "PIG_CODING_AGENT_DIR", "PI_CODING_AGENT_DIR", "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "GOCACHE", "GOMODCACHE", "TMPDIR", "PYTHONPYCACHEPREFIX"):
         path = run / "roots" / key
         path.mkdir(parents=True, exist_ok=True)

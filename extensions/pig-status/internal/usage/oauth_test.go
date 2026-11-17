@@ -146,18 +146,18 @@ func TestOpenAICompanionRequiresOptInAndReadiness(t *testing.T) {
 	native := nativeSnapshot()
 	native.Companion = new(companionSnapshot())
 	nativeIdentity := subscriptionIdentity{access: "synthetic-native", refresh: "synthetic-refresh", clientID: "native-registration"}
-	identity, err := resolveOpenAI(native, false)
+	identity, err := resolveNativeOpenAI(native)
 	requireIdentity(t, identity, nativeIdentity, err)
 
-	notReady, notReadyErr := resolveOpenAI(native, true)
+	notReady, notReadyErr := resolveOpenAICompanion(native)
 	requireIdentityRefused(t, notReady, notReadyErr)
 
 	native.CompanionReady = true
-	companion, companionErr := resolveOpenAI(native, true)
+	companion, companionErr := resolveOpenAICompanion(native)
 	requireIdentity(t, companion, subscriptionIdentity{access: "synthetic-native", refresh: "synthetic-refresh", clientID: "native-registration", companionAccess: native.Companion.Effective.APIKey, companionRefresh: "synthetic-codex-refresh", accountID: "synthetic-account", headers: http.Header{"Authorization": {"Bearer " + native.Companion.Effective.APIKey}, "ChatGPT-Account-Id": {"synthetic-account"}}}, companionErr)
 
 	native.Companion = nil
-	unavailable, unavailableErr := resolveOpenAI(native, true)
+	unavailable, unavailableErr := resolveOpenAICompanion(native)
 	requireIdentity(t, unavailable, nativeIdentity, unavailableErr)
 }
 
@@ -172,7 +172,7 @@ func ExampleOAuthSnapshot() {
 	fmt.Println(report.Source, err)
 	snapshot.Source = "environment"
 	_, err = (Client{}).Query(context.Background(), "openai", auth, time.Second)
-	fmt.Println(errors.Is(err, ErrUnsupportedOpenAIUsageAuth))
+	fmt.Println(errors.Is(err, ErrUnsupportedOpenAIAuth))
 	// Output:
 	// openai-chatgpt-auth <nil>
 	// true

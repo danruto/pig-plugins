@@ -187,13 +187,13 @@ func consumerAssertFixture(t testing.TB, f consumerFixture) {
 	}
 	requireConsumerWires(t, s.observed(), consumerWant(f))
 }
-func TestConsumerQuery_ACNormalizationMatchesPinnedConsumers(t *testing.T) {
+func TestConsumerQueryNormalizesConsumers(t *testing.T) {
 	for _, f := range consumerFixtures(t) {
 		t.Run(f.Name, func(t *testing.T) { consumerAssertFixture(t, f) })
 	}
 }
 
-func TestConsumerQuery_ACOfficialOriginAndAuthorization(t *testing.T) {
+func TestConsumerQueryRequiresOfficialOriginAndAuthorization(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		for _, tt := range []struct {
 			name     string
@@ -244,7 +244,7 @@ func consumerMirrorOAuth(auth *ResolvedAuth) {
 	auth.ResolveOAuth = func(context.Context) (OAuthSnapshot, error) { return snapshot, nil }
 }
 
-func TestConsumerQuery_ACRequiredTransportBoundaries(t *testing.T) {
+func TestConsumerQueryEnforcesTransportBoundaries(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		for _, tt := range []struct {
 			name   string
@@ -273,7 +273,7 @@ func TestConsumerQuery_ACRequiredTransportBoundaries(t *testing.T) {
 		}
 	}
 }
-func TestConsumerQuery_ACExactBodyLimitAccepted(t *testing.T) {
+func TestConsumerQueryAcceptsExactBodyLimit(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		t.Run(f.Provider, func(t *testing.T) {
 			s := consumerHTTPS(t, consumerPadded(f))
@@ -290,7 +290,7 @@ func consumerPadded(f consumerFixture) consumerFixture {
 	}
 	return f
 }
-func TestConsumerQuery_ACDependencyErrorsAreSecretSafe(t *testing.T) {
+func TestConsumerQueryRedactsDependencyErrors(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		for _, mode := range []string{"transport", "body"} {
 			t.Run(f.Provider+"/"+mode, func(t *testing.T) {
@@ -341,19 +341,19 @@ func consumerFence(t testing.TB, f consumerFixture, phase string) {
 	requireSafeDiagnostic(t, err)
 	requireRequestCount(t, s.count(), want)
 }
-func TestConsumerQuery_ACIdentityRevalidationFencesReports(t *testing.T) {
+func TestConsumerQueryFencesReportsOnIdentityChange(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		for _, phase := range []string{"before", "missing", "publication"} {
 			t.Run(f.Provider+"/"+phase, func(t *testing.T) { consumerFence(t, f, phase) })
 		}
 	}
 }
-func TestConsumerQuery_ACIdentityRevalidationBeforeOptionalWork(t *testing.T) {
+func TestConsumerQueryRevalidatesIdentityBeforeOptionalWork(t *testing.T) {
 	for _, provider := range []string{"command-code", "xai"} {
 		t.Run(provider, func(t *testing.T) { consumerFence(t, consumerNamed(t, provider+":normal"), "next-request") })
 	}
 }
-func TestConsumerQuery_ACHeadersSnapshottedBeforeRevalidation(t *testing.T) {
+func TestConsumerQuerySnapshotsHeadersBeforeRevalidation(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		t.Run(f.Provider, func(t *testing.T) {
 			s := consumerHTTPS(t, f)
@@ -447,33 +447,33 @@ func consumerDeadline(t testing.TB, f consumerFixture, phase string, canceled bo
 	}
 	requireRequestCount(t, requests.Load(), want)
 }
-func TestConsumerQuery_ACDeadlineIncludesAuthenticationAndBodies(t *testing.T) {
+func TestConsumerQueryDeadlineCoversAuthenticationAndBodies(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		for _, phase := range []string{"authentication", "body"} {
 			t.Run(f.Provider+"/"+phase, func(t *testing.T) { consumerDeadline(t, f, phase, false) })
 		}
 	}
 }
-func TestConsumerQuery_ACDeadlineIncludesFreshOAuth(t *testing.T) {
+func TestConsumerQueryDeadlineCoversFreshOAuth(t *testing.T) {
 	consumerDeadline(t, consumerNamed(t, "xai:normal"), "oauth", false)
 }
 
-func TestConsumerQuery_ACOptionalAndBillingShareTotalDeadline(t *testing.T) {
+func TestConsumerQuerySharesDeadlineAcrossOptionalAndBilling(t *testing.T) {
 	for _, provider := range []string{"command-code", "xai"} {
 		t.Run(provider, func(t *testing.T) { consumerDeadline(t, consumerNamed(t, provider+":normal"), "later", false) })
 	}
 }
-func TestConsumerQuery_ACCancellationSettlesLocalHTTPS(t *testing.T) {
+func TestConsumerQueryCancellationSettlesLocalHTTPS(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		t.Run(f.Provider, func(t *testing.T) { consumerDeadline(t, f, "body", true) })
 	}
 }
-func TestConsumerQuery_ACOptionalAndBillingCancellation(t *testing.T) {
+func TestConsumerQueryCancelsOptionalAndBillingWork(t *testing.T) {
 	for _, provider := range []string{"command-code", "xai"} {
 		t.Run(provider, func(t *testing.T) { consumerDeadline(t, consumerNamed(t, provider+":normal"), "later", true) })
 	}
 }
-func TestConsumerQuery_ACXaiRejectsUnmatchedFreshOAuth(t *testing.T) {
+func TestConsumerQueryRejectsUnmatchedFreshXaiOAuth(t *testing.T) {
 	for _, mode := range []string{"not-ready", "no-oauth", "mismatch", "incomplete", "incomplete-plus-match", "duplicate", "bad-expiry", "no-resolver", "resolver-error", "changed-before-billing", "changed-at-publication", "changed-account-before-billing", "changed-account-at-publication"} {
 		t.Run(mode, func(t *testing.T) { consumerXaiRefusal(t, mode) })
 	}
@@ -540,7 +540,7 @@ func consumerXaiRefusal(t testing.TB, mode string) {
 	requireSafeDiagnostic(t, err)
 	requireRequestCount(t, s.count(), want)
 }
-func TestConsumerQuery_ACXaiRequiresSafeCanonicalDiscovery(t *testing.T) {
+func TestConsumerQueryRequiresSafeXaiCanonicalDiscovery(t *testing.T) {
 	for _, id := range []string{"", "../unsafe", "bad\r\nid", strings.Repeat("a", 129)} {
 		t.Run(fmt.Sprintf("id-%q", id), func(t *testing.T) {
 			consumerGood(t, "xai")
@@ -564,7 +564,7 @@ func consumerNoError(t testing.TB, err error) {
 		t.Fatal(err)
 	}
 }
-func TestConsumerQuery_ACNonfiniteCreditPoolCannotPublish(t *testing.T) {
+func TestConsumerQueryRejectsNonfiniteCreditPool(t *testing.T) {
 	consumerGood(t, "command-code")
 	f := consumerNamed(t, "command-code:normal")
 	f.Routes["/alpha/billing/credits"] = json.RawMessage(`{"credits":{"monthlyCredits":1e308,"purchasedCredits":1e308}}`)
@@ -576,7 +576,7 @@ func TestConsumerQuery_ACNonfiniteCreditPoolCannotPublish(t *testing.T) {
 	requireSafeDiagnostic(t, err)
 }
 
-func TestConsumerQuery_ACMaximumBudgetAppliesToConsumerDispatch(t *testing.T) {
+func TestConsumerQueryCapsConsumerDispatchBudget(t *testing.T) {
 	for _, f := range consumerProviders(t) {
 		t.Run(f.Provider, func(t *testing.T) {
 			s := consumerHTTPS(t, f)

@@ -11,22 +11,22 @@ import (
 
 var decimalAmount = regexp.MustCompile(`^-?(?:0|[1-9]\d*)(?:\.\d+)?$`)
 
-func normalizeReport(providerID string, payload map[string]any, capturedAt int64) (Report, error) {
-	p, ok := lookupProvider(providerID)
+func normalizeReport(id providerID, payload map[string]any, capturedAt int64) (Report, error) {
+	p, ok := lookupProvider(id)
 	if !ok || p.normalize == nil {
 		return Report{}, ErrUsageUnsupported
 	}
-	return p.normalize(providerID, p.endpoint, "", payload, capturedAt)
+	return p.normalize(id, p.endpoint, "", payload, capturedAt)
 }
 
 func normalizeDeepSeek(payload map[string]any, capturedAt int64) (Report, error) {
 	available, ok := payload["is_available"].(bool)
 	if !ok {
-		return Report{}, errors.New("DeepSeek API balance response availability was not a boolean.")
+		return Report{}, errors.New("deepseek API balance response availability was not a boolean")
 	}
 	rows, ok := payload["balance_infos"].([]any)
 	if !ok || len(rows) == 0 {
-		return Report{}, errors.New("DeepSeek API balance response returned no balance information.")
+		return Report{}, errors.New("deepseek API balance response returned no balance information")
 	}
 	fields := [][3]string{
 		{"total", "Total balance", "total_balance"},
@@ -37,18 +37,18 @@ func normalizeDeepSeek(payload map[string]any, capturedAt int64) (Report, error)
 	for _, raw := range rows {
 		row, ok := raw.(map[string]any)
 		if !ok {
-			return Report{}, errors.New("DeepSeek API balance row was not an object.")
+			return Report{}, errors.New("deepseek API balance row was not an object")
 		}
 		currency, ok := row["currency"].(string)
 		if !ok || (currency != "CNY" && currency != "USD") {
-			return Report{}, errors.New("DeepSeek API balance row returned an unsupported currency.")
+			return Report{}, errors.New("deepseek API balance row returned an unsupported currency")
 		}
 		if _, exists := balances[currency]; exists {
-			return Report{}, fmt.Errorf("DeepSeek API balance response repeated %s.", currency)
+			return Report{}, fmt.Errorf("deepseek API balance response repeated %s", currency)
 		}
 		for _, field := range fields {
-			if !validDecimal(row[field[2]], true) {
-				return Report{}, fmt.Errorf("DeepSeek API balance %s was not a valid amount.", strings.ToLower(field[1]))
+			if !validDecimal(row[field[2]], signedDecimal) {
+				return Report{}, fmt.Errorf("deepseek API balance %s was not a valid amount", strings.ToLower(field[1]))
 			}
 		}
 		balances[currency] = row
@@ -71,7 +71,7 @@ func normalizeDeepSeek(payload map[string]any, capturedAt int64) (Report, error)
 		}
 	}
 	return Report{
-		ProviderID: "deepseek", ProviderName: "DeepSeek", CapturedAt: capturedAt,
+		ProviderID: string(providerDeepSeek), ProviderName: "DeepSeek", CapturedAt: capturedAt,
 		Source: "deepseek-balance", Semantics: Semantics{Kind: "api-key", Label: "DeepSeek API balance"},
 		Buckets: []Bucket{}, Metrics: metrics,
 	}, nil
@@ -83,30 +83,30 @@ func normalizeVercel(payload map[string]any, capturedAt int64) (Report, error) {
 		{"balance", "balance", "credit-balance", "Credit balance"},
 		{"total_used", "total used", "lifetime-spend", "Lifetime spend"},
 	} {
-		if !validDecimal(payload[field[0]], false) {
-			return Report{}, fmt.Errorf("Vercel AI Gateway %s was not a valid nonnegative amount.", field[1])
+		if !validDecimal(payload[field[0]], nonnegativeDecimal) {
+			return Report{}, fmt.Errorf("vercel AI gateway %s was not a valid nonnegative amount", field[1])
 		}
 		metrics = append(metrics, Metric{ID: field[2], Label: field[3], Value: payload[field[0]], Unit: "currency", Currency: "USD"})
 	}
 	return Report{
-		ProviderID: "vercel-ai-gateway", ProviderName: "Vercel AI Gateway", CapturedAt: capturedAt,
+		ProviderID: string(providerVercelAIGateway), ProviderName: "Vercel AI Gateway", CapturedAt: capturedAt,
 		Source: "vercel-ai-gateway-credits", Semantics: Semantics{Kind: "api-key", Label: "AI Gateway credits and lifetime spend"},
 		Buckets: []Bucket{}, Metrics: metrics,
 	}, nil
 }
 
-func normalizeMoonshot(providerID string, payload map[string]any, capturedAt int64) (Report, error) {
+func normalizeMoonshot(id providerID, payload map[string]any, capturedAt int64) (Report, error) {
 	code, validCode := payload["code"].(float64)
 	status, validStatus := payload["status"].(bool)
 	if !validCode || code != 0 || !validStatus || !status {
-		return Report{}, errors.New("Moonshot AI balance response did not report success.")
+		return Report{}, errors.New("moonshot AI balance response did not report success")
 	}
 	data, ok := payload["data"].(map[string]any)
 	if !ok {
-		return Report{}, errors.New("Moonshot AI balance response data was not an object.")
+		return Report{}, errors.New("moonshot AI balance response data was not an object")
 	}
 	name, currency := "Moonshot AI", "USD"
-	if providerID == "moonshotai-cn" {
+	if id == providerMoonshotAICN {
 		name, currency = "Moonshot AI CN", "CNY"
 	}
 	metrics := make([]Metric, 0, 3)
@@ -117,20 +117,27 @@ func normalizeMoonshot(providerID string, payload map[string]any, capturedAt int
 	} {
 		value, ok := data[field[0]].(float64)
 		if !ok || math.IsNaN(value) || math.IsInf(value, 0) || math.Abs(value) > 9_007_199_254_740_991 || (field[0] != "cash_balance" && value < 0) {
-			return Report{}, fmt.Errorf("Moonshot AI %s was not a valid amount.", strings.ToLower(field[2]))
+			return Report{}, fmt.Errorf("moonshot AI %s was not a valid amount", strings.ToLower(field[2]))
 		}
 		metrics = append(metrics, Metric{ID: field[1], Label: field[2], Value: jsNumber(value), Unit: "currency", Currency: currency})
 	}
 	return Report{
-		ProviderID: providerID, ProviderName: name, CapturedAt: capturedAt,
+		ProviderID: string(id), ProviderName: name, CapturedAt: capturedAt,
 		Source: "moonshot-balance", Semantics: Semantics{Kind: "api-key", Label: "Moonshot API account balance"},
 		Buckets: []Bucket{}, Metrics: metrics,
 	}, nil
 }
 
-func validDecimal(value any, allowNegative bool) bool {
+type decimalSign uint8
+
+const (
+	nonnegativeDecimal decimalSign = iota
+	signedDecimal
+)
+
+func validDecimal(value any, sign decimalSign) bool {
 	text, ok := value.(string)
-	return ok && len(text) <= 64 && decimalAmount.MatchString(text) && (allowNegative || !strings.HasPrefix(text, "-"))
+	return ok && len(text) <= 64 && decimalAmount.MatchString(text) && (sign == signedDecimal || !strings.HasPrefix(text, "-"))
 }
 
 func jsNumber(value float64) string {

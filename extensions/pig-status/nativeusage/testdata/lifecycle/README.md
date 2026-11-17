@@ -6,7 +6,7 @@ Use only a disposable source copy and private HOME, PIG_HOME, agent, cache and t
 
 Actual host runs require an environment allowlist, private network/PID/mount namespaces, consuming process waits and resource receipts. `--offline` is not an egress boundary. The only permitted IP connections are to the listener recorded by this factory. Its TLS trust root is local; logical official DeepSeek and OpenRouter destinations are mapped only to that listener. No live credentials, provider services, billing or session history are inputs.
 
-Start the source factory under the frozen host in RPC mode with synthetic `openrouter/fixture` and `deepseek/fixture` models. The coordinator supplies `NA_OUTPUT` inside its owned writable root and records handled command dispositions. Wait for the initial cached quota projection, then exercise these registered controls:
+Start the source factory under the frozen host in RPC mode with synthetic `openrouter/fixture` and `deepseek/fixture` models. The coordinator supplies `PIG_FIXTURE_ROOT` inside its owned writable root and records handled command dispositions. Wait for the initial cached quota projection, then exercise these registered controls:
 
 1. Create `hold` in that root; select `deepseek/fixture` with `/lifecycle-model deepseek/fixture` and wait for the held HTTPS receipt.
 2. Invoke `/lifecycle-config`; verify the old request is cancelled before the successor can publish. Remove `hold` so the new owner can complete.

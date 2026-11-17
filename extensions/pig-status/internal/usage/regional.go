@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-func miniMaxEndpoint(providerID, kind string) string {
+func miniMaxEndpoint(id providerID, kind string) string {
 	root := "https://api.minimax.io"
-	if providerID == "minimax-cn" {
+	if id == providerMiniMaxCN {
 		root = "https://api.minimaxi.com"
 	}
 	if kind == "account-balance" {
@@ -26,7 +26,7 @@ func miniMaxKind(endpoint string) string {
 	return "token-plan"
 }
 
-func miniMaxUsageURL(providerID string, auth ResolvedAuth, headers http.Header) (string, error) {
+func miniMaxUsageURL(id providerID, auth ResolvedAuth, headers http.Header) (string, error) {
 	key := auth.APIKey
 	if match := bearerAuthorization.FindStringSubmatch(headers.Get("Authorization")); len(match) == 2 {
 		key = match[1]
@@ -34,11 +34,11 @@ func miniMaxUsageURL(providerID string, auth ResolvedAuth, headers http.Header) 
 	if key == "" {
 		return "", errors.New("minimax runtime API key was unavailable")
 	}
-	return miniMaxEndpoint(providerID, miniMaxUsageKind(key)), nil
+	return miniMaxEndpoint(id, miniMaxUsageKind(key)), nil
 }
 
-func moonshotAuthAllowed(providerID string, auth ResolvedAuth) bool {
-	if providerID != "moonshotai" && providerID != "moonshotai-cn" || auth.SelectedProviderID == "" || auth.SelectedProviderID == providerID {
+func moonshotAuthAllowed(id providerID, auth ResolvedAuth) bool {
+	if id != providerMoonshotAI && id != providerMoonshotAICN || auth.SelectedProviderID == "" || providerID(auth.SelectedProviderID) == id {
 		return true
 	}
 	if auth.Source == "" {

@@ -72,18 +72,18 @@ func CodexModelFrom(model map[string]any) (CodexModel, bool) {
 }
 
 func costField(cost map[string]any, key string) float64 {
-	number, _ := finiteNumber(cost[key], false)
+	number, _ := finiteNumber(cost[key])
 	return number
 }
 
 func IsOfficialCodexModel(model *CodexModel) bool {
-	return model != nil && model.Provider == "openai-codex" &&
+	return model != nil && providerID(model.Provider) == providerOpenAICodex &&
 		model.API == "openai-codex-responses" &&
 		sameHTTPSOrigin(model.BaseURL, "https://chatgpt.com")
 }
 
 func CodexFastAvailability(model *CodexModel, enabled bool, capability FastCapability) FastAvailability {
-	if model == nil || model.Provider != "openai-codex" {
+	if model == nil || providerID(model.Provider) != providerOpenAICodex {
 		return FastAvailability{Kind: FastNotCodex}
 	}
 	if !IsOfficialCodexModel(model) {
@@ -160,7 +160,7 @@ func codexFastCost(model *CodexModel, usage map[string]any) (map[string]any, boo
 	usageKeys := [4]string{"input", "output", "cacheRead", "cacheWrite"}
 	var tokens [4]float64
 	for index, key := range usageKeys {
-		number, ok := finiteNumber(usage[key], false)
+		number, ok := finiteNumber(usage[key])
 		if !ok {
 			return nil, false
 		}

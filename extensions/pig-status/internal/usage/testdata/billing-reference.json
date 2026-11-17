@@ -191,7 +191,8 @@
           "total": 20
         }
       },
-      "error": "Baseten Model APIs usage was not an object."
+      "error": "Baseten Model APIs usage was not an object.",
+      "nativeError": "baseten model APIs usage was not an object"
     },
     {
       "name": "baseten:negative",
@@ -205,7 +206,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:signed-zero",
@@ -219,7 +221,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:exponent",
@@ -233,7 +236,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:leading-zero",
@@ -247,7 +251,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:boolean",
@@ -261,7 +266,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:long",
@@ -275,7 +281,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:missing-total",
@@ -288,7 +295,8 @@
           "subtotal": "1"
         }
       },
-      "error": "Baseten gross usage was not a valid nonnegative amount."
+      "error": "Baseten gross usage was not a valid nonnegative amount.",
+      "nativeError": "baseten gross usage was not a valid nonnegative amount"
     },
     {
       "name": "baseten:bad-credits_used",
@@ -302,7 +310,8 @@
           "subtotal": "9"
         }
       },
-      "error": "Baseten credits used was not a valid nonnegative amount."
+      "error": "Baseten credits used was not a valid nonnegative amount.",
+      "nativeError": "baseten credits used was not a valid nonnegative amount"
     },
     {
       "name": "baseten:bad-subtotal",
@@ -316,7 +325,8 @@
           "subtotal": null
         }
       },
-      "error": "Baseten net subtotal was not a valid nonnegative amount."
+      "error": "Baseten net subtotal was not a valid nonnegative amount.",
+      "nativeError": "baseten net subtotal was not a valid nonnegative amount"
     },
     {
       "name": "openrouter:limit-and-spend",
@@ -566,7 +576,8 @@
       "kind": "report",
       "capturedAt": 1735776000000,
       "payload": {},
-      "error": "OpenRouter key response data was not an object."
+      "error": "OpenRouter key response data was not an object.",
+      "nativeError": "openrouter key response data was not an object"
     },
     {
       "name": "openrouter:bad-data",
@@ -576,7 +587,8 @@
       "payload": {
         "data": []
       },
-      "error": "OpenRouter key response data was not an object."
+      "error": "OpenRouter key response data was not an object.",
+      "nativeError": "openrouter key response data was not an object"
     },
     {
       "name": "openrouter:no-displayable",
@@ -589,7 +601,8 @@
           "usage": "1"
         }
       },
-      "error": "OpenRouter key response returned no displayable usage data."
+      "error": "OpenRouter key response returned no displayable usage data.",
+      "nativeError": "openrouter key response returned no displayable usage data"
     },
     {
       "name": "fireworks:currencies-series-exact",
@@ -919,7 +932,8 @@
         "lineItems": null
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing summary lineItems was not an array."
+      "error": "Fireworks billing summary lineItems was not an array.",
+      "nativeError": "fireworks billing summary lineItems was not an array"
     },
     {
       "name": "fireworks:bad-lines",
@@ -930,7 +944,8 @@
         "lineItems": {}
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing summary lineItems was not an array."
+      "error": "Fireworks billing summary lineItems was not an array.",
+      "nativeError": "fireworks billing summary lineItems was not an array"
     },
     {
       "name": "fireworks:bad-row",
@@ -943,7 +958,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item was not an object."
+      "error": "Fireworks billing line item was not an object.",
+      "nativeError": "fireworks billing line item was not an object"
     },
     {
       "name": "fireworks:bad-money",
@@ -958,7 +974,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost was not a money object."
+      "error": "Fireworks billing line item total cost was not a money object.",
+      "nativeError": "fireworks billing line item total cost was not a money object"
     },
     {
       "name": "fireworks:bad-series",
@@ -978,7 +995,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item series was invalid."
+      "error": "Fireworks billing line item series was invalid.",
+      "nativeError": "fireworks billing line item series was invalid"
     },
     {
       "name": "fireworks:currency-case",
@@ -998,7 +1016,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code."
+      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code.",
+      "nativeError": "fireworks billing line item total cost currency was not an ISO 4217 code"
     },
     {
       "name": "fireworks:currency-long",
@@ -1018,7 +1037,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code."
+      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code.",
+      "nativeError": "fireworks billing line item total cost currency was not an ISO 4217 code"
     },
     {
       "name": "fireworks:currency-missing",
@@ -1037,7 +1057,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code."
+      "error": "Fireworks billing line item total cost currency was not an ISO 4217 code.",
+      "nativeError": "fireworks billing line item total cost currency was not an ISO 4217 code"
     },
     {
       "name": "fireworks:null-units",
@@ -1057,7 +1078,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost whole units was not a bounded integer"
     },
     {
       "name": "fireworks:fractional-units",
@@ -1077,7 +1099,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost whole units was not a bounded integer"
     },
     {
       "name": "fireworks:unsafe-number",
@@ -1097,7 +1120,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost whole units was not a bounded integer"
     },
     {
       "name": "fireworks:safe-number",
@@ -1167,7 +1191,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units exceeded the int64 range."
+      "error": "Fireworks billing line item total cost whole units exceeded the int64 range.",
+      "nativeError": "fireworks billing line item total cost whole units exceeded the int64 range"
     },
     {
       "name": "fireworks:int64-underflow",
@@ -1187,7 +1212,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units exceeded the int64 range."
+      "error": "Fireworks billing line item total cost whole units exceeded the int64 range.",
+      "nativeError": "fireworks billing line item total cost whole units exceeded the int64 range"
     },
     {
       "name": "fireworks:long-units",
@@ -1207,7 +1233,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost whole units was not a bounded integer"
     },
     {
       "name": "fireworks:units-plus",
@@ -1227,7 +1254,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost whole units was not a bounded integer"
     },
     {
       "name": "fireworks:units-whitespace",
@@ -1247,7 +1275,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost whole units was not a bounded integer."
+      "error": "Fireworks billing line item total cost whole units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost whole units was not a bounded integer"
     },
     {
       "name": "fireworks:null-nanos",
@@ -1267,7 +1296,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost nano units was not a bounded integer."
+      "error": "Fireworks billing line item total cost nano units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost nano units was not a bounded integer"
     },
     {
       "name": "fireworks:nanos-upper",
@@ -1287,7 +1317,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost nano units exceeded the Money range."
+      "error": "Fireworks billing line item total cost nano units exceeded the Money range.",
+      "nativeError": "fireworks billing line item total cost nano units exceeded the Money range"
     },
     {
       "name": "fireworks:nanos-lower",
@@ -1307,7 +1338,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost nano units exceeded the Money range."
+      "error": "Fireworks billing line item total cost nano units exceeded the Money range.",
+      "nativeError": "fireworks billing line item total cost nano units exceeded the Money range"
     },
     {
       "name": "fireworks:long-nanos",
@@ -1327,7 +1359,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost nano units was not a bounded integer."
+      "error": "Fireworks billing line item total cost nano units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost nano units was not a bounded integer"
     },
     {
       "name": "fireworks:nanos-fraction",
@@ -1347,7 +1380,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost nano units was not a bounded integer."
+      "error": "Fireworks billing line item total cost nano units was not a bounded integer.",
+      "nativeError": "fireworks billing line item total cost nano units was not a bounded integer"
     },
     {
       "name": "fireworks:mixed-signs",
@@ -1367,7 +1401,8 @@
         ]
       },
       "accountID": "synthetic-account",
-      "error": "Fireworks billing line item total cost mixed unit and nano signs."
+      "error": "Fireworks billing line item total cost mixed unit and nano signs.",
+      "nativeError": "fireworks billing line item total cost mixed unit and nano signs"
     },
     {
       "name": "fireworks:accounts-ordered",
@@ -1405,7 +1440,8 @@
       "kind": "accounts",
       "capturedAt": 1735776000000,
       "payload": {},
-      "error": "Fireworks accounts response did not contain an accounts array."
+      "error": "Fireworks accounts response did not contain an accounts array.",
+      "nativeError": "fireworks accounts response did not contain an accounts array"
     },
     {
       "name": "fireworks:accounts-bad-array",
@@ -1415,7 +1451,8 @@
       "payload": {
         "accounts": null
       },
-      "error": "Fireworks accounts response did not contain an accounts array."
+      "error": "Fireworks accounts response did not contain an accounts array.",
+      "nativeError": "fireworks accounts response did not contain an accounts array"
     },
     {
       "name": "fireworks:accounts-bad-row",
@@ -1427,7 +1464,8 @@
           null
         ]
       },
-      "error": "Fireworks accounts response row was not an object."
+      "error": "Fireworks accounts response row was not an object.",
+      "nativeError": "fireworks accounts response row was not an object"
     },
     {
       "name": "fireworks:accounts-missing-name",
@@ -1439,7 +1477,8 @@
           {}
         ]
       },
-      "error": "Fireworks accounts response omitted the account resource name."
+      "error": "Fireworks accounts response omitted the account resource name.",
+      "nativeError": "fireworks accounts response omitted the account resource name"
     },
     {
       "name": "fireworks:accounts-unsafe-name",
@@ -1453,7 +1492,8 @@
           }
         ]
       },
-      "error": "Fireworks accounts response returned an unsafe account resource name."
+      "error": "Fireworks accounts response returned an unsafe account resource name.",
+      "nativeError": "fireworks accounts response returned an unsafe account resource name"
     },
     {
       "name": "fireworks:accounts-wrong-prefix",
@@ -1467,7 +1507,8 @@
           }
         ]
       },
-      "error": "Fireworks accounts response returned an unsafe account resource name."
+      "error": "Fireworks accounts response returned an unsafe account resource name.",
+      "nativeError": "fireworks accounts response returned an unsafe account resource name"
     },
     {
       "name": "fireworks:accounts-duplicate",
@@ -1485,7 +1526,7 @@
         ]
       },
       "error": "Fireworks accounts response repeated synthetic-account.",
-      "nativeError": "Fireworks accounts response repeated an account."
+      "nativeError": "fireworks accounts response repeated an account"
     }
   ]
 }

@@ -101,7 +101,7 @@ def _environment(work: Path, tools: dict[str, str]) -> dict[str, str]:
         "LANG": "C.UTF-8", "GOMAXPROCS": "2", "GOFLAGS": "-p=2 -modcacherw",
         "GOWORK": "off", "GOTOOLCHAIN": "local", "GOENV": "off", "GOPROXY": "off",
         "GOSUMDB": "off", "GOTELEMETRY": "off", "CGO_ENABLED": "1", "CC": tools["cc"],
-        "NA_OUTPUT": str(work),
+        "PIG_FIXTURE_ROOT": str(work),
     }
     for key in (
         "HOME", "PIG_HOME", "PIG_CODING_AGENT_DIR", "PI_CODING_AGENT_DIR",
@@ -418,7 +418,7 @@ def _inner(work: Path, tools: dict[str, str], *, original: dict[str, str]) -> No
     validation_trace = validation / "host.trace"
     _run([tools["strace"], "-f", "-qq", "-e", "trace=process,connect", "-o", str(validation_trace),
           "/host/pig", "install", "--validate-only", "--json", str(fixture)], work,
-         env={**env, "NA_OUTPUT": str(validation)}, timeout=240)
+         env={**env, "PIG_FIXTURE_ROOT": str(validation)}, timeout=240)
     _audit_connections(validation_trace, [])
     _lifecycle(work, tools, env=env, fixture=fixture)
     _json(work / "result.json", {"result": "passed", "scope": "nested module gates and real-host fixture orchestration; not independent acceptance"})

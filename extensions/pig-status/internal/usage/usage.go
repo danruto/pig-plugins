@@ -87,27 +87,27 @@ type Client struct {
 	Transport http.RoundTripper
 }
 
-func (c Client) Query(ctx context.Context, providerID string, auth ResolvedAuth, timeout time.Duration) (Report, error) {
-	return c.query(ctx, providerID, auth, "", timeout)
+func (c Client) Query(ctx context.Context, id string, auth ResolvedAuth, timeout time.Duration) (Report, error) {
+	return c.query(ctx, providerID(id), auth, "", timeout)
 }
 
 func (c Client) QueryFireworks(ctx context.Context, auth ResolvedAuth, targetID string, timeout time.Duration) (Report, error) {
-	return c.query(ctx, "fireworks", auth, targetID, timeout)
+	return c.query(ctx, providerFireworks, auth, targetID, timeout)
 }
 
-func (c Client) query(ctx context.Context, providerID string, auth ResolvedAuth, targetID string, timeout time.Duration) (Report, error) {
-	p, ok := lookupProvider(providerID)
+func (c Client) query(ctx context.Context, id providerID, auth ResolvedAuth, targetID string, timeout time.Duration) (Report, error) {
+	p, ok := lookupProvider(id)
 	if !ok {
 		return Report{}, ErrUsageUnsupported
 	}
 	if !p.allowsOrigin(auth.ModelBaseURL) {
 		return Report{}, ErrUsageOrigin
 	}
-	if !moonshotAuthAllowed(providerID, auth) {
-		return Report{}, errors.New("Moonshot AI sibling credentials require region-specific provenance.")
+	if !moonshotAuthAllowed(id, auth) {
+		return Report{}, errors.New("moonshot AI sibling credentials require region-specific provenance")
 	}
-	if providerID == "fireworks" && !fireworksAccountID.MatchString(targetID) {
-		return Report{}, errors.New("Fireworks billing requires a safe selected account slug.")
+	if id == providerFireworks && !fireworksAccountID.MatchString(targetID) {
+		return Report{}, errors.New("fireworks billing requires a safe selected account slug")
 	}
 	headers, err := p.requestHeaders(auth)
 	if err != nil {

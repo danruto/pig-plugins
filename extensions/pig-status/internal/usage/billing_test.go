@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestBillingNormalizationMatchesPinnedSource(t *testing.T) {
+func TestBillingNormalization(t *testing.T) {
 	data, err := os.ReadFile("testdata/billing-reference.json")
 	if err != nil {
 		t.Fatal(err)
@@ -44,7 +44,7 @@ func TestBillingNormalizationMatchesPinnedSource(t *testing.T) {
 			case fixture.ProviderID == "fireworks":
 				result, err = normalizeFireworks(fixture.Payload, fixture.AccountID, fixture.CapturedAt)
 			default:
-				result, err = normalizeReport(fixture.ProviderID, fixture.Payload, fixture.CapturedAt)
+				result, err = normalizeReport(providerID(fixture.ProviderID), fixture.Payload, fixture.CapturedAt)
 			}
 			expectedError := fixture.Error
 			if fixture.NativeError != "" {

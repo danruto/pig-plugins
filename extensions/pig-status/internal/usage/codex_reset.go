@@ -188,7 +188,7 @@ func (r *CodexResets) snapshot(ctx context.Context) (codexResetIdentity, CodexAc
 	if err != nil {
 		return codexResetIdentity{}, CodexAccount{}, errCodexResetAccount
 	}
-	if !scope.HasModel || scope.Model.Provider != "openai-codex" {
+	if !scope.HasModel || providerID(scope.Model.Provider) != providerOpenAICodex {
 		return codexResetIdentity{}, CodexAccount{}, errCodexResetProvider
 	}
 	account, err := r.identify(ctx)
@@ -528,7 +528,7 @@ func resetInteger(value any) (int, bool) {
 	if integer, ok := value.(int); ok {
 		value = float64(integer)
 	}
-	number, ok := finiteNumber(value, true)
+	number, ok := jsNumberValue(value)
 	if !ok || number < 0 || number >= maxResetSafeInteger || number != math.Trunc(number) {
 		return 0, false
 	}

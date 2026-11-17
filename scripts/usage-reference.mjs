@@ -9,6 +9,7 @@ import { normalizeMoonshotBalancePayload } from "../node_modules/@narumitw/pi-us
 import { normalizeCodexBackendPayload } from "../node_modules/@narumitw/pi-usage/src/providers/codex.ts";
 import { normalizeGitHubCopilotUsagePayload } from "../node_modules/@narumitw/pi-usage/src/providers/github-copilot.ts";
 import { OPENAI_CHATGPT_ADAPTER } from "../node_modules/@narumitw/pi-usage/src/providers/openai-chatgpt.ts";
+import { withNativeErrors } from "./usage-native-messages.mjs";
 
 const root = new URL("../", import.meta.url);
 const upstream = new URL("node_modules/@narumitw/pi-usage/", root);
@@ -186,6 +187,7 @@ const hashes = {};
 for (const path of ["src/providers/deepseek.ts", "src/providers/vercel-ai-gateway.ts", "src/providers/moonshot.ts", "src/providers/codex.ts", "src/providers/github-copilot.ts", "src/providers/openai-chatgpt.ts", "src/providers/openai-companion-usage.ts", "src/openai-companion-auth.ts", "src/auth-resolution-guard.ts", "src/oauth-credential-source.ts", "src/query.ts", "src/core.ts", "src/types.ts"]) {
   hashes[path] = createHash("sha256").update(await readFile(new URL(path, upstream))).digest("hex");
 }
+withNativeErrors(fixtures);
 const output = `${JSON.stringify({ upstream: { name: pkg.name, version: pkg.version, hashes }, fixtures }, null, 2)}\n`;
 const destination = new URL("extensions/pig-status/internal/usage/testdata/reference.json", root);
 if (process.argv[2] === "--check" || process.argv[2] === "--write-copilot-resets") {

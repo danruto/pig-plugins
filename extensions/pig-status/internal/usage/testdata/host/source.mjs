@@ -2,7 +2,7 @@ import {appendFileSync} from 'node:fs';
 
 const token='header.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoic3ludGhldGljLWFjY291bnQifX0.signature';
 const model=(provider,baseUrl,extra={})=>({provider,id:'fixture',name:'Fixture',api:'openai-completions',baseUrl,reasoning:false,input:['text'],cost:{input:0,output:0,cacheRead:0,cacheWrite:0},contextWindow:4096,maxTokens:128,...extra});
-const mark=event=>appendFileSync(process.env.NA_OUTPUT+'/source.jsonl',JSON.stringify({event})+'\n');
+const mark=event=>appendFileSync(process.env.PIG_FIXTURE_ROOT+'/source.jsonl',JSON.stringify({event})+'\n');
 
 export default function(pi) {
  let session;

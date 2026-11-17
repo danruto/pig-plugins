@@ -29,7 +29,7 @@ func TestRenderIsOneLineAtEveryTerminalWidth(t *testing.T) {
 		"pi-lens-lsp":        "\x1b[32mLSP ✓ 中文 👨‍👩‍👧‍👦 e\u0301\x1b[0m\nready",
 	}
 	for width := 1; width <= 240; width++ {
-		lines := render(width, state, sdk.UITheme{}, "openai/gpt-4.1", "/projects/中文/👨‍👩‍👧‍👦", "a long session", "feature/test", statuses, now)
+		lines := render(renderInput{width: width, state: state, theme: sdk.UITheme{}, model: "openai/gpt-4.1", cwd: "/projects/中文/👨‍👩‍👧‍👦", session: "a long session", branch: "feature/test", statuses: statuses, now: now})
 		if len(lines) != 1 {
 			t.Fatalf("width %d: expected one line, got %q", width, lines)
 		}
@@ -40,7 +40,7 @@ func TestRenderIsOneLineAtEveryTerminalWidth(t *testing.T) {
 			t.Fatalf("unsafe line: %q", lines[0])
 		}
 	}
-	if got := render(0, state, sdk.UITheme{}, "", "", "", "", nil, now); len(got) != 0 {
+	if got := render(renderInput{width: 0, state: state, theme: sdk.UITheme{}, model: "", cwd: "", session: "", branch: "", statuses: nil, now: now}); len(got) != 0 {
 		t.Fatalf("unknown width must not push unsized lines: %q", got)
 	}
 }
@@ -48,13 +48,13 @@ func TestRenderIsOneLineAtEveryTerminalWidth(t *testing.T) {
 func TestCompactLayoutPrioritizesUsage(t *testing.T) {
 	now := time.Now()
 	state := fixture(now)
-	line := render(80, state, sdk.UITheme{}, "openai/gpt-4.1", "/projects/example", "a session", "main", nil, now)[0]
+	line := render(renderInput{width: 80, state: state, theme: sdk.UITheme{}, model: "openai/gpt-4.1", cwd: "/projects/example", session: "a session", branch: "main", statuses: nil, now: now})[0]
 	for _, want := range []string{"ctx [━━━━━─] 76%", "left 5h 61% Week 87%", "gpt-4.1", "↑100k ↓2k", "$0.216"} {
 		if !strings.Contains(line, want) {
 			t.Errorf("missing %q in compact line %q", want, line)
 		}
 	}
-	line = render(40, state, sdk.UITheme{}, "openai/gpt-4.1", "/projects/example", "a session", "main", nil, now)[0]
+	line = render(renderInput{width: 40, state: state, theme: sdk.UITheme{}, model: "openai/gpt-4.1", cwd: "/projects/example", session: "a session", branch: "main", statuses: nil, now: now})[0]
 	if !strings.Contains(line, "left 5h 61% Week 87%") || strings.Contains(line, "session") {
 		t.Fatalf("quota must take priority over session metadata: %q", line)
 	}
@@ -64,10 +64,10 @@ func TestWideLayoutIncludesOtherStatusesWithoutDuplicatingUsage(t *testing.T) {
 	now := time.Now()
 	state := fixture(now)
 	state.thinking = "high"
-	line := render(240, state, sdk.UITheme{}, "openai/gpt-4.1", "/projects/example", "session name", "main", map[string]string{
+	line := render(renderInput{width: 240, state: state, theme: sdk.UITheme{}, model: "openai/gpt-4.1", cwd: "/projects/example", session: "session name", branch: "main", statuses: map[string]string{
 		"subscription-usage": "must not duplicate",
 		"z-status":           "last status", "a-status": "first status",
-	}, now)[0]
+	}, now: now})[0]
 	for _, want := range []string{"high", "git main", "example", "session name", "open 1h33m", "first status · last status", "openai"} {
 		if !strings.Contains(line, want) {
 			t.Errorf("missing %q in %q", want, line)
@@ -85,9 +85,9 @@ func TestLayoutAnchorsProjectLeftAndModelStatusesRight(t *testing.T) {
 	left := "example · git main · left 5h 61% Week 87% · session name · open 1h33m"
 	right := "ctx [━━━━━─] 76% · gpt-4.1 · high · ↑100k ↓2k · $0.216 · openai · LSP ready"
 	for _, width := range []int{160, 200, 240} {
-		line := render(width, state, sdk.UITheme{}, "openai/gpt-4.1", "/projects/example", "session name", "main", map[string]string{
+		line := render(renderInput{width: width, state: state, theme: sdk.UITheme{}, model: "openai/gpt-4.1", cwd: "/projects/example", session: "session name", branch: "main", statuses: map[string]string{
 			"pi-lens-lsp": "LSP ready",
-		}, now)[0]
+		}, now: now})[0]
 		gap := width - tui.VisibleWidth(left) - tui.VisibleWidth(right)
 		want := left + strings.Repeat(" ", gap) + right
 		if line != want {
@@ -99,9 +99,9 @@ func TestLayoutAnchorsProjectLeftAndModelStatusesRight(t *testing.T) {
 func TestLayoutAlignmentUsesDisplayColumns(t *testing.T) {
 	now := time.Now()
 	for _, width := range []int{80, 160, 240} {
-		line := render(width, fixture(now), sdk.UITheme{}, "openai/gpt-4.1", "/projects/中文", "", "main", map[string]string{
+		line := render(renderInput{width: width, state: fixture(now), theme: sdk.UITheme{}, model: "openai/gpt-4.1", cwd: "/projects/中文", session: "", branch: "main", statuses: map[string]string{
 			"pi-lens-lsp": "LSP \x1b[32m✓\x1b[0m",
-		}, now)[0]
+		}, now: now})[0]
 		if !strings.HasPrefix(line, "中文 · ") || tui.VisibleWidth(line) != width {
 			t.Errorf("width %d: groups are not anchored to the terminal edges: %q", width, line)
 		}
@@ -113,12 +113,12 @@ func TestLayoutAlignmentUsesDisplayColumns(t *testing.T) {
 
 func TestContextUnknownAndBoundaryValues(t *testing.T) {
 	for _, usage := range []*sdk.ContextUsage{nil, {}, {Percent: new(math.NaN())}, {Percent: new(math.Inf(1))}} {
-		if got := contextLabel(usage, true, sdk.UITheme{}); got != "ctx --" {
+		if got := contextGaugeLabel(usage, sdk.UITheme{}); got != "ctx --" {
 			t.Fatalf("unknown usage reported as known: %q", got)
 		}
 	}
 	for _, percent := range []float64{-10, 0, 70, 90, 100, 120} {
-		got := contextLabel(&sdk.ContextUsage{Percent: &percent}, true, sdk.UITheme{})
+		got := contextGaugeLabel(&sdk.ContextUsage{Percent: &percent}, sdk.UITheme{})
 		if strings.Count(got, "━")+strings.Count(got, "─") != 6 {
 			t.Fatalf("unbounded gauge: %q", got)
 		}
@@ -129,12 +129,12 @@ func TestClaudeUsageIsPrioritizedWithoutParsingOrDuplicatingBridgeText(t *testin
 	now := time.Now()
 	status := "Claude 5h 6% ↻3h · 7d 76% ↻8h · Fable 99% ↻8h · reset available"
 	for _, width := range []int{40, 80, 240} {
-		line := render(width, fixture(now), sdk.UITheme{}, "claude-bridge/fixture", "/example", "", "", map[string]string{"claude-usage": status}, now)[0]
+		line := render(renderInput{width: width, state: fixture(now), theme: sdk.UITheme{}, model: "claude-bridge/fixture", cwd: "/example", session: "", branch: "", statuses: map[string]string{"claude-usage": status}, now: now})[0]
 		if !strings.Contains(line, "used Claude 5h 6%") || strings.Count(line, "Claude") != 1 || tui.VisibleWidth(line) > width || strings.Contains(line, "left ") {
 			t.Fatalf("width %d: bridge usage missing or mislabeled: %q", width, line)
 		}
 	}
-	line := render(240, fixture(now), sdk.UITheme{}, "openai-codex/fixture", "/example", "", "", map[string]string{"claude-usage": status}, now)[0]
+	line := render(renderInput{width: 240, state: fixture(now), theme: sdk.UITheme{}, model: "openai-codex/fixture", cwd: "/example", session: "", branch: "", statuses: map[string]string{"claude-usage": status}, now: now})[0]
 	if strings.Contains(line, "Claude") || !strings.Contains(line, "left 5h") {
 		t.Fatalf("previous provider's quota leaked: %q", line)
 	}
@@ -146,7 +146,7 @@ func TestSubscriptionIncludesCacheTokensWithoutPretendingToKnowBilledCost(t *tes
 	state.summary.CacheRead = 50_000
 	state.summary.CacheWrite = 10_000
 	state.summary.Subscription = true
-	line := render(240, state, sdk.UITheme{}, "claude-bridge/fixture", "/example", "", "", map[string]string{"usage": "duplicate backend status"}, now)[0]
+	line := render(renderInput{width: 240, state: state, theme: sdk.UITheme{}, model: "claude-bridge/fixture", cwd: "/example", session: "", branch: "", statuses: map[string]string{"usage": "duplicate backend status"}, now: now})[0]
 	if !strings.Contains(line, "↑160k ↓2k") || !strings.Contains(line, "plan") || strings.Contains(line, "$0.216") || strings.Contains(line, "duplicate backend") {
 		t.Fatalf("incorrect subscription accounting: %q", line)
 	}
@@ -175,7 +175,7 @@ func TestQuotaBoundsAndUnknownWindows(t *testing.T) {
 		{Label: "low", UsedPercent: new(-10.0)}, {Label: "high", UsedPercent: new(120.0)},
 		{Label: "unknown"}, {Label: "invalid", UsedPercent: new(math.NaN())},
 	}
-	line := render(240, state, sdk.UITheme{}, "model", "/example", "", "", nil, now)[0]
+	line := render(renderInput{width: 240, state: state, theme: sdk.UITheme{}, model: "model", cwd: "/example", session: "", branch: "", statuses: nil, now: now})[0]
 	if !strings.Contains(line, "left low 100% high 0%") || strings.Contains(line, "unknown") || strings.Contains(line, "invalid") {
 		t.Fatalf("invalid quota display: %q", line)
 	}
@@ -194,7 +194,7 @@ func TestThinkingLevelShownOnlyWhenEnabled(t *testing.T) {
 		{"high", "high", "ctx -- · model · high"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			lines := render(180, snapshot{thinking: tt.level, started: now}, sdk.UITheme{}, "model", "/example", "", "", nil, now)
+			lines := render(renderInput{width: 180, state: snapshot{thinking: tt.level, started: now}, theme: sdk.UITheme{}, model: "model", cwd: "/example", session: "", branch: "", statuses: nil, now: now})
 			left := "example · open 0m"
 			want := left + strings.Repeat(" ", 180-tui.VisibleWidth(left)-tui.VisibleWidth(tt.right)) + tt.right
 			if len(lines) != 1 || lines[0] != want {

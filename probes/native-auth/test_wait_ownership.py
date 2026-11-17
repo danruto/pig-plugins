@@ -18,7 +18,7 @@ from test_process import _assert_consuming_wait_ownership
 
 class ConsumingWaitOwnershipTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.waits = json.loads(Path(os.environ["NA_OUTPUT"], "process-receipts.json").read_text(encoding="utf-8"))
+        self.waits = json.loads(Path(os.environ["PIG_FIXTURE_ROOT"], "process-receipts.json").read_text(encoding="utf-8"))
 
     def test_original_owner_without_adoption_passes(self) -> None:
         self.assertEqual(self.waits["adoptedWaits"], [])

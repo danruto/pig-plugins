@@ -259,7 +259,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance response availability was not a boolean."
+      "error": "DeepSeek API balance response availability was not a boolean.",
+      "nativeError": "deepseek API balance response availability was not a boolean"
     },
     {
       "name": "deepseek:empty",
@@ -269,7 +270,8 @@
         "is_available": true,
         "balance_infos": []
       },
-      "error": "DeepSeek API balance response returned no balance information."
+      "error": "DeepSeek API balance response returned no balance information.",
+      "nativeError": "deepseek API balance response returned no balance information"
     },
     {
       "name": "deepseek:null-row",
@@ -281,7 +283,8 @@
           null
         ]
       },
-      "error": "DeepSeek API balance row was not an object."
+      "error": "DeepSeek API balance row was not an object.",
+      "nativeError": "deepseek API balance row was not an object"
     },
     {
       "name": "deepseek:unsupported-currency",
@@ -304,7 +307,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance row returned an unsupported currency."
+      "error": "DeepSeek API balance row returned an unsupported currency.",
+      "nativeError": "deepseek API balance row returned an unsupported currency"
     },
     {
       "name": "deepseek:duplicate-currency",
@@ -333,7 +337,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance response repeated USD."
+      "error": "DeepSeek API balance response repeated USD.",
+      "nativeError": "deepseek API balance response repeated USD"
     },
     {
       "name": "deepseek:leading-zero",
@@ -356,7 +361,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance total balance was not a valid amount."
+      "error": "DeepSeek API balance total balance was not a valid amount.",
+      "nativeError": "deepseek API balance total balance was not a valid amount"
     },
     {
       "name": "deepseek:exponent",
@@ -379,7 +385,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance total balance was not a valid amount."
+      "error": "DeepSeek API balance total balance was not a valid amount.",
+      "nativeError": "deepseek API balance total balance was not a valid amount"
     },
     {
       "name": "deepseek:number",
@@ -402,7 +409,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance total balance was not a valid amount."
+      "error": "DeepSeek API balance total balance was not a valid amount.",
+      "nativeError": "deepseek API balance total balance was not a valid amount"
     },
     {
       "name": "deepseek:overlong",
@@ -425,7 +433,8 @@
           }
         ]
       },
-      "error": "DeepSeek API balance total balance was not a valid amount."
+      "error": "DeepSeek API balance total balance was not a valid amount.",
+      "nativeError": "deepseek API balance total balance was not a valid amount"
     },
     {
       "name": "vercel-ai-gateway:normal",
@@ -506,7 +515,8 @@
       "payload": {
         "total_used": "4.499999999"
       },
-      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway balance was not a valid nonnegative amount"
     },
     {
       "name": "vercel-ai-gateway:negative",
@@ -516,7 +526,8 @@
         "balance": "-0",
         "total_used": "4.499999999"
       },
-      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway balance was not a valid nonnegative amount"
     },
     {
       "name": "vercel-ai-gateway:leading-zero",
@@ -526,7 +537,8 @@
         "balance": "01",
         "total_used": "4.499999999"
       },
-      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway balance was not a valid nonnegative amount"
     },
     {
       "name": "vercel-ai-gateway:exponent",
@@ -536,7 +548,8 @@
         "balance": "1e3",
         "total_used": "4.499999999"
       },
-      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway balance was not a valid nonnegative amount"
     },
     {
       "name": "vercel-ai-gateway:number",
@@ -546,7 +559,8 @@
         "balance": 1.25,
         "total_used": "4.499999999"
       },
-      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway balance was not a valid nonnegative amount"
     },
     {
       "name": "vercel-ai-gateway:overlong",
@@ -556,7 +570,8 @@
         "balance": "11111111111111111111111111111111111111111111111111111111111111111",
         "total_used": "4.499999999"
       },
-      "error": "Vercel AI Gateway balance was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway balance was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway balance was not a valid nonnegative amount"
     },
     {
       "name": "vercel-ai-gateway:invalid-spend",
@@ -566,7 +581,8 @@
         "balance": "95.500000001",
         "total_used": null
       },
-      "error": "Vercel AI Gateway total used was not a valid nonnegative amount."
+      "error": "Vercel AI Gateway total used was not a valid nonnegative amount.",
+      "nativeError": "vercel AI gateway total used was not a valid nonnegative amount"
     },
     {
       "name": "moonshotai:normal",
@@ -725,7 +741,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI balance response did not report success."
+      "error": "Moonshot AI balance response did not report success.",
+      "nativeError": "moonshot AI balance response did not report success"
     },
     {
       "name": "moonshotai:bad-status",
@@ -740,7 +757,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI balance response did not report success."
+      "error": "Moonshot AI balance response did not report success.",
+      "nativeError": "moonshot AI balance response did not report success"
     },
     {
       "name": "moonshotai:bad-data",
@@ -751,7 +769,8 @@
         "status": true,
         "data": []
       },
-      "error": "Moonshot AI balance response data was not an object."
+      "error": "Moonshot AI balance response data was not an object.",
+      "nativeError": "moonshot AI balance response data was not an object"
     },
     {
       "name": "moonshotai:negative-available",
@@ -766,7 +785,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI available balance was not a valid amount."
+      "error": "Moonshot AI available balance was not a valid amount.",
+      "nativeError": "moonshot AI available balance was not a valid amount"
     },
     {
       "name": "moonshotai:negative-voucher",
@@ -781,7 +801,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI voucher balance was not a valid amount."
+      "error": "Moonshot AI voucher balance was not a valid amount.",
+      "nativeError": "moonshot AI voucher balance was not a valid amount"
     },
     {
       "name": "moonshotai:string-amount",
@@ -796,7 +817,8 @@
           "cash_balance": "1.25"
         }
       },
-      "error": "Moonshot AI cash balance was not a valid amount."
+      "error": "Moonshot AI cash balance was not a valid amount.",
+      "nativeError": "moonshot AI cash balance was not a valid amount"
     },
     {
       "name": "moonshotai:unsafe-integer",
@@ -811,7 +833,8 @@
           "cash_balance": 9007199254740992
         }
       },
-      "error": "Moonshot AI cash balance was not a valid amount."
+      "error": "Moonshot AI cash balance was not a valid amount.",
+      "nativeError": "moonshot AI cash balance was not a valid amount"
     },
     {
       "name": "moonshotai-cn:normal",
@@ -970,7 +993,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI balance response did not report success."
+      "error": "Moonshot AI balance response did not report success.",
+      "nativeError": "moonshot AI balance response did not report success"
     },
     {
       "name": "moonshotai-cn:bad-status",
@@ -985,7 +1009,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI balance response did not report success."
+      "error": "Moonshot AI balance response did not report success.",
+      "nativeError": "moonshot AI balance response did not report success"
     },
     {
       "name": "moonshotai-cn:bad-data",
@@ -996,7 +1021,8 @@
         "status": true,
         "data": []
       },
-      "error": "Moonshot AI balance response data was not an object."
+      "error": "Moonshot AI balance response data was not an object.",
+      "nativeError": "moonshot AI balance response data was not an object"
     },
     {
       "name": "moonshotai-cn:negative-available",
@@ -1011,7 +1037,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI available balance was not a valid amount."
+      "error": "Moonshot AI available balance was not a valid amount.",
+      "nativeError": "moonshot AI available balance was not a valid amount"
     },
     {
       "name": "moonshotai-cn:negative-voucher",
@@ -1026,7 +1053,8 @@
           "cash_balance": -0.41106
         }
       },
-      "error": "Moonshot AI voucher balance was not a valid amount."
+      "error": "Moonshot AI voucher balance was not a valid amount.",
+      "nativeError": "moonshot AI voucher balance was not a valid amount"
     },
     {
       "name": "moonshotai-cn:string-amount",
@@ -1041,7 +1069,8 @@
           "cash_balance": "1.25"
         }
       },
-      "error": "Moonshot AI cash balance was not a valid amount."
+      "error": "Moonshot AI cash balance was not a valid amount.",
+      "nativeError": "moonshot AI cash balance was not a valid amount"
     },
     {
       "name": "moonshotai-cn:unsafe-integer",
@@ -1056,7 +1085,8 @@
           "cash_balance": 9007199254740992
         }
       },
-      "error": "Moonshot AI cash balance was not a valid amount."
+      "error": "Moonshot AI cash balance was not a valid amount.",
+      "nativeError": "moonshot AI cash balance was not a valid amount"
     },
     {
       "name": "openai-codex:primary-additional-credits",
@@ -1410,7 +1440,8 @@
       "providerID": "openai-codex",
       "capturedAt": 1900000000000,
       "payload": {},
-      "error": "Codex usage endpoint returned no displayable usage data."
+      "error": "Codex usage endpoint returned no displayable usage data.",
+      "nativeError": "codex usage endpoint returned no displayable usage data"
     },
     {
       "name": "openai-codex:invalid-primary",
@@ -1419,7 +1450,8 @@
       "payload": {
         "rate_limit": []
       },
-      "error": "Codex rate limit was not an object."
+      "error": "Codex rate limit was not an object.",
+      "nativeError": "codex rate limit was not an object"
     },
     {
       "name": "openai-codex:invalid-window",
@@ -1433,7 +1465,8 @@
           "has_credits": true
         }
       },
-      "error": "Codex rate-limit window was not an object."
+      "error": "Codex rate-limit window was not an object.",
+      "nativeError": "codex rate-limit window was not an object"
     },
     {
       "name": "github-copilot:premium",
@@ -1731,14 +1764,16 @@
           }
         }
       },
-      "error": "GitHub Copilot premium requests quota was incomplete."
+      "error": "GitHub Copilot premium requests quota was incomplete.",
+      "nativeError": "github copilot premium requests quota was incomplete"
     },
     {
       "name": "github-copilot:unsupported",
       "providerID": "github-copilot",
       "capturedAt": 1900000000000,
       "payload": {},
-      "error": "GitHub Copilot usage response contained no supported quota."
+      "error": "GitHub Copilot usage response contained no supported quota.",
+      "nativeError": "github copilot usage response contained no supported quota"
     },
     {
       "name": "openai:auth-only",
@@ -1949,7 +1984,8 @@
           }
         }
       },
-      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported."
+      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported.",
+      "nativeError": "chatgpt app usage requires a complete, bounded registration list; pagination is unsupported"
     },
     {
       "name": "openai:unknown-envelope",
@@ -1995,7 +2031,8 @@
           }
         }
       },
-      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported."
+      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported.",
+      "nativeError": "chatgpt app usage requires a complete, bounded registration list; pagination is unsupported"
     },
     {
       "name": "openai:ambiguous",
@@ -2052,7 +2089,8 @@
           }
         }
       },
-      "error": "The native registration was not uniquely found in the companion Codex account; use the same ChatGPT account/workspace for both logins."
+      "error": "The native registration was not uniquely found in the companion Codex account; use the same ChatGPT account/workspace for both logins.",
+      "nativeError": "the native registration was not uniquely found in the companion codex account; use the same chatgpt account/workspace for both logins"
     },
     {
       "name": "openai:unreadable-id",
@@ -2097,7 +2135,8 @@
           }
         }
       },
-      "error": "ChatGPT app usage returned an unreadable registration identity; uniqueness cannot be established."
+      "error": "ChatGPT app usage returned an unreadable registration identity; uniqueness cannot be established.",
+      "nativeError": "chatgpt app usage returned an unreadable registration identity; uniqueness cannot be established"
     },
     {
       "name": "openai:unmatched",
@@ -2142,7 +2181,8 @@
           }
         }
       },
-      "error": "The native registration was not uniquely found in the companion Codex account; use the same ChatGPT account/workspace for both logins."
+      "error": "The native registration was not uniquely found in the companion Codex account; use the same ChatGPT account/workspace for both logins.",
+      "nativeError": "the native registration was not uniquely found in the companion codex account; use the same chatgpt account/workspace for both logins"
     },
     {
       "name": "openai:empty-windows",
@@ -2180,7 +2220,8 @@
           }
         }
       },
-      "error": "ChatGPT app usage returned no bounded, displayable windows."
+      "error": "ChatGPT app usage returned no bounded, displayable windows.",
+      "nativeError": "chatgpt app usage returned no bounded, displayable windows"
     },
     {
       "name": "openai:contradictory-window",
@@ -2225,7 +2266,8 @@
           }
         }
       },
-      "error": "ChatGPT usage returned an invalid or contradictory window."
+      "error": "ChatGPT usage returned an invalid or contradictory window.",
+      "nativeError": "chatgpt usage returned an invalid or contradictory window"
     },
     {
       "name": "openai:null-reset",
@@ -2270,7 +2312,8 @@
           }
         }
       },
-      "error": "ChatGPT usage returned an invalid or contradictory window."
+      "error": "ChatGPT usage returned an invalid or contradictory window.",
+      "nativeError": "chatgpt usage returned an invalid or contradictory window"
     },
     {
       "name": "openai:bad-allowance",
@@ -2315,7 +2358,8 @@
           }
         }
       },
-      "error": "ChatGPT app allowance was invalid."
+      "error": "ChatGPT app allowance was invalid.",
+      "nativeError": "chatgpt app allowance was invalid"
     },
     {
       "name": "openai:too-many-apps",
@@ -2731,7 +2775,8 @@
           }
         }
       },
-      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported."
+      "error": "ChatGPT app usage requires a complete, bounded registration list; pagination is unsupported.",
+      "nativeError": "chatgpt app usage requires a complete, bounded registration list; pagination is unsupported"
     },
     {
       "name": "openai:too-many-windows",
@@ -2968,7 +3013,8 @@
           }
         }
       },
-      "error": "ChatGPT app usage returned no bounded, displayable windows."
+      "error": "ChatGPT app usage returned no bounded, displayable windows.",
+      "nativeError": "chatgpt app usage returned no bounded, displayable windows"
     },
     {
       "name": "openai:no-plan-windows",
@@ -3000,7 +3046,8 @@
         },
         "plan": {}
       },
-      "error": "ChatGPT plan usage returned no displayable windows."
+      "error": "ChatGPT plan usage returned no displayable windows.",
+      "nativeError": "chatgpt plan usage returned no displayable windows"
     }
   ]
 }

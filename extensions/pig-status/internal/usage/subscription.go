@@ -19,37 +19,66 @@ func object(value any) map[string]any {
 
 var jsDecimalNumber = regexp.MustCompile(`^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$`)
 
-func finiteNumber(value any, stringsAllowed bool) (float64, bool) {
+//nolint:gochecknoglobals // the zone table is read-only
+var zoneOffsets = map[string]int{"UTC": 0, "GMT": 0, "EST": -5 * 3600, "EDT": -4 * 3600, "CST": -6 * 3600, "CDT": -5 * 3600, "MST": -7 * 3600, "MDT": -6 * 3600, "PST": -8 * 3600, "PDT": -7 * 3600}
+
+func finiteNumber(value any) (float64, bool) {
 	number, ok := value.(float64)
-	if !ok && stringsAllowed {
-		text, isString := value.(string)
-		text = jsTrim(text)
-		if isString && text != "" {
-			var err error
-			switch {
-			case strings.HasPrefix(text, "0x") || strings.HasPrefix(text, "0X"), strings.HasPrefix(text, "0b") || strings.HasPrefix(text, "0B"), strings.HasPrefix(text, "0o") || strings.HasPrefix(text, "0O"):
-				integer, valid := new(big.Int).SetString(text[2:], map[byte]int{'x': 16, 'X': 16, 'b': 2, 'B': 2, 'o': 8, 'O': 8}[text[1]])
-				if !valid || strings.ContainsAny(text[2:], "+-_") {
-					return 0, false
-				}
-				number, _ = integer.Float64()
-			default:
-				if !jsDecimalNumber.MatchString(text) {
-					return 0, false
-				}
-				number, err = strconv.ParseFloat(text, 64)
-				if errors.Is(err, strconv.ErrRange) && number == 0 {
-					err = nil
-				}
-			}
-			ok = err == nil
-		}
-	}
 	return number, ok && !math.IsNaN(number) && !math.IsInf(number, 0)
 }
 
+func jsNumberValue(value any) (float64, bool) {
+	text, ok := value.(string)
+	if !ok {
+		return finiteNumber(value)
+	}
+	return parseJSNumber(text)
+}
+
+func parseJSNumber(text string) (float64, bool) {
+	text = jsTrim(text)
+	if text == "" {
+		return 0, false
+	}
+	if base, ok := basePrefix(text); ok {
+		return parseBaseNumber(text[2:], base)
+	}
+	if !jsDecimalNumber.MatchString(text) {
+		return 0, false
+	}
+	number, err := strconv.ParseFloat(text, 64)
+	if errors.Is(err, strconv.ErrRange) && number == 0 {
+		err = nil
+	}
+	return number, err == nil && finite(number)
+}
+
+func basePrefix(text string) (int, bool) {
+	switch {
+	case strings.HasPrefix(text, "0x"), strings.HasPrefix(text, "0X"):
+		return 16, true
+	case strings.HasPrefix(text, "0b"), strings.HasPrefix(text, "0B"):
+		return 2, true
+	case strings.HasPrefix(text, "0o"), strings.HasPrefix(text, "0O"):
+		return 8, true
+	default:
+		return 0, false
+	}
+}
+
+func parseBaseNumber(digits string, base int) (float64, bool) {
+	integer, ok := new(big.Int).SetString(digits, base)
+	if !ok || strings.ContainsAny(digits, "+-_") {
+		return 0, false
+	}
+	number, _ := integer.Float64()
+	return number, finite(number)
+}
+
+func finite(number float64) bool { return !math.IsNaN(number) && !math.IsInf(number, 0) }
+
 func nonnegativeNumber(value any) (float64, bool) {
-	number, ok := finiteNumber(value, false)
+	number, ok := finiteNumber(value)
 	return number, ok && number >= 0
 }
 
@@ -113,8 +142,8 @@ func displayString(value any, maxChars int) string {
 }
 
 func normalizeCodex(payload map[string]any, capturedAt int64) (Report, error) {
-	report := Report{ProviderID: "openai-codex", ProviderName: "OpenAI Codex", CapturedAt: capturedAt, Source: "codex-pi-auth", Semantics: Semantics{Kind: "consumer-subscription", Label: "ChatGPT subscription limits"}, Buckets: []Bucket{}, Metrics: []Metric{}}
-	if err := addCodexGroup(&report.Buckets, "codex", "Codex", payload["rate_limit"], false); err != nil {
+	report := Report{ProviderID: string(providerOpenAICodex), ProviderName: "OpenAI Codex", CapturedAt: capturedAt, Source: "codex-pi-auth", Semantics: Semantics{Kind: "consumer-subscription", Label: "ChatGPT subscription limits"}, Buckets: []Bucket{}, Metrics: []Metric{}}
+	if err := addCodexGroup(&report.Buckets, "codex", "Codex", payload["rate_limit"], requiredCodexGroup); err != nil {
 		return Report{}, err
 	}
 	additional, _ := payload["additional_rate_limits"].([]any)
@@ -131,7 +160,7 @@ func normalizeCodex(payload map[string]any, capturedAt int64) (Report, error) {
 		if label == "" {
 			label = id
 		}
-		if err := addCodexGroup(&report.Buckets, id, label, item["rate_limit"], true); err != nil {
+		if err := addCodexGroup(&report.Buckets, id, label, item["rate_limit"], optionalCodexGroup); err != nil {
 			continue
 		}
 	}
@@ -141,7 +170,7 @@ func normalizeCodex(payload map[string]any, capturedAt int64) (Report, error) {
 		unit := ""
 		if credits["unlimited"] == true {
 			value = "unlimited"
-		} else if balance, ok := finiteNumber(credits["balance"], true); ok {
+		} else if balance, ok := jsNumberValue(credits["balance"]); ok {
 			value, unit = balance, "count"
 		}
 		report.Metrics = append(report.Metrics, Metric{ID: "credits", Label: "Credits", Value: value, Unit: unit})
@@ -149,11 +178,11 @@ func normalizeCodex(payload map[string]any, capturedAt int64) (Report, error) {
 		report.Metrics = append(report.Metrics, Metric{ID: "credits", Label: "Credits", Value: "none"})
 	}
 	resetCredits := object(payload["rate_limit_reset_credits"])
-	if count, ok := finiteNumber(resetCredits["available_count"], true); ok && safeInteger(count) {
+	if count, ok := jsNumberValue(resetCredits["available_count"]); ok && safeInteger(count) {
 		report.Metrics = append(report.Metrics, Metric{ID: "reset-credits", Label: "Usage limit resets", Value: math.Max(0, count), Unit: "count"})
 	}
 	if len(report.Buckets) == 0 && len(report.Metrics) == 0 {
-		return Report{}, errors.New("Codex usage endpoint returned no displayable usage data.")
+		return Report{}, errors.New("codex usage endpoint returned no displayable usage data")
 	}
 	if plan := displayString(payload["plan_type"], 160); plan != "" {
 		report.Notes = []string{"Plan: " + plan}
@@ -161,16 +190,23 @@ func normalizeCodex(payload map[string]any, capturedAt int64) (Report, error) {
 	return report, nil
 }
 
-func addCodexGroup(buckets *[]Bucket, id, label string, raw any, optional bool) error {
+type codexRequirement uint8
+
+const (
+	requiredCodexGroup codexRequirement = iota
+	optionalCodexGroup
+)
+
+func addCodexGroup(buckets *[]Bucket, id, label string, raw any, requirement codexRequirement) error {
 	if raw == nil {
 		return nil
 	}
 	details := object(raw)
 	if details == nil {
-		if optional {
+		if requirement == optionalCodexGroup {
 			return nil
 		}
-		return errors.New("Codex rate limit was not an object.")
+		return errors.New("codex rate limit was not an object")
 	}
 	for _, position := range []string{"primary", "secondary"} {
 		raw := details[position+"_window"]
@@ -179,9 +215,9 @@ func addCodexGroup(buckets *[]Bucket, id, label string, raw any, optional bool) 
 		}
 		window := object(raw)
 		if window == nil {
-			return errors.New("Codex rate-limit window was not an object.")
+			return errors.New("codex rate-limit window was not an object")
 		}
-		used, ok := finiteNumber(window["used_percent"], true)
+		used, ok := jsNumberValue(window["used_percent"])
 		if !ok {
 			continue
 		}
@@ -190,10 +226,10 @@ func addCodexGroup(buckets *[]Bucket, id, label string, raw any, optional bool) 
 			windowLabel = "Secondary limit"
 		}
 		bucket := Bucket{ID: id + ":" + position, Label: windowLabel, GroupID: id, GroupLabel: label, ModelKeys: []string{id, label}, Used: new(used), Remaining: new(100 - math.Min(100, math.Max(0, used))), Limit: new(100.0), Unit: "percent"}
-		if seconds, ok := finiteNumber(window["limit_window_seconds"], true); ok && seconds > 0 {
+		if seconds, ok := jsNumberValue(window["limit_window_seconds"]); ok && seconds > 0 {
 			bucket.WindowMinutes = new(math.Ceil(seconds / 60))
 		}
-		if reset, ok := finiteNumber(window["reset_at"], true); ok {
+		if reset, ok := jsNumberValue(window["reset_at"]); ok {
 			bucket.ResetsAt = new(reset)
 		}
 		*buckets = append(*buckets, bucket)
@@ -202,7 +238,7 @@ func addCodexGroup(buckets *[]Bucket, id, label string, raw any, optional bool) 
 }
 
 func normalizeCopilot(payload map[string]any, capturedAt int64) (Report, error) {
-	report := Report{ProviderID: "github-copilot", ProviderName: "GitHub Copilot", CapturedAt: capturedAt, Source: "github-copilot-user", Semantics: Semantics{Kind: "consumer-subscription"}, AccountLabel: displayString(payload["login"], 80), Buckets: []Bucket{}, Metrics: []Metric{}}
+	report := Report{ProviderID: string(providerGitHubCopilot), ProviderName: "GitHub Copilot", CapturedAt: capturedAt, Source: "github-copilot-user", Semantics: Semantics{Kind: "consumer-subscription"}, AccountLabel: displayString(payload["login"], 80), Buckets: []Bucket{}, Metrics: []Metric{}}
 	premium := object(object(payload["quota_snapshots"])["premium_interactions"])
 	bucket := Bucket{Unit: "count"}
 	if premium != nil {
@@ -214,12 +250,12 @@ func normalizeCopilot(payload map[string]any, capturedAt int64) (Report, error) 
 		}
 		if premium["unlimited"] != true {
 			entitlement, valid := nonnegativeNumber(premium["entitlement"])
-			remaining, ok := finiteNumber(premium["remaining"], false)
+			remaining, ok := finiteNumber(premium["remaining"])
 			if !ok {
-				remaining, ok = finiteNumber(premium["quota_remaining"], false)
+				remaining, ok = finiteNumber(premium["quota_remaining"])
 			}
 			if !valid || !ok {
-				return Report{}, errors.New("GitHub Copilot " + strings.ToLower(bucket.Label) + " quota was incomplete.")
+				return Report{}, errors.New("github copilot " + strings.ToLower(bucket.Label) + " quota was incomplete")
 			}
 			overage, _ := nonnegativeNumber(premium["overage_count"])
 			overage = math.Max(overage, math.Max(0, -remaining))
@@ -237,7 +273,7 @@ func normalizeCopilot(payload map[string]any, capturedAt int64) (Report, error) 
 		remaining, ok := nonnegativeNumber(object(payload["limited_user_quotas"])["chat"])
 		entitlement, valid := nonnegativeNumber(object(payload["monthly_quotas"])["chat"])
 		if !ok || !valid {
-			return Report{}, errors.New("GitHub Copilot usage response contained no supported quota.")
+			return Report{}, errors.New("github copilot usage response contained no supported quota")
 		}
 		report.Semantics.Label = "GitHub Copilot Free chat quota"
 		bucket.ID, bucket.Label = "chat-requests", "Chat requests"
@@ -270,7 +306,7 @@ func copilotReset(payload map[string]any) *float64 {
 		}
 		if strings.HasSuffix(layout, " MST") {
 			zone := text[strings.LastIndexByte(text, ' ')+1:]
-			offset, known := map[string]int{"UTC": 0, "GMT": 0, "EST": -5 * 3600, "EDT": -4 * 3600, "CST": -6 * 3600, "CDT": -5 * 3600, "MST": -7 * 3600, "MDT": -6 * 3600, "PST": -8 * 3600, "PDT": -7 * 3600}[zone]
+			offset, known := zoneOffsets[zone]
 			if !known && (strings.HasPrefix(zone, "GMT+") || strings.HasPrefix(zone, "GMT-")) {
 				numeric := zone[3:]
 				if len(numeric) == 2 || len(numeric) == 4 {

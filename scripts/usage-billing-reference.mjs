@@ -5,6 +5,7 @@ import pkg from "../node_modules/@narumitw/pi-usage/package.json" with { type: "
 import { normalizeBasetenBillingUsagePayload } from "../node_modules/@narumitw/pi-usage/src/providers/baseten.ts";
 import { normalizeOpenRouterKeyPayload } from "../node_modules/@narumitw/pi-usage/src/providers/openrouter.ts";
 import { normalizeFireworksBillingSummaryPayload, normalizeFireworksAccountsPayload } from "../node_modules/@narumitw/pi-usage/src/providers/fireworks.ts";
+import { withNativeErrors } from "./usage-native-messages.mjs";
 
 assert.equal(pkg.version, "0.68.3");
 const capturedAt = 1735776000000;
@@ -21,9 +22,7 @@ function add(providerID, name, payload, kind = "report") {
   } catch (error) {
     if (!(error instanceof Error) || error.name !== "Error" || error.code) throw error;
     fixture.error = error.message;
-    if (kind === "accounts" && name === "accounts-duplicate") {
-      fixture.nativeError = "Fireworks accounts response repeated an account.";
-    }
+    if (kind === "accounts" && name === "accounts-duplicate") fixture.nativeError = "fireworks accounts response repeated an account";
   }
   fixtures.push(fixture);
 }
@@ -81,6 +80,7 @@ const hashes = {};
 for (const path of ["src/providers/baseten.ts", "src/providers/openrouter.ts", "src/providers/fireworks.ts", "src/query.ts", "src/types.ts", "src/core.ts"]) {
   hashes[path] = createHash("sha256").update(await readFile(new URL(`../node_modules/@narumitw/pi-usage/${path}`, import.meta.url))).digest("hex");
 }
+withNativeErrors(fixtures);
 const output = `${JSON.stringify({ upstream: { name: pkg.name, version: pkg.version, hashes }, fixtures }, null, 2)}\n`;
 const destination = new URL("../extensions/pig-status/internal/usage/testdata/billing-reference.json", import.meta.url);
 if (process.argv[2] === "--check") {

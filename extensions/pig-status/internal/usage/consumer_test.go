@@ -11,7 +11,7 @@ import (
 	"unicode/utf8"
 )
 
-func TestConsumerNormalizationMatchesPinnedSource(t *testing.T) {
+func TestConsumerNormalization(t *testing.T) {
 	data, err := os.ReadFile("testdata/consumer-reference.json")
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +74,7 @@ func TestConsumerNormalizationMatchesPinnedSource(t *testing.T) {
 				if f.ProviderID == "xai" {
 					result, err = normalizeXai(f.Payload, f.Tier, f.CapturedAt)
 				} else {
-					result, err = normalizeReport(f.ProviderID, f.Payload, f.CapturedAt)
+					result, err = normalizeReport(providerID(f.ProviderID), f.Payload, f.CapturedAt)
 				}
 			}
 			expectedError := f.Error
@@ -106,7 +106,7 @@ func TestConsumerNormalizationMatchesPinnedSource(t *testing.T) {
 	}
 }
 
-const consumerGoCaseKimiCurrencyError = "Kimi Coding usage endpoint returned no displayable usage data."
+const consumerGoCaseKimiCurrencyError = "kimi coding usage endpoint returned no displayable usage data"
 
 const consumerGoCasePlanLabelBytes = 30
 

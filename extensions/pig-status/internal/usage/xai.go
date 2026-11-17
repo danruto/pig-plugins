@@ -13,7 +13,7 @@ import (
 )
 
 func resolveXai(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
-	if err := validateSnapshotOrigins("xai", snapshot); err != nil {
+	if err := validateSnapshotOrigins(providerXai, snapshot); err != nil {
 		return subscriptionIdentity{}, err
 	}
 	access, err := authAccessToken(snapshot.Effective)
@@ -24,7 +24,7 @@ func resolveXai(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 		access = snapshot.Effective.APIKey
 	}
 	if access == "" {
-		return subscriptionIdentity{}, errors.New("xAI runtime authentication was incomplete.")
+		return subscriptionIdentity{}, errors.New("xai runtime authentication was incomplete")
 	}
 	sawOAuth := false
 	matches := []subscriptionIdentity{}
@@ -38,24 +38,24 @@ func resolveXai(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 			continue
 		}
 		refresh, _ := row["refresh"].(string)
-		_, valid := finiteNumber(row["expires"], false)
+		_, valid := finiteNumber(row["expires"])
 		if refresh == "" || !valid {
-			return subscriptionIdentity{}, errors.New("The matching xAI OAuth credential was incomplete.")
+			return subscriptionIdentity{}, errors.New("the matching xai oauth credential was incomplete")
 		}
 		matches = append(matches, subscriptionIdentity{access: access, refresh: refresh})
 	}
 	if len(matches) > 1 {
-		return subscriptionIdentity{}, errors.New("Multiple OAuth credentials match the active xAI runtime account.")
+		return subscriptionIdentity{}, errors.New("multiple oauth credentials match the active xai runtime account")
 	}
 	if len(matches) == 0 {
 		if !sawOAuth {
-			return subscriptionIdentity{}, errors.New("xAI consumer usage requires the OAuth subscription account configured through Pi /login; XAI_API_KEY users can review API spend at console.x.ai.")
+			return subscriptionIdentity{}, errors.New("xai consumer usage requires the oauth subscription account configured through Pi /login; XAI_API_KEY users can review API spend at console.x.ai")
 		}
-		return subscriptionIdentity{}, errors.New("The active xAI runtime account does not match Pi's stored OAuth account.")
+		return subscriptionIdentity{}, errors.New("the active xai runtime account does not match Pi's stored oauth account")
 	}
 	identity := matches[0]
 	identity.headers = http.Header{"Authorization": {"Bearer " + access}, "X-XAI-Token-Auth": {"xai-grok-cli"}, "x-grok-client-version": {"1.0.10"}, "x-grok-client-mode": {"interactive"}, "User-Agent": {""}}
-	if _, err := validatedHeaders("xai", identity.headers); err != nil {
+	if _, err := validatedHeaders(providerXai, identity.headers); err != nil {
 		return subscriptionIdentity{}, err
 	}
 	return identity, nil
@@ -85,7 +85,7 @@ func (c Client) queryXai(ctx context.Context, p provider, auth ResolvedAuth, _ h
 	}
 	id, ok := user["userId"].(string)
 	if !ok || !consumerIdentifier.MatchString(id) {
-		return Report{}, errors.New("xAI consumer identity returned an unsafe canonical user ID.")
+		return Report{}, errors.New("xai consumer identity returned an unsafe canonical user ID")
 	}
 	headers := identity.headers.Clone()
 	headers.Set("x-userid", id)
@@ -109,9 +109,9 @@ func (c Client) queryXai(ctx context.Context, p provider, auth ResolvedAuth, _ h
 func normalizeXai(payload map[string]any, tier any, capturedAt int64) (Report, error) {
 	config := object(payload["config"])
 	if payload["config"] != nil && config == nil {
-		return Report{}, errors.New("xAI billing response config was not an object or null.")
+		return Report{}, errors.New("xai billing response config was not an object or null")
 	}
-	report := Report{ProviderID: "xai", ProviderName: "xAI", CapturedAt: capturedAt, Source: "cli-chat-proxy.grok.com consumer billing", Semantics: Semantics{Kind: "consumer-subscription", Label: "xAI consumer subscription usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
+	report := Report{ProviderID: string(providerXai), ProviderName: "xAI", CapturedAt: capturedAt, Source: "cli-chat-proxy.grok.com consumer billing", Semantics: Semantics{Kind: "consumer-subscription", Label: "xAI consumer subscription usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
 	if config != nil {
 		period, reset, err := xaiPeriod(config)
 		if err != nil {
@@ -121,7 +121,7 @@ func normalizeXai(payload map[string]any, tier any, capturedAt int64) (Report, e
 		if raw := config["creditUsagePercent"]; raw != nil {
 			percent, ok := nonnegativeNumber(raw)
 			if !ok || percent > 100 {
-				return Report{}, errors.New("xAI billing creditUsagePercent was outside 0–100.")
+				return Report{}, errors.New("xai billing creditUsagePercent was outside 0–100")
 			}
 			bucket.Used, bucket.Remaining = new(percent), new(100-percent)
 			report.Buckets = append(report.Buckets, bucket)
@@ -171,7 +171,7 @@ func normalizeXai(payload map[string]any, tier any, capturedAt int64) (Report, e
 	if tier != nil {
 		text, ok := tier.(string)
 		if !ok || len(utf16.Encode([]rune(text))) > 160 {
-			return Report{}, errors.New("xAI subscription tier was not a bounded string or null.")
+			return Report{}, errors.New("xai subscription tier was not a bounded string or null")
 		}
 		if safe := displayString(text, 80); safe != "" {
 			report.Metrics = append(report.Metrics, Metric{ID: "subscription-tier", Label: "Plan tier", Value: safe})
@@ -191,14 +191,14 @@ func xaiUSD(raw any, field string) (*float64, error) {
 	}
 	row := object(raw)
 	if row == nil {
-		return nil, fmt.Errorf("xAI billing %s was not a cent wrapper.", field)
+		return nil, fmt.Errorf("xai billing %s was not a cent wrapper", field)
 	}
 	cents := 0.0
 	if value, present := row["val"]; present {
 		var ok bool
-		cents, ok = finiteNumber(value, false)
+		cents, ok = finiteNumber(value)
 		if !ok || !safeInteger(cents) {
-			return nil, fmt.Errorf("xAI billing %s.val was not a safe signed integer.", field)
+			return nil, fmt.Errorf("xai billing %s.val was not a safe signed integer", field)
 		}
 	}
 	return new(cents / 100), nil
@@ -207,7 +207,7 @@ func xaiUSD(raw any, field string) (*float64, error) {
 func xaiPeriod(config map[string]any) (string, *float64, error) {
 	current := object(config["currentPeriod"])
 	if config["currentPeriod"] != nil && current == nil {
-		return "", nil, errors.New("xAI billing currentPeriod was not an object or null.")
+		return "", nil, errors.New("xai billing currentPeriod was not an object or null")
 	}
 	startField, endField := "billingPeriodStart", "billingPeriodEnd"
 	row := config
@@ -218,7 +218,7 @@ func xaiPeriod(config map[string]any) (string, *float64, error) {
 		if raw := row["type"]; raw != nil {
 			text, ok := raw.(string)
 			if !ok || len(utf16.Encode([]rune(text))) > 80 {
-				return "", nil, errors.New("xAI billing currentPeriod.type was not a bounded string.")
+				return "", nil, errors.New("xai billing currentPeriod.type was not a bounded string")
 			}
 			label = text
 		}
@@ -262,11 +262,11 @@ func xaiTimestamp(raw any, field string) (*float64, error) {
 	}
 	text, ok := raw.(string)
 	if !ok || len(utf16.Encode([]rune(text))) > 80 {
-		return nil, fmt.Errorf("xAI billing %s was not a bounded timestamp.", field)
+		return nil, fmt.Errorf("xai billing %s was not a bounded timestamp", field)
 	}
 	value := consumerEpoch(text)
 	if value == nil || math.IsInf(*value, 0) {
-		return nil, fmt.Errorf("xAI billing %s was invalid.", field)
+		return nil, fmt.Errorf("xai billing %s was invalid", field)
 	}
 	return value, nil
 }

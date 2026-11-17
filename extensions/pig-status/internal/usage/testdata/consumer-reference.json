@@ -159,7 +159,7 @@
           "totalCost": 1
         }
       },
-      "nativeError": "Command Code credit total was not finite.",
+      "nativeError": "command code credit total was not finite",
       "expected": {
         "providerId": "command-code",
         "providerName": "Command Code",
@@ -358,7 +358,8 @@
           }
         }
       },
-      "error": "Command Code usage response returned no displayable usage data."
+      "error": "Command Code usage response returned no displayable usage data.",
+      "nativeError": "command code usage response returned no displayable usage data"
     },
     {
       "name": "command-code:unsafe-account",
@@ -403,7 +404,8 @@
           "totalTokens": 1234
         }
       },
-      "error": "Command Code account response omitted a safe account name."
+      "error": "Command Code account response omitted a safe account name.",
+      "nativeError": "command code account response omitted a safe account name"
     },
     {
       "name": "command-code:malformed-optionals",
@@ -522,14 +524,16 @@
           "monthly": null
         }
       },
-      "error": "OpenCode Zen usage endpoint returned no displayable usage data."
+      "error": "OpenCode Zen usage endpoint returned no displayable usage data.",
+      "nativeError": "opencode zen usage endpoint returned no displayable usage data"
     },
     {
       "name": "opencode-go:invalid-root",
       "providerID": "opencode-go",
       "capturedAt": 1735776000000,
       "payload": {},
-      "error": "OpenCode Zen usage response was not an object."
+      "error": "OpenCode Zen usage response was not an object.",
+      "nativeError": "opencode zen usage response was not an object"
     },
     {
       "name": "kimi-coding:normal",
@@ -1070,7 +1074,8 @@
       "providerID": "kimi-coding",
       "capturedAt": 1735776000000,
       "payload": {},
-      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+      "error": "Kimi Coding usage endpoint returned no displayable usage data.",
+      "nativeError": "kimi coding usage endpoint returned no displayable usage data"
     },
     {
       "name": "kimi-coding:date-leap",
@@ -1758,7 +1763,8 @@
       "payload": {
         "config": []
       },
-      "error": "xAI billing response config was not an object or null."
+      "error": "xAI billing response config was not an object or null.",
+      "nativeError": "xai billing response config was not an object or null"
     },
     {
       "name": "xai:period-shape",
@@ -1769,7 +1775,8 @@
           "currentPeriod": []
         }
       },
-      "error": "xAI billing currentPeriod was not an object or null."
+      "error": "xAI billing currentPeriod was not an object or null.",
+      "nativeError": "xai billing currentPeriod was not an object or null"
     },
     {
       "name": "xai:unsafe-cents",
@@ -1782,7 +1789,8 @@
           }
         }
       },
-      "error": "xAI billing used.val was not a safe signed integer."
+      "error": "xAI billing used.val was not a safe signed integer.",
+      "nativeError": "xai billing used.val was not a safe signed integer"
     },
     {
       "name": "xai:null-cents",
@@ -1795,7 +1803,8 @@
           }
         }
       },
-      "error": "xAI billing used.val was not a safe signed integer."
+      "error": "xAI billing used.val was not a safe signed integer.",
+      "nativeError": "xai billing used.val was not a safe signed integer"
     },
     {
       "name": "xai:bad-percent",
@@ -1806,7 +1815,8 @@
           "creditUsagePercent": 101
         }
       },
-      "error": "xAI billing creditUsagePercent was outside 0–100."
+      "error": "xAI billing creditUsagePercent was outside 0–100.",
+      "nativeError": "xai billing creditUsagePercent was outside 0–100"
     },
     {
       "name": "xai:string-cents",
@@ -1819,7 +1829,8 @@
           }
         }
       },
-      "error": "xAI billing prepaidBalance.val was not a safe signed integer."
+      "error": "xAI billing prepaidBalance.val was not a safe signed integer.",
+      "nativeError": "xai billing prepaidBalance.val was not a safe signed integer"
     },
     {
       "name": "xai:invalid-date",
@@ -1830,7 +1841,8 @@
           "billingPeriodEnd": "invalid"
         }
       },
-      "error": "xAI billing billingPeriodEnd was invalid."
+      "error": "xAI billing billingPeriodEnd was invalid.",
+      "nativeError": "xai billing billingPeriodEnd was invalid"
     },
     {
       "name": "xai:tier-too-long",
@@ -1840,7 +1852,8 @@
         "config": null
       },
       "tier": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
-      "error": "xAI subscription tier was not a bounded string or null."
+      "error": "xAI subscription tier was not a bounded string or null.",
+      "nativeError": "xai subscription tier was not a bounded string or null"
     },
     {
       "name": "command-code:unicode-plan-individual-ßpecial",
@@ -2316,7 +2329,8 @@
           }
         }
       },
-      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+      "error": "Kimi Coding usage endpoint returned no displayable usage data.",
+      "nativeError": "kimi coding usage endpoint returned no displayable usage data"
     },
     {
       "name": "kimi-coding:unicode-currency-ßdd",
@@ -2335,7 +2349,8 @@
           }
         }
       },
-      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+      "error": "Kimi Coding usage endpoint returned no displayable usage data.",
+      "nativeError": "kimi coding usage endpoint returned no displayable usage data"
     },
     {
       "name": "kimi-coding:unicode-currency-éur",
@@ -2354,7 +2369,8 @@
           }
         }
       },
-      "error": "Kimi Coding usage endpoint returned no displayable usage data."
+      "error": "Kimi Coding usage endpoint returned no displayable usage data.",
+      "nativeError": "kimi coding usage endpoint returned no displayable usage data"
     },
     {
       "name": "kimi-coding:expanded-limit-currency",
@@ -2826,7 +2842,8 @@
           }
         }
       },
-      "error": "xAI billing currentPeriod.end was invalid."
+      "error": "xAI billing currentPeriod.end was invalid.",
+      "nativeError": "xai billing currentPeriod.end was invalid"
     },
     {
       "name": "opencode-go:date-2025-02-30T00:00:00Z",
@@ -3892,7 +3909,8 @@
           }
         }
       },
-      "error": "xAI billing currentPeriod.end was invalid."
+      "error": "xAI billing currentPeriod.end was invalid.",
+      "nativeError": "xai billing currentPeriod.end was invalid"
     },
     {
       "name": "opencode-go:date-2025-01-01\n00:00:00Z",
@@ -4895,7 +4913,8 @@
           "expires": 1735776010000
         }
       ],
-      "error": "Multiple OAuth credentials match the active xAI runtime account."
+      "error": "Multiple OAuth credentials match the active xAI runtime account.",
+      "nativeError": "multiple oauth credentials match the active xai runtime account"
     },
     {
       "name": "xai:auth-incomplete",
@@ -4911,7 +4930,8 @@
           "expires": 1735776010000
         }
       ],
-      "error": "The matching xAI OAuth credential was incomplete."
+      "error": "The matching xAI OAuth credential was incomplete.",
+      "nativeError": "the matching xai oauth credential was incomplete"
     },
     {
       "name": "xai:auth-mismatch",
@@ -4927,7 +4947,8 @@
           "expires": 1735776010000
         }
       ],
-      "error": "The active xAI runtime account does not match Pi's stored OAuth account."
+      "error": "The active xAI runtime account does not match Pi's stored OAuth account.",
+      "nativeError": "the active xai runtime account does not match Pi's stored oauth account"
     },
     {
       "name": "xai:auth-api-key",
@@ -4936,7 +4957,8 @@
         "apiKey": "api-key"
       },
       "candidates": [],
-      "error": "xAI consumer usage requires the OAuth subscription account configured through Pi /login; XAI_API_KEY users can review API spend at console.x.ai."
+      "error": "xAI consumer usage requires the OAuth subscription account configured through Pi /login; XAI_API_KEY users can review API spend at console.x.ai.",
+      "nativeError": "xai consumer usage requires the oauth subscription account configured through Pi /login; XAI_API_KEY users can review API spend at console.x.ai"
     },
     {
       "name": "xai:auth-bearer-override",

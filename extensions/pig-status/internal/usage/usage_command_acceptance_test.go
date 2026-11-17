@@ -426,9 +426,10 @@ func TestUsageCommandKeepsSettingsWhenSaveFails(t *testing.T) {
 	err := command.Run(t.Context(), ui, "")
 
 	acceptNoError(t, err, "unrepairable settings flow")
-	acceptEqual(t, 2, len(ui.notices), "notices")
-	acceptPrefix(t, ui.notices[0], "pi-usage.json is invalid (", "invalid settings warning")
-	acceptEqual(t, ErrSettingsInvalid.Error(), ui.notices[1], "refused save notice")
+	acceptEqual(t, []string{
+		"pi-usage.json is invalid (codexFastMode must be a boolean); settings are read-only until it is repaired.",
+		"pi-usage.json is invalid; repair it before saving",
+	}, ui.notices, "notices")
 	acceptEqual(t, []string{"warning", "error"}, ui.levels, "notice levels")
 	acceptEqual(t, 0, len(configured), "configure callbacks")
 	acceptEqual(t, false, store.Get().Settings.OpenAIUseCodexUsage, "codex usage after refused save")

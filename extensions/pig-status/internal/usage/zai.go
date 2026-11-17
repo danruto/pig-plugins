@@ -14,19 +14,19 @@ type zaiPlan struct {
 	RenewsAt string `json:"renewsAt,omitempty"`
 }
 
-func normalizeZai(providerID string, payload map[string]any, capturedAt int64, plan *zaiPlan) (Report, error) {
+func normalizeZai(id providerID, payload map[string]any, capturedAt int64, plan *zaiPlan) (Report, error) {
 	if message := zaiPayloadError(payload); message != "" {
 		return Report{}, errors.New(message)
 	}
 	data := object(payload["data"])
 	if data == nil {
-		return Report{}, errors.New("Z.AI quota response data was not an object.")
+		return Report{}, errors.New("z.ai quota response data was not an object")
 	}
 	name := "Z.AI"
-	if providerID == "zai-coding-cn" {
+	if id == providerZaiCodingCN {
 		name = "Z.AI Coding CN"
 	}
-	report := Report{ProviderID: providerID, ProviderName: name, CapturedAt: capturedAt, Source: "zai-quota", Semantics: Semantics{Kind: "consumer-subscription", Label: "GLM Coding Plan usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
+	report := Report{ProviderID: string(id), ProviderName: name, CapturedAt: capturedAt, Source: "zai-quota", Semantics: Semantics{Kind: "consumer-subscription", Label: "GLM Coding Plan usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
 	limits, _ := data["limits"].([]any)
 	for _, raw := range limits {
 		limit := object(raw)
@@ -68,7 +68,7 @@ func normalizeZai(providerID string, payload map[string]any, capturedAt int64, p
 			continue
 		}
 		if bucket.WindowMinutes != nil && math.IsInf(*bucket.WindowMinutes, 0) {
-			return Report{}, errors.New("Z.AI quota window was not finite.")
+			return Report{}, errors.New("z.ai quota window was not finite")
 		}
 		if bucket.Unit == "percent" {
 			used, ok := nonnegativeNumber(limit["percentage"])
@@ -91,7 +91,7 @@ func normalizeZai(providerID string, payload map[string]any, capturedAt int64, p
 		report.Buckets = append(report.Buckets, bucket)
 	}
 	if len(report.Buckets) == 0 {
-		return Report{}, errors.New("Z.AI quota endpoint returned no displayable usage data.")
+		return Report{}, errors.New("z.ai quota endpoint returned no displayable usage data")
 	}
 	label := displayString(data["level"], 80)
 	if plan != nil {

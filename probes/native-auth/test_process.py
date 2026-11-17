@@ -78,7 +78,7 @@ def _assert_consuming_wait_ownership(test: unittest.TestCase, waits: dict[str, A
 class AuthenticationProcessTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.root = Path(os.environ["NA_OUTPUT"])
+        cls.root = Path(os.environ["PIG_FIXTURE_ROOT"])
         cls.rows = _rows(cls.root, "native.jsonl")
         cls.segments = _segments(cls.rows)
         cls.cases = {case["name"]: case for case in _load(cls.root, "scenarios.json")}
@@ -221,7 +221,7 @@ def main() -> int:
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(AuthenticationProcessTests)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {"executed": result.testsRun, "failures": [{"test":test.id(), "output":output} for test, output in result.failures], "errors": [{"test":test.id(), "output":output} for test, output in result.errors], "successful": result.wasSuccessful()}
-    Path(os.environ["NA_OUTPUT"], "acceptance-results.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    Path(os.environ["PIG_FIXTURE_ROOT"], "acceptance-results.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return int(not result.wasSuccessful())
 
 

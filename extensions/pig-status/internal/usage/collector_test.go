@@ -36,7 +36,7 @@ func (*admissionHost) Collect(context.Context, CollectionRequest) (CollectionRes
 	return CollectionResult{}, errors.New("unexpected credential collection")
 }
 
-func TestCollector_ACMenuOnlySkipsAuthenticationBeforeAutomaticCollection(t *testing.T) {
+func TestCollectorMenuOnlySkipsAuthentication(t *testing.T) {
 	host := &admissionHost{provider: "xai"}
 	collector := NewCollector(Client{})
 	xaiErr := collector.Refresh(t.Context(), Resolver{Host: host})

@@ -41,13 +41,13 @@ type subscriptionIdentity struct {
 	accountID        string
 }
 
-var ErrUnsupportedOpenAIUsageAuth = errors.New("OpenAI API-key usage reporting is not supported; ChatGPT plan status requires native /login openai OAuth.")
+var ErrUnsupportedOpenAIAuth = errors.New("openai API-key usage reporting is not supported; chatgpt plan status requires native /login openai oauth")
 
 var copilotHost = regexp.MustCompile(`^api\.[a-z0-9-]+\.githubcopilot\.com$`)
 var bearerAuthorization = regexp.MustCompile(`(?i)^Bearer[\t\n\v\f\r ]+(.+)$`)
 
-func officialProviderOrigin(providerID, base string) bool {
-	p, ok := lookupProvider(providerID)
+func officialProviderOrigin(id providerID, base string) bool {
+	p, ok := lookupProvider(id)
 	return ok && p.allowsOrigin(base)
 }
 
@@ -80,27 +80,27 @@ func authAccessToken(auth RequestAuth) (string, error) {
 	return match[1], nil
 }
 
-func validateSnapshotOrigins(providerID string, snapshot OAuthSnapshot) error {
+func validateSnapshotOrigins(id providerID, snapshot OAuthSnapshot) error {
 	if !snapshot.Ready {
-		return errors.New("OAuth credential readiness failed closed")
+		return errors.New("oauth credential readiness failed closed")
 	}
-	if !officialProviderOrigin(providerID, snapshot.ModelBaseURL) {
-		return errors.New("OAuth model requires the official provider origin")
+	if !officialProviderOrigin(id, snapshot.ModelBaseURL) {
+		return errors.New("oauth model requires the official provider origin")
 	}
 	for _, base := range []string{snapshot.Effective.BaseURL, snapshot.Provider.BaseURL} {
-		if base != "" && !officialProviderOrigin(providerID, base) {
-			return errors.New("OAuth resolved authentication requires the official provider origin")
+		if base != "" && !officialProviderOrigin(id, base) {
+			return errors.New("oauth resolved authentication requires the official provider origin")
 		}
 	}
 	return nil
 }
 
 func resolveNativeOpenAI(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
-	if err := validateSnapshotOrigins("openai", snapshot); err != nil {
+	if err := validateSnapshotOrigins(providerOpenAI, snapshot); err != nil {
 		return subscriptionIdentity{}, err
 	}
 	if snapshot.Source != "OAuth" {
-		return subscriptionIdentity{}, ErrUnsupportedOpenAIUsageAuth
+		return subscriptionIdentity{}, ErrUnsupportedOpenAIAuth
 	}
 	access, err := authAccessToken(snapshot.Effective)
 	if err != nil {
@@ -121,7 +121,7 @@ func resolveNativeOpenAI(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 		}
 		refresh, _ := credential["refresh"].(string)
 		clientID, _ := credential["clientId"].(string)
-		_, validExpiry := finiteNumber(credential["expires"], false)
+		_, validExpiry := finiteNumber(credential["expires"])
 		scopes, validScopes := credential["scopes"].([]any)
 		direct := false
 		for _, raw := range scopes {
@@ -145,7 +145,7 @@ func resolveNativeOpenAI(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 }
 
 func resolveCompanion(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
-	if err := validateSnapshotOrigins("openai-codex", snapshot); err != nil {
+	if err := validateSnapshotOrigins(providerOpenAICodex, snapshot); err != nil {
 		return subscriptionIdentity{}, err
 	}
 	if snapshot.Source != "OAuth" {
@@ -173,7 +173,7 @@ func resolveCompanion(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 			continue
 		}
 		refresh, _ := credential["refresh"].(string)
-		_, validExpiry := finiteNumber(credential["expires"], false)
+		_, validExpiry := finiteNumber(credential["expires"])
 		if credential["accountId"] != account || refresh == "" || !validExpiry {
 			return subscriptionIdentity{}, errors.New("matching companion credential was incomplete or had a different account ID")
 		}
@@ -215,7 +215,7 @@ func codexAccountID(access string) string {
 }
 
 func resolveCopilot(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
-	if err := validateSnapshotOrigins("github-copilot", snapshot); err != nil {
+	if err := validateSnapshotOrigins(providerGitHubCopilot, snapshot); err != nil {
 		return subscriptionIdentity{}, err
 	}
 	access, err := authAccessToken(snapshot.Effective)
@@ -223,7 +223,7 @@ func resolveCopilot(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 		return subscriptionIdentity{}, err
 	}
 	if access == "" {
-		return subscriptionIdentity{}, errors.New("GitHub Copilot OAuth credentials were incomplete")
+		return subscriptionIdentity{}, errors.New("github copilot oauth credentials were incomplete")
 	}
 	matches := make(map[string]struct{})
 	for _, raw := range snapshot.Candidates {
@@ -238,18 +238,18 @@ func resolveCopilot(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 			}
 			u, err := url.Parse(enterprise)
 			if err != nil || !strings.EqualFold(u.Hostname(), "github.com") {
-				return subscriptionIdentity{}, errors.New("GitHub Copilot usage does not support GitHub Enterprise accounts")
+				return subscriptionIdentity{}, errors.New("github copilot usage does not support github enterprise accounts")
 			}
 		}
 		refresh, _ := credential["refresh"].(string)
-		_, validExpiry := finiteNumber(credential["expires"], false)
+		_, validExpiry := finiteNumber(credential["expires"])
 		if refresh == "" || !validExpiry {
-			return subscriptionIdentity{}, errors.New("GitHub Copilot OAuth credentials were incomplete")
+			return subscriptionIdentity{}, errors.New("github copilot oauth credentials were incomplete")
 		}
 		matches[refresh] = struct{}{}
 	}
 	if len(matches) != 1 {
-		return subscriptionIdentity{}, errors.New("GitHub Copilot OAuth must uniquely match the fresh runtime credential")
+		return subscriptionIdentity{}, errors.New("github copilot oauth must uniquely match the fresh runtime credential")
 	}
 	identity := subscriptionIdentity{access: access}
 	for refresh := range matches {
@@ -259,7 +259,7 @@ func resolveCopilot(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 	return identity, nil
 }
 
-func (a ResolvedAuth) subscriptionIdentity(ctx context.Context, providerID string) (subscriptionIdentity, error) {
+func (a ResolvedAuth) subscriptionIdentity(ctx context.Context, id providerID) (subscriptionIdentity, error) {
 	if err := a.revalidate(ctx); err != nil {
 		return subscriptionIdentity{}, err
 	}
@@ -271,9 +271,9 @@ func (a ResolvedAuth) subscriptionIdentity(ctx context.Context, providerID strin
 		return subscriptionIdentity{}, ctx.Err()
 	}
 	if err != nil {
-		return subscriptionIdentity{}, errors.New("OAuth credential discovery failed closed")
+		return subscriptionIdentity{}, errors.New("oauth credential discovery failed closed")
 	}
-	p, ok := lookupProvider(providerID)
+	p, ok := lookupProvider(id)
 	if !ok || p.identity == nil {
 		return subscriptionIdentity{}, ErrUsageUnsupported
 	}
@@ -281,19 +281,19 @@ func (a ResolvedAuth) subscriptionIdentity(ctx context.Context, providerID strin
 }
 
 func openAIIdentity(snapshot OAuthSnapshot, auth ResolvedAuth) (subscriptionIdentity, error) {
-	return resolveOpenAI(snapshot, auth.UseCodexUsage)
+	if !auth.UseCodexUsage {
+		return resolveNativeOpenAI(snapshot)
+	}
+	return resolveOpenAICompanion(snapshot)
 }
 
-func resolveOpenAI(snapshot OAuthSnapshot, useCompanion bool) (subscriptionIdentity, error) {
+func resolveOpenAICompanion(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 	identity, err := resolveNativeOpenAI(snapshot)
 	if err != nil {
 		return subscriptionIdentity{}, err
 	}
-	if !useCompanion {
-		return identity, nil
-	}
 	if !snapshot.CompanionReady {
-		return subscriptionIdentity{}, errors.New("companion OAuth credential readiness failed closed")
+		return subscriptionIdentity{}, errors.New("companion oauth credential readiness failed closed")
 	}
 	if snapshot.Companion == nil {
 		return identity, nil
@@ -312,13 +312,13 @@ func (c Client) queryOAuth(ctx context.Context, p provider, auth ResolvedAuth, _
 		return Report{}, err
 	}
 	session := oauthSession{client: c, auth: auth, provider: p.id, identity: identity}
-	if p.id == "openai" && identity.companionAccess == "" {
-		return normalizeReport("openai", map[string]any{"useCodexUsage": auth.UseCodexUsage}, time.Now().UnixMilli())
+	if p.id == providerOpenAI && identity.companionAccess == "" {
+		return normalizeReport(providerOpenAI, map[string]any{"useCodexUsage": auth.UseCodexUsage}, time.Now().UnixMilli())
 	}
 	if err := session.check(ctx); err != nil {
 		return Report{}, err
 	}
-	if p.id == "github-copilot" {
+	if p.id == providerGitHubCopilot {
 		payload, err := session.read(ctx, p.endpoint, p.description)
 		if err != nil {
 			return Report{}, err
@@ -331,7 +331,7 @@ func (c Client) queryOAuth(ctx context.Context, p provider, auth ResolvedAuth, _
 type oauthSession struct {
 	client   Client
 	auth     ResolvedAuth
-	provider string
+	provider providerID
 	identity subscriptionIdentity
 }
 
@@ -362,7 +362,7 @@ func (s oauthSession) read(ctx context.Context, endpoint, description string) (m
 }
 
 func (s oauthSession) companionReport(ctx context.Context) (Report, error) {
-	codex, ok := lookupProvider("openai-codex")
+	codex, ok := lookupProvider(providerOpenAICodex)
 	if !ok {
 		return Report{}, ErrUsageUnsupported
 	}
@@ -377,5 +377,5 @@ func (s oauthSession) companionReport(ctx context.Context) (Report, error) {
 	if err != nil {
 		return Report{}, err
 	}
-	return normalizeReport("openai", map[string]any{"apps": apps, "plan": plan, "clientId": s.identity.clientID}, time.Now().UnixMilli())
+	return normalizeReport(providerOpenAI, map[string]any{"apps": apps, "plan": plan, "clientId": s.identity.clientID}, time.Now().UnixMilli())
 }

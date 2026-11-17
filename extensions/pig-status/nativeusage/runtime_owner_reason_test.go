@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 )
 
@@ -13,7 +14,7 @@ type publishedReasons struct {
 	reasons []string
 }
 
-func (p *publishedReasons) publish(view usage.CachedUsage) {
+func (p *publishedReasons) publish(view usage.Cached) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.reasons = append(p.reasons, view.Reason)

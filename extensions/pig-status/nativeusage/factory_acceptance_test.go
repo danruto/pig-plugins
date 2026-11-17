@@ -124,7 +124,7 @@ func TestFooterRendersNativeCollectionAtWideAndNarrowWidths(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			state := status.NewState(now.Add(-30 * time.Minute))
 			state.Tokens(nativeusage.SessionTokens(acceptEntries(acceptAssistantFull), "openai/gpt-4.1"))
-			state.Quota(usage.CachedUsage{
+			state.Quota(usage.Cached{
 				ExpiresAt: now.Add(30 * time.Minute),
 				Windows: []usage.Window{
 					{Label: "5h", UsedPercent: 39, ResetsAt: now.Add(time.Hour)},

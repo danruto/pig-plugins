@@ -6,6 +6,7 @@ import (
 	"math"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -74,7 +75,7 @@ func NewState(started time.Time) *State {
 	return &State{current: snapshot{started: started}}
 }
 
-func (s *State) Quota(view usage.CachedUsage) {
+func (s *State) Quota(view usage.Cached) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.current.summary == nil && view.ExpiresAt.IsZero() {
@@ -120,12 +121,24 @@ func (s *State) Context(context *sdk.ContextUsage, thinking string) {
 	s.current.usage, s.current.thinking = context, thinking
 }
 
+type renderInput struct {
+	width    int
+	state    snapshot
+	theme    sdk.UITheme
+	model    string
+	cwd      string
+	session  string
+	branch   string
+	statuses map[string]string
+	now      time.Time
+}
+
 func (s *State) Render(width int, display Display, now time.Time) []string {
 	s.mu.RLock()
 	current := s.current
 	s.mu.RUnlock()
-	return render(width, current, display.Theme, display.Model, display.Cwd,
-		display.Session, display.Branch, display.Statuses, now)
+	return render(renderInput{width: width, state: current, theme: display.Theme, model: display.Model, cwd: display.Cwd,
+		session: display.Session, branch: display.Branch, statuses: display.Statuses, now: now})
 }
 
 func (s *State) summaryCopy() usageSummary {
@@ -288,23 +301,23 @@ func summaryWindows(value any) ([]quotaWindow, error) {
 	return windows, nil
 }
 
-func render(width int, state snapshot, theme sdk.UITheme, model, cwd, name, branch string, statuses map[string]string, now time.Time) []string {
-	if width <= 0 {
+func render(in renderInput) []string {
+	if in.width <= 0 {
 		return nil
 	}
-	provider, modelID, qualified := strings.Cut(model, "/")
+	provider, modelID, qualified := strings.Cut(in.model, "/")
 	if !qualified {
-		modelID, provider = model, ""
+		modelID, provider = in.model, ""
 	}
 	tokens, cost, quota := "", "", ""
-	if summary := state.summary; summary != nil {
+	if summary := in.state.summary; summary != nil {
 		tokens = fmt.Sprintf("↑%s ↓%s", count(summary.Input+summary.CacheRead+summary.CacheWrite), count(summary.Output))
 		cost = fmt.Sprintf("$%.3f", summary.Cost)
 		if summary.Subscription {
 			cost = "plan"
 		}
 		windows := []string{}
-		for _, window := range liveWindows(summary, now) {
+		for _, window := range liveWindows(summary, in.now) {
 			if window.UsedPercent == nil || math.IsNaN(*window.UsedPercent) || math.IsInf(*window.UsedPercent, 0) {
 				continue
 			}
@@ -315,47 +328,47 @@ func render(width int, state snapshot, theme sdk.UITheme, model, cwd, name, bran
 			quota = "left " + strings.Join(windows, " ")
 		}
 	} else {
-		tokens = clean(statuses["subscription-usage"])
+		tokens = clean(in.statuses["subscription-usage"])
 	}
 	if provider == "claude-bridge" {
-		if status := clean(statuses["claude-usage"]); status != "" {
+		if status := clean(in.statuses["claude-usage"]); status != "" {
 			quota = "used " + status
 		}
 	}
 	thinking := ""
-	if state.thinking != "" && state.thinking != "none" && state.thinking != "off" {
-		thinking = clean(state.thinking)
+	if in.state.thinking != "" && in.state.thinking != "none" && in.state.thinking != "off" {
+		thinking = clean(in.state.thinking)
 	}
 	git := ""
-	if branch != "" {
-		git = "git " + clean(branch)
+	if in.branch != "" {
+		git = "git " + clean(in.branch)
 	}
 	left := []footerSegment{
-		{clean(filepath.Base(cwd)), 6},
+		{clean(filepath.Base(in.cwd)), 6},
 		{git, 7},
-		{theme.Fg("muted", quota), 1},
-		{clean(name), 9},
-		{"open " + duration(now.Sub(state.started)), 8},
+		{in.theme.Fg("muted", quota), 1},
+		{clean(in.session), 9},
+		{"open " + duration(in.now.Sub(in.state.started)), 8},
 	}
 	right := []footerSegment{
-		{contextLabel(state.usage, width >= 70, theme), 0},
-		{theme.Fg("accent", clean(modelID)), 2},
+		{contextSegment(in.state.usage, in.width, in.theme), 0},
+		{in.theme.Fg("accent", clean(modelID)), 2},
 		{thinking, 3},
 		{tokens, 4},
 		{cost, 5},
 		{clean(provider), 10},
 	}
-	keys := make([]string, 0, len(statuses))
-	for key := range statuses {
+	keys := make([]string, 0, len(in.statuses))
+	for key := range in.statuses {
 		if key != "subscription-usage" && key != "usage" && key != "claude-usage" {
 			keys = append(keys, key)
 		}
 	}
 	slices.Sort(keys)
 	for _, key := range keys {
-		right = append(right, footerSegment{theme.Fg("muted", clean(statuses[key])), 11})
+		right = append(right, footerSegment{in.theme.Fg("muted", clean(in.statuses[key])), 11})
 	}
-	return []string{fit(width, left, right)}
+	return []string{fit(in.width, left, right)}
 }
 
 func liveWindows(summary *usageSummary, now time.Time) []quotaWindow {
@@ -367,23 +380,46 @@ func liveWindows(summary *usageSummary, now time.Time) []quotaWindow {
 	})
 }
 
-func contextLabel(usage *sdk.ContextUsage, gauge bool, theme sdk.UITheme) string {
-	if usage == nil || usage.Percent == nil || math.IsNaN(*usage.Percent) || math.IsInf(*usage.Percent, 0) {
+func contextSegment(usage *sdk.ContextUsage, width int, theme sdk.UITheme) string {
+	if width >= 70 {
+		return contextGaugeLabel(usage, theme)
+	}
+	return contextLabel(usage, theme)
+}
+
+func contextLabel(usage *sdk.ContextUsage, theme sdk.UITheme) string {
+	percent, ok := contextPercent(usage)
+	if !ok {
 		return theme.Fg("muted", "ctx --")
 	}
-	percent := *usage.Percent
-	label := fmt.Sprintf("ctx %.0f%%", percent)
-	if gauge {
-		filled := int(math.Round(math.Max(0, math.Min(100, percent)) * 6 / 100))
-		label = fmt.Sprintf("ctx [%s%s] %.0f%%", strings.Repeat("━", filled), strings.Repeat("─", 6-filled), percent)
+	return theme.Fg(contextColor(percent), fmt.Sprintf("ctx %.0f%%", percent))
+}
+
+func contextGaugeLabel(usage *sdk.ContextUsage, theme sdk.UITheme) string {
+	percent, ok := contextPercent(usage)
+	if !ok {
+		return theme.Fg("muted", "ctx --")
 	}
-	color := "success"
-	if percent >= 90 {
-		color = "error"
-	} else if percent >= 70 {
-		color = "warning"
+	filled := int(math.Round(math.Max(0, math.Min(100, percent)) * 6 / 100))
+	return theme.Fg(contextColor(percent), fmt.Sprintf("ctx [%s%s] %.0f%%", strings.Repeat("━", filled), strings.Repeat("─", 6-filled), percent))
+}
+
+func contextPercent(usage *sdk.ContextUsage) (float64, bool) {
+	if usage == nil || usage.Percent == nil || math.IsNaN(*usage.Percent) || math.IsInf(*usage.Percent, 0) {
+		return 0, false
 	}
-	return theme.Fg(color, label)
+	return *usage.Percent, true
+}
+
+func contextColor(percent float64) string {
+	switch {
+	case percent >= 90:
+		return "error"
+	case percent >= 70:
+		return "warning"
+	default:
+		return "success"
+	}
 }
 
 func fit(width int, left, right []footerSegment) string {
@@ -464,7 +500,7 @@ func count(n int) string {
 	if n >= 1_000 {
 		return strings.TrimSuffix(fmt.Sprintf("%.1f", float64(n)/1_000), ".0") + "k"
 	}
-	return fmt.Sprint(n)
+	return strconv.Itoa(n)
 }
 
 func duration(elapsed time.Duration) string {

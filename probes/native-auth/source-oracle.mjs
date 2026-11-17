@@ -10,4 +10,4 @@ const reports={
  codex:normalizeCodexBackendPayload({plan_type:'plus',rate_limit:{primary_window:{used_percent:10,limit_window_seconds:18000,reset_at:2000000000}}},0),
  choices:normalizeFireworksAccountsPayload({accounts:[{name:'accounts/first'},{name:'accounts/second'}]})
 };
-writeFileSync(process.env.NA_OUTPUT+'/source-oracle.json',JSON.stringify(reports,null,2));
+writeFileSync(process.env.PIG_FIXTURE_ROOT+'/source-oracle.json',JSON.stringify(reports,null,2));

@@ -175,7 +175,7 @@ func (c UsageCommand) commitTarget(ctx context.Context, ui CommandUI, session me
 		}
 		return nil
 	}
-	state, err := c.Settings.SelectTarget(ctx, "fireworks", targetID, confirm)
+	state, err := c.Settings.SelectTarget(ctx, string(providerFireworks), targetID, confirm)
 	if err != nil {
 		notifySaveFailure(ui, err, "Fireworks accounts changed; choose again.")
 		return session, nil
@@ -213,7 +213,7 @@ func (c UsageCommand) afterSave(ctx context.Context, ui CommandUI, state Setting
 func (c UsageCommand) targetChoices(ctx context.Context, session menuSession) ([]Target, error) {
 	if len(session.outcomes) == 1 {
 		visible := session.outcomes[0]
-		if visible.ProviderID == "fireworks" && visible.Status == "selection-required" {
+		if providerID(visible.ProviderID) == providerFireworks && visible.Status == "selection-required" {
 			return visible.Choices, nil
 		}
 	}
@@ -221,14 +221,14 @@ func (c UsageCommand) targetChoices(ctx context.Context, session menuSession) ([
 }
 
 func (c UsageCommand) discoverTargets(ctx context.Context, state SettingsState) ([]Target, error) {
-	selection := c.selection(state, "provider", "fireworks")
-	delete(selection.Targets, "fireworks")
+	selection := c.selection(state, "provider", string(providerFireworks))
+	delete(selection.Targets, string(providerFireworks))
 	outcomes, err := c.Dispatcher.Query(ctx, selection)
 	if err != nil {
 		return nil, err
 	}
 	for _, outcome := range outcomes {
-		if outcome.ProviderID == "fireworks" {
+		if providerID(outcome.ProviderID) == providerFireworks {
 			return outcome.Choices, nil
 		}
 	}
@@ -244,19 +244,19 @@ func (c UsageCommand) otherProviders(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	providerIDs := make([]string, 0, len(providerTable()))
+	ids := make([]string, 0, len(providerTable()))
 	for _, p := range providerTable() {
-		if p.id != metadata.ProviderID && inventory.Providers[p.id].Configured {
-			providerIDs = append(providerIDs, p.id)
+		if p.id != providerID(metadata.ProviderID) && inventory.Providers[string(p.id)].Configured {
+			ids = append(ids, string(p.id))
 		}
 	}
-	return providerIDs, nil
+	return ids, nil
 }
 
-func (c UsageCommand) selection(state SettingsState, mode, providerID string) Selection {
+func (c UsageCommand) selection(state SettingsState, mode, id string) Selection {
 	return Selection{
 		Mode:          mode,
-		ProviderID:    providerID,
+		ProviderID:    id,
 		Targets:       maps.Clone(state.Settings.SelectedTargets),
 		UseCodexUsage: state.Settings.OpenAIUseCodexUsage,
 		Timeout:       c.Timeout,
@@ -306,7 +306,7 @@ func resetSelectable(outcomes []Outcome) bool {
 	if len(outcomes) != 1 || outcomes[0].Report == nil {
 		return false
 	}
-	return outcomes[0].Report.ProviderID == "openai-codex"
+	return providerID(outcomes[0].Report.ProviderID) == providerOpenAICodex
 }
 
 func targetSelectable(outcomes []Outcome) bool {
@@ -314,7 +314,7 @@ func targetSelectable(outcomes []Outcome) bool {
 		return false
 	}
 	visible := outcomes[0]
-	return visible.ProviderID == "fireworks" && (visible.Status == "ok" || visible.Status == "selection-required")
+	return providerID(visible.ProviderID) == providerFireworks && (visible.Status == "ok" || visible.Status == "selection-required")
 }
 
 func targetOptions(choices []Target) []string {
@@ -326,21 +326,15 @@ func targetOptions(choices []Target) []string {
 }
 
 func selectedTargetOption(choices []Target, options []string, picked string) (string, bool) {
-	for index, option := range options {
-		if option == picked {
-			return choices[index].ID, true
-		}
+	index := slices.Index(options, picked)
+	if index < 0 {
+		return "", false
 	}
-	return "", false
+	return choices[index].ID, true
 }
 
 func containsTarget(choices []Target, targetID string) bool {
-	for _, choice := range choices {
-		if choice.ID == targetID {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(choices, func(choice Target) bool { return choice.ID == targetID })
 }
 
 func FormatOutcome(outcome Outcome) []string {

@@ -19,14 +19,14 @@ func normalizeCommandCode(bundle map[string]any, capturedAt int64) (Report, erro
 		label = displayString(user["name"], 80)
 	}
 	if label == "" {
-		return Report{}, errors.New("Command Code account response omitted a safe account name.")
+		return Report{}, errors.New("command code account response omitted a safe account name")
 	}
 	creditsPayload := object(bundle["credits"])
 	credits := object(creditsPayload["credits"])
 	windows := object(creditsPayload["windowLimits"])
 	subscription := object(object(bundle["subscription"])["data"])
 	usage := object(bundle["usage"])
-	report := Report{ProviderID: "command-code", ProviderName: "Command Code", CapturedAt: capturedAt, Source: "command-code-alpha-usage", Semantics: Semantics{Kind: "consumer-subscription", Label: "Command Code plan credits and rolling limits"}, AccountLabel: label, Buckets: []Bucket{}, Metrics: []Metric{}}
+	report := Report{ProviderID: string(providerCommandCode), ProviderName: "Command Code", CapturedAt: capturedAt, Source: "command-code-alpha-usage", Semantics: Semantics{Kind: "consumer-subscription", Label: "Command Code plan credits and rolling limits"}, AccountLabel: label, Buckets: []Bucket{}, Metrics: []Metric{}}
 	for _, window := range []struct {
 		key, id, label string
 		minutes        float64
@@ -38,9 +38,9 @@ func normalizeCommandCode(bundle map[string]any, capturedAt int64) (Report, erro
 			continue
 		}
 		bucket := Bucket{ID: window.id, Label: window.label, Used: new(used), Remaining: new(math.Max(0, cap-used)), Limit: new(cap), Unit: "usd", WindowMinutes: new(window.minutes)}
-		reset, valid := finiteNumber(row["resetAt"], false)
+		reset, valid := finiteNumber(row["resetAt"])
 		if text, ok := row["resetAt"].(string); ok && unsignedDigits.MatchString(jsTrim(text)) {
-			reset, valid = finiteNumber(jsTrim(text), true)
+			reset, valid = jsNumberValue(jsTrim(text))
 		}
 		if valid && reset >= 0 {
 			if reset >= 1e12 {
@@ -109,10 +109,10 @@ func normalizeCommandCode(bundle map[string]any, capturedAt int64) (Report, erro
 		report.Notes = append(report.Notes, "Command Code billing-period usage was unavailable.")
 	}
 	if len(report.Buckets) == 0 && len(report.Metrics) == 0 {
-		return Report{}, errors.New("Command Code usage response returned no displayable usage data.")
+		return Report{}, errors.New("command code usage response returned no displayable usage data")
 	}
 	if math.IsInf(remaining, 0) || monthly && math.IsInf(totalCost+remaining, 0) {
-		return Report{}, errors.New("Command Code credit total was not finite.")
+		return Report{}, errors.New("command code credit total was not finite")
 	}
 	return report, nil
 }
@@ -140,9 +140,9 @@ func commandCodePlan(value any) string {
 func normalizeOpenCode(payload map[string]any, capturedAt int64) (Report, error) {
 	usage := object(payload["usage"])
 	if usage == nil {
-		return Report{}, errors.New("OpenCode Zen usage response was not an object.")
+		return Report{}, errors.New("opencode zen usage response was not an object")
 	}
-	report := Report{ProviderID: "opencode-go", ProviderName: "OpenCode Go", CapturedAt: capturedAt, Source: "opencode-zen-usage", Semantics: Semantics{Kind: "consumer-subscription", Label: "OpenCode Zen plan usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
+	report := Report{ProviderID: string(providerOpenCodeGo), ProviderName: "OpenCode Go", CapturedAt: capturedAt, Source: "opencode-zen-usage", Semantics: Semantics{Kind: "consumer-subscription", Label: "OpenCode Zen plan usage"}, Buckets: []Bucket{}, Metrics: []Metric{}}
 	for _, window := range [][2]string{{"rolling", "Rolling"}, {"weekly", "Weekly"}, {"monthly", "Monthly"}} {
 		row := object(usage[window[0]])
 		if row == nil {
@@ -163,7 +163,7 @@ func normalizeOpenCode(payload map[string]any, capturedAt int64) (Report, error)
 		report.Buckets = append(report.Buckets, Bucket{ID: window[0], Label: window[1] + " window", Used: new(used), Remaining: new(100 - math.Min(100, used)), Limit: new(100.0), Unit: "percent", ResetsAt: consumerEpoch(row["resetsAt"])})
 	}
 	if len(report.Buckets) == 0 {
-		return Report{}, errors.New("OpenCode Zen usage endpoint returned no displayable usage data.")
+		return Report{}, errors.New("opencode zen usage endpoint returned no displayable usage data")
 	}
 	return report, nil
 }

@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 )
 
 func ExampleRegister() {
-	var cached usage.CachedUsage
+	var cached usage.Cached
 	published := 0
-	runtime, err := Register(sdk.New("example"), Options{Publish: func(view usage.CachedUsage) { published++; cached = view }})
+	runtime, err := Register(sdk.New("example"), Options{Publish: func(view usage.Cached) { published++; cached = view }})
 	if err != nil {
 		panic(err)
 	}

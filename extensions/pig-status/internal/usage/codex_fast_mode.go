@@ -81,7 +81,7 @@ func NewCodexFast(options CodexFastOptions) *CodexFast {
 
 func CodexAccountFromResolver(resolver Resolver) func(context.Context) (CodexAccount, error) {
 	return func(ctx context.Context) (CodexAccount, error) {
-		auth, err := resolver.Resolve(ctx, "openai-codex", ResolveOptions{})
+		auth, err := resolver.Resolve(ctx, string(providerOpenAICodex), ResolveOptions{})
 		if err != nil {
 			return CodexAccount{}, err
 		}
@@ -145,7 +145,7 @@ func (f *CodexFast) fastTarget(ctx context.Context, ui CommandUI) (FastScope, bo
 		ui.Notify("Codex Fast mode is unavailable: the active session could not be read.", "warning")
 		return FastScope{}, false
 	}
-	if !scope.HasModel || scope.Model.Provider != "openai-codex" {
+	if !scope.HasModel || providerID(scope.Model.Provider) != providerOpenAICodex {
 		ui.Notify("/fast is available only for the active OpenAI Codex model.", "warning")
 		return FastScope{}, false
 	}

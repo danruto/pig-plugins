@@ -5,6 +5,7 @@ import (
 	"errors"
 	"maps"
 	"reflect"
+	"slices"
 	"sync"
 	"time"
 )
@@ -98,8 +99,8 @@ func selectProviders(selection Selection, current string, inventory HostInventor
 		}
 		ids := []string{}
 		for _, p := range providerTable() {
-			if p.id == current || inventory.Providers[p.id].Configured {
-				ids = append(ids, p.id)
+			if p.id == providerID(current) || inventory.Providers[string(p.id)].Configured {
+				ids = append(ids, string(p.id))
 			}
 		}
 		return ids, nil
@@ -186,19 +187,19 @@ func (d Dispatcher) querySelected(ctx context.Context, plan selectionPlan) []pen
 	return pending
 }
 
-func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, providerID string) pendingOutcome {
+func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, id string) pendingOutcome {
 	selection := plan.selection
-	auth, _, _, err := d.Resolver.resolve(ctx, providerID, ResolveOptions{UseCodexUsage: selection.UseCodexUsage, owner: plan.owner}, plan.inventory)
+	auth, _, _, err := d.Resolver.resolve(ctx, id, ResolveOptions{UseCodexUsage: selection.UseCodexUsage, owner: plan.owner}, plan.inventory)
 	if err != nil {
-		return pendingOutcome{outcome: failedOutcome(providerID, err)}
+		return pendingOutcome{outcome: failedOutcome(id, err)}
 	}
-	outcome := Outcome{ProviderID: providerID, Status: "ok"}
-	if providerID == "fireworks" {
+	outcome := Outcome{ProviderID: id, Status: "ok"}
+	if providerID(id) == providerFireworks {
 		return d.queryTarget(ctx, selection, auth)
 	}
-	report, err := d.Client.Query(ctx, providerID, auth, selection.Timeout)
+	report, err := d.Client.Query(ctx, id, auth, selection.Timeout)
 	if err != nil {
-		return pendingOutcome{outcome: failedOutcome(providerID, err)}
+		return pendingOutcome{outcome: failedOutcome(id, err)}
 	}
 	outcome.Report = &report
 	return pendingOutcome{outcome: outcome, auth: auth}
@@ -207,36 +208,31 @@ func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, providerID
 func (d Dispatcher) queryTarget(ctx context.Context, selection Selection, auth ResolvedAuth) pendingOutcome {
 	targets, err := d.Client.ListFireworksTargets(ctx, auth, selection.Timeout)
 	if err != nil {
-		return pendingOutcome{outcome: failedOutcome("fireworks", err)}
+		return pendingOutcome{outcome: failedOutcome(string(providerFireworks), err)}
 	}
 	if len(targets) == 0 {
-		return pendingOutcome{outcome: failedOutcome("fireworks", errors.New("billing target discovery returned no choices"))}
+		return pendingOutcome{outcome: failedOutcome(string(providerFireworks), errors.New("billing target discovery returned no choices"))}
 	}
-	targetID := selection.Targets["fireworks"]
-	outcome := Outcome{ProviderID: "fireworks", Status: "selection-required", Choices: targets}
+	targetID := selection.Targets[string(providerFireworks)]
+	outcome := Outcome{ProviderID: string(providerFireworks), Status: "selection-required", Choices: targets}
 	if !selectedTarget(targets, targetID) {
 		return pendingOutcome{outcome: outcome, auth: auth}
 	}
 	report, err := d.Client.QueryFireworks(ctx, auth, targetID, selection.Timeout)
 	if err != nil {
-		return pendingOutcome{outcome: failedOutcome("fireworks", err)}
+		return pendingOutcome{outcome: failedOutcome(string(providerFireworks), err)}
 	}
-	return pendingOutcome{outcome: Outcome{ProviderID: "fireworks", TargetID: targetID, Status: "ok", Report: &report}, auth: auth}
+	return pendingOutcome{outcome: Outcome{ProviderID: string(providerFireworks), TargetID: targetID, Status: "ok", Report: &report}, auth: auth}
 }
 
 func selectedTarget(targets []Target, targetID string) bool {
 	if !fireworksAccountID.MatchString(targetID) {
 		return false
 	}
-	for _, target := range targets {
-		if target.ID == targetID {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(targets, func(target Target) bool { return target.ID == targetID })
 }
 
-func failedOutcome(providerID string, err error) Outcome {
+func failedOutcome(id string, err error) Outcome {
 	status, reason := "failed", "query-failed"
 	switch {
 	case errors.Is(err, ErrNoUsageAuth):
@@ -254,5 +250,5 @@ func failedOutcome(providerID string, err error) Outcome {
 	case errors.Is(err, context.DeadlineExceeded):
 		reason = "timed-out"
 	}
-	return Outcome{ProviderID: providerID, Status: status, Reason: reason}
+	return Outcome{ProviderID: id, Status: status, Reason: reason}
 }

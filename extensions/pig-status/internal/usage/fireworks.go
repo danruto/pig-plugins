@@ -72,14 +72,14 @@ func (c Client) discoverTargets(ctx context.Context, auth ResolvedAuth, timeout 
 			return targets, ctx.Err()
 		}
 	}
-	return nil, errors.New("Fireworks account listing exceeded 5 pages.")
+	return nil, errors.New("fireworks account listing exceeded 5 pages")
 }
 
 func fireworksHeaders(auth ResolvedAuth) (http.Header, error) {
-	if !officialProviderOrigin("fireworks", auth.ModelBaseURL) {
+	if !officialProviderOrigin(providerFireworks, auth.ModelBaseURL) {
 		return nil, ErrUsageOrigin
 	}
-	return validatedHeaders("fireworks", auth.Headers)
+	return validatedHeaders(providerFireworks, auth.Headers)
 }
 
 func fireworksAccountsURL(pageToken string) string {
@@ -97,7 +97,7 @@ func appendFireworksTargets(targets []Target, seen map[string]bool, payload map[
 	}
 	for _, id := range accounts {
 		if seen[id] {
-			return nil, errors.New("Fireworks accounts listing repeated an account.")
+			return nil, errors.New("fireworks accounts listing repeated an account")
 		}
 		seen[id] = true
 		targets = append(targets, Target{ID: id, Label: id})
@@ -108,25 +108,25 @@ func appendFireworksTargets(targets []Target, seen map[string]bool, payload map[
 func normalizeFireworksAccounts(payload map[string]any) ([]string, error) {
 	rows, ok := payload["accounts"].([]any)
 	if !ok {
-		return nil, errors.New("Fireworks accounts response did not contain an accounts array.")
+		return nil, errors.New("fireworks accounts response did not contain an accounts array")
 	}
 	accounts := []string{}
 	seen := make(map[string]bool)
 	for _, raw := range rows {
 		row := object(raw)
 		if row == nil {
-			return nil, errors.New("Fireworks accounts response row was not an object.")
+			return nil, errors.New("fireworks accounts response row was not an object")
 		}
 		name, ok := row["name"].(string)
 		if !ok {
-			return nil, errors.New("Fireworks accounts response omitted the account resource name.")
+			return nil, errors.New("fireworks accounts response omitted the account resource name")
 		}
 		id, found := strings.CutPrefix(name, "accounts/")
 		if !found || !fireworksAccountID.MatchString(id) {
-			return nil, errors.New("Fireworks accounts response returned an unsafe account resource name.")
+			return nil, errors.New("fireworks accounts response returned an unsafe account resource name")
 		}
 		if seen[id] {
-			return nil, errors.New("Fireworks accounts response repeated an account.")
+			return nil, errors.New("fireworks accounts response repeated an account")
 		}
 		seen[id] = true
 		accounts = append(accounts, id)
@@ -140,7 +140,7 @@ func fireworksNextPageToken(value any) (string, error) {
 	}
 	token, ok := value.(string)
 	if !ok || token == "" || len(utf16.Encode([]rune(token))) > 512 {
-		return "", errors.New("Fireworks accounts listing returned an invalid page token.")
+		return "", errors.New("fireworks accounts listing returned an invalid page token")
 	}
 	return token, nil
 }
@@ -159,18 +159,18 @@ func fireworksBillingURL(accountID string, at time.Time) string {
 
 func normalizeFireworks(payload map[string]any, accountID string, capturedAt int64) (Report, error) {
 	if !fireworksAccountID.MatchString(accountID) {
-		return Report{}, errors.New("Fireworks billing summary received an unsafe account identifier.")
+		return Report{}, errors.New("fireworks billing summary received an unsafe account identifier")
 	}
 	rows, ok := payload["lineItems"].([]any)
 	if _, present := payload["lineItems"]; present && !ok {
-		return Report{}, errors.New("Fireworks billing summary lineItems was not an array.")
+		return Report{}, errors.New("fireworks billing summary lineItems was not an array")
 	}
 	currencies := []string{}
 	totals := make(map[string]map[string]*big.Int)
 	for _, raw := range rows {
 		row := object(raw)
 		if row == nil {
-			return Report{}, errors.New("Fireworks billing line item was not an object.")
+			return Report{}, errors.New("fireworks billing line item was not an object")
 		}
 		currency, amount, err := fireworksMoney(row["totalCost"])
 		if err != nil {
@@ -180,7 +180,7 @@ func normalizeFireworks(payload map[string]any, accountID string, capturedAt int
 		if value := row["series"]; value != nil {
 			text, ok := value.(string)
 			if !ok {
-				return Report{}, errors.New("Fireworks billing line item series was invalid.")
+				return Report{}, errors.New("fireworks billing line item series was invalid")
 			}
 			switch text {
 			case "SERVERLESS":
@@ -201,7 +201,7 @@ func normalizeFireworks(payload map[string]any, accountID string, capturedAt int
 		totals[currency][series].Add(totals[currency][series], amount)
 	}
 	report := Report{
-		ProviderID: "fireworks", ProviderName: "Fireworks", CapturedAt: capturedAt,
+		ProviderID: string(providerFireworks), ProviderName: "Fireworks", CapturedAt: capturedAt,
 		Source: "fireworks-billing-summary", Semantics: Semantics{Kind: "api-key", Label: "Fireworks API spend"},
 		AccountLabel: displayString(accountID, 80), Buckets: []Bucket{}, Metrics: []Metric{},
 		Notes: []string{"Rated line items may differ from the final invoice once credits or adjustments are applied."},
@@ -228,28 +228,28 @@ func normalizeFireworks(payload map[string]any, accountID string, capturedAt int
 func fireworksMoney(value any) (string, *big.Int, error) {
 	money := object(value)
 	if money == nil {
-		return "", nil, errors.New("Fireworks billing line item total cost was not a money object.")
+		return "", nil, errors.New("fireworks billing line item total cost was not a money object")
 	}
 	currency, ok := money["currencyCode"].(string)
 	if !ok || !fireworksCurrency.MatchString(currency) {
-		return "", nil, errors.New("Fireworks billing line item total cost currency was not an ISO 4217 code.")
+		return "", nil, errors.New("fireworks billing line item total cost currency was not an ISO 4217 code")
 	}
 	units, err := fireworksMoneyInteger(money, "units", "whole units", 20)
 	if err != nil {
 		return "", nil, err
 	}
 	if !units.IsInt64() {
-		return "", nil, errors.New("Fireworks billing line item total cost whole units exceeded the int64 range.")
+		return "", nil, errors.New("fireworks billing line item total cost whole units exceeded the int64 range")
 	}
 	nanos, err := fireworksMoneyInteger(money, "nanos", "nano units", 11)
 	if err != nil {
 		return "", nil, err
 	}
 	if nanos.Cmp(big.NewInt(-1_000_000_000)) <= 0 || nanos.Cmp(big.NewInt(1_000_000_000)) >= 0 {
-		return "", nil, errors.New("Fireworks billing line item total cost nano units exceeded the Money range.")
+		return "", nil, errors.New("fireworks billing line item total cost nano units exceeded the Money range")
 	}
 	if units.Sign()*nanos.Sign() < 0 {
-		return "", nil, errors.New("Fireworks billing line item total cost mixed unit and nano signs.")
+		return "", nil, errors.New("fireworks billing line item total cost mixed unit and nano signs")
 	}
 	return currency, new(big.Int).Add(new(big.Int).Mul(units, big.NewInt(1_000_000_000)), nanos), nil
 }
@@ -260,15 +260,15 @@ func fireworksMoneyInteger(money map[string]any, key, component string, maxChars
 		return new(big.Int), nil
 	}
 	text, ok := value.(string)
-	if number, valid := finiteNumber(value, false); valid && math.Trunc(number) == number && math.Abs(number) <= 9_007_199_254_740_991 {
+	if number, valid := finiteNumber(value); valid && math.Trunc(number) == number && math.Abs(number) <= 9_007_199_254_740_991 {
 		text, ok = jsNumber(number), true
 	}
 	if !ok || len(text) > maxChars || !fireworksInteger.MatchString(text) {
-		return nil, fmt.Errorf("Fireworks billing line item total cost %s was not a bounded integer.", component)
+		return nil, fmt.Errorf("fireworks billing line item total cost %s was not a bounded integer", component)
 	}
 	result, valid := new(big.Int).SetString(text, 10)
 	if !valid {
-		return nil, fmt.Errorf("Fireworks billing line item total cost %s was not a bounded integer.", component)
+		return nil, fmt.Errorf("fireworks billing line item total cost %s was not a bounded integer", component)
 	}
 	return result, nil
 }

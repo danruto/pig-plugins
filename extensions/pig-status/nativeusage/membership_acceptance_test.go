@@ -233,11 +233,12 @@ func requireNothingReturned(t *testing.T, response hostResponse) {
 
 func TestUsageAndFastWithoutUIAskForAUIModeAndNothingElse(t *testing.T) {
 	tests := []struct {
-		name    string
-		command string
+		name        string
+		command     string
+		wantMessage string
 	}{
-		{name: "usage", command: "usage"},
-		{name: "fast", command: "fast"},
+		{name: "usage", command: "usage", wantMessage: "/usage requires TUI or RPC mode"},
+		{name: "fast", command: "fast", wantMessage: "/fast requires TUI or RPC mode"},
 	}
 
 	for _, tt := range tests {
@@ -250,8 +251,8 @@ func TestUsageAndFastWithoutUIAskForAUIModeAndNothingElse(t *testing.T) {
 			if got := host.methods(); len(got) != 1 || got[0] != "ui.notify" {
 				t.Fatalf("/%s without a UI called the host for %v, want only a notification", tt.command, got)
 			}
-			if message, _ := host.calls[0].args["message"].(string); message == "" {
-				t.Fatalf("/%s notified %v, want a message the user can read", tt.command, host.calls[0].args)
+			if message, _ := host.calls[0].args["message"].(string); message != tt.wantMessage {
+				t.Fatalf("/%s notified %q, want %q", tt.command, message, tt.wantMessage)
 			}
 		})
 	}

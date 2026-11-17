@@ -12,27 +12,28 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 )
 
 const lifecycleDeadline = 5 * time.Second
 
 type viewRecorder struct {
-	seen chan usage.CachedUsage
+	seen chan usage.Cached
 }
 
 func newViewRecorder() *viewRecorder {
-	return &viewRecorder{seen: make(chan usage.CachedUsage, 16)}
+	return &viewRecorder{seen: make(chan usage.Cached, 16)}
 }
 
-func (v *viewRecorder) publish(view usage.CachedUsage) {
+func (v *viewRecorder) publish(view usage.Cached) {
 	select {
 	case v.seen <- view:
 	default:
 	}
 }
 
-func (v *viewRecorder) awaitReason(t *testing.T, reason string) usage.CachedUsage {
+func (v *viewRecorder) awaitReason(t *testing.T, reason string) usage.Cached {
 	t.Helper()
 	timer := time.NewTimer(lifecycleDeadline)
 	defer timer.Stop()
@@ -44,7 +45,7 @@ func (v *viewRecorder) awaitReason(t *testing.T, reason string) usage.CachedUsag
 			}
 		case <-timer.C:
 			t.Fatalf("no %q view within the %v cap", reason, lifecycleDeadline)
-			return usage.CachedUsage{}
+			return usage.Cached{}
 		}
 	}
 }
@@ -183,7 +184,7 @@ func (t *seedTransport) RoundTrip(request *http.Request) (*http.Response, error)
 func registerSeededRuntime(t *testing.T) (*Runtime, *seedHost, *seedTransport) {
 	t.Helper()
 	host, transport := newSeedHost(), &seedTransport{}
-	runtime, err := Register(sdk.New("lifecycle"), Options{Client: usage.Client{Transport: transport}, Publish: func(usage.CachedUsage) {}})
+	runtime, err := Register(sdk.New("lifecycle"), Options{Client: usage.Client{Transport: transport}, Publish: func(usage.Cached) {}})
 	if err != nil {
 		t.Fatalf("register: %v", err)
 	}
@@ -191,7 +192,7 @@ func registerSeededRuntime(t *testing.T) (*Runtime, *seedHost, *seedTransport) {
 	return runtime, host, transport
 }
 
-func seedCachedReport(t *testing.T, runtime *Runtime, host usage.HostPort) usage.CachedUsage {
+func seedCachedReport(t *testing.T, runtime *Runtime, host usage.HostPort) usage.Cached {
 	t.Helper()
 	if err := runtime.collector.Refresh(t.Context(), usage.Resolver{Host: host}); err != nil {
 		t.Fatalf("seed cached report: %v", err)
@@ -203,7 +204,7 @@ func seedCachedReport(t *testing.T, runtime *Runtime, host usage.HostPort) usage
 	return cached
 }
 
-func seedFailureBackoff(t *testing.T, runtime *Runtime, host usage.HostPort, transport *seedTransport) usage.CachedUsage {
+func seedFailureBackoff(t *testing.T, runtime *Runtime, host usage.HostPort, transport *seedTransport) usage.Cached {
 	t.Helper()
 	transport.setFailing(true)
 	if err := runtime.collector.Refresh(t.Context(), usage.Resolver{Host: host}); err == nil {

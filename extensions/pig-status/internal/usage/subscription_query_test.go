@@ -196,13 +196,13 @@ func subscriptionValidQuery(t testing.TB, f subscriptionFixture) {
 	requireSubscriptionWire(t, server.observations(), subscriptionExpectedWire(f, true))
 }
 
-func TestSubscriptionQueryMatchesPinnedSource(t *testing.T) {
+func TestSubscriptionQueryNormalizesCodexPayloads(t *testing.T) {
 	for _, tt := range subscriptionFixtures(t, true) {
 		t.Run(tt.Name, func(t *testing.T) { subscriptionValidQuery(t, tt) })
 	}
 }
 
-func TestSubscriptionQueryRefusesPinnedFailures(t *testing.T) {
+func TestSubscriptionQueryRefusesErrorResponses(t *testing.T) {
 	for _, tt := range subscriptionFixtures(t, false) {
 		t.Run(tt.Name, func(t *testing.T) {
 			subscriptionValidQuery(t, subscriptionGood(t, tt.Provider))

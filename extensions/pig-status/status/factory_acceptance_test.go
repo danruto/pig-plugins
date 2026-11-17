@@ -40,8 +40,8 @@ func acceptDisplay(statuses map[string]string) status.Display {
 	}
 }
 
-func acceptQuota(now time.Time) usage.CachedUsage {
-	return usage.CachedUsage{
+func acceptQuota(now time.Time) usage.Cached {
+	return usage.Cached{
 		ExpiresAt: now.Add(30 * time.Minute),
 		Windows: []usage.Window{
 			{Label: "5h", UsedPercent: 39, ResetsAt: now.Add(time.Hour)},
@@ -139,7 +139,7 @@ func TestQuotaRendersKeptPercentWindows(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			state := status.NewState(now)
-			state.Quota(usage.CachedUsage{ExpiresAt: now.Add(30 * time.Minute), Windows: tt.windows})
+			state.Quota(usage.Cached{ExpiresAt: now.Add(30 * time.Minute), Windows: tt.windows})
 			f := acceptFooter{state: state, display: acceptDisplay(nil), now: now}
 
 			line := f.line(t, 200)
@@ -159,7 +159,7 @@ func TestQuotaClearsWindowsAndHidesReasonWithoutExpiry(t *testing.T) {
 	f := acceptFooter{state: state, display: acceptDisplay(nil), now: now}
 	acceptContains(t, f.line(t, 200), acceptQuotaSegment)
 
-	state.Quota(usage.CachedUsage{Reason: "claude credentials unavailable"})
+	state.Quota(usage.Cached{Reason: "claude credentials unavailable"})
 
 	line := f.line(t, 200)
 	acceptAbsent(t, line, "left")
@@ -171,7 +171,7 @@ func TestQuotaReasonOnlyViewKeepsBackendTokenStatus(t *testing.T) {
 	state := status.NewState(now)
 	display := acceptDisplay(map[string]string{"subscription-usage": "↑100k ↓2k · $0.216 · 5h 61% left"})
 
-	state.Quota(usage.CachedUsage{Reason: "claude credentials unavailable"})
+	state.Quota(usage.Cached{Reason: "claude credentials unavailable"})
 
 	line := acceptFooter{state: state, display: display, now: now}.line(t, 200)
 	acceptContains(t, line, "↑100k ↓2k")
@@ -195,7 +195,7 @@ func TestQuotaHidesWindowsOnceReportExpires(t *testing.T) {
 func TestQuotaDropsWindowWhoseResetPassed(t *testing.T) {
 	now := time.Now()
 	state := status.NewState(now)
-	state.Quota(usage.CachedUsage{ExpiresAt: now.Add(30 * time.Minute), Windows: []usage.Window{
+	state.Quota(usage.Cached{ExpiresAt: now.Add(30 * time.Minute), Windows: []usage.Window{
 		{Label: "5h", UsedPercent: 39, ResetsAt: now.Add(time.Hour)},
 		{Label: "Week", UsedPercent: 13, ResetsAt: now.Add(-time.Hour)},
 	}})
@@ -512,7 +512,7 @@ func TestStateRendersDuringConcurrentWriters(t *testing.T) {
 	for range 4 {
 		writers.Go(func() {
 			for i := range 50 {
-				state.Quota(usage.CachedUsage{
+				state.Quota(usage.Cached{
 					ExpiresAt: now.Add(time.Duration(i) * time.Minute),
 					Windows:   []usage.Window{{Label: "5h", UsedPercent: float64(i)}},
 				})

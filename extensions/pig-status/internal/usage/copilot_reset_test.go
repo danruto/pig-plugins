@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestCopilotResetsMatchPinnedSource(t *testing.T) {
+func TestCopilotResetParsing(t *testing.T) {
 	data, err := os.ReadFile("testdata/copilot-resets.json")
 	if err != nil {
 		t.Fatal(err)

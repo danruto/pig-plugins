@@ -15,6 +15,7 @@ import (
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
+
 	"github.com/danruto/pig-plugins/extensions/pig-status/internal/usage"
 )
 
@@ -25,7 +26,7 @@ var activeRequests int
 func record(row any) {
 	logMu.Lock()
 	defer logMu.Unlock()
-	file, err := os.OpenFile(filepath.Join(os.Getenv("NA_OUTPUT"), "native.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Join(os.Getenv("PIG_FIXTURE_ROOT"), "native.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		panic("fixture receipt unavailable")
 	}
@@ -53,7 +54,7 @@ func serve(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	record(map[string]any{"event": "request", "host": r.Host, "path": r.URL.Path, "authTag": tag, "accountHeader": r.Header.Get("ChatGPT-Account-Id") != ""})
-	root := os.Getenv("NA_OUTPUT")
+	root := os.Getenv("PIG_FIXTURE_ROOT")
 	if _, err := os.Stat(filepath.Join(root, "hold")); err == nil {
 		for {
 			if _, err := os.Stat(filepath.Join(root, "release")); err == nil {

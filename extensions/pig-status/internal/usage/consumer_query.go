@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-func Schedulable(providerID string) bool {
-	p, ok := lookupProvider(providerID)
+func Schedulable(id string) bool {
+	p, ok := lookupProvider(providerID(id))
 	return ok && p.scheduled
 }
 
