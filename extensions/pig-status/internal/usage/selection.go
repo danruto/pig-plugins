@@ -35,7 +35,7 @@ type selectionPlan struct {
 	selection Selection
 	ids       []string
 	owner     *selectionFence
-	inventory HostInventory
+	inventory *HostInventory
 }
 
 type selectionFence struct {
@@ -121,24 +121,22 @@ func (d Dispatcher) Query(ctx context.Context, selection Selection) ([]Outcome, 
 	if err != nil {
 		return nil, err
 	}
-	inventory, err := d.Resolver.inventory(ctx)
-	if err != nil {
-		return nil, err
+	plan := selectionPlan{selection: selection, owner: &selectionFence{metadata: current}}
+	var inventory HostInventory
+	if selection.Mode == "all" {
+		loaded, err := d.Resolver.inventory(ctx)
+		if err != nil {
+			return nil, err
+		}
+		inventory = loaded
+		plan.inventory = &inventory
 	}
 	ids, err := selectProviders(selection, current.ProviderID, inventory)
 	if err != nil {
 		return nil, err
 	}
-	pending := d.querySelected(ctx, selectionPlan{selection: selection, ids: ids, owner: &selectionFence{metadata: current}, inventory: inventory})
-	results := make([]Outcome, len(pending))
-	for i, entry := range pending {
-		if entry.outcome.Status == "ok" || entry.outcome.Status == "selection-required" {
-			if err := entry.auth.revalidate(ctx); err != nil {
-				entry.outcome = failedOutcome(entry.outcome.ProviderID, err)
-			}
-		}
-		results[i] = entry.outcome
-	}
+	plan.ids = ids
+	results := revalidatedOutcomes(ctx, d.querySelected(ctx, plan))
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -150,6 +148,19 @@ func (d Dispatcher) Query(ctx context.Context, selection Selection) ([]Outcome, 
 		return nil, ErrUsageChanged
 	}
 	return results, nil
+}
+
+func revalidatedOutcomes(ctx context.Context, pending []pendingOutcome) []Outcome {
+	results := make([]Outcome, len(pending))
+	for i, entry := range pending {
+		if entry.outcome.Status == "ok" || entry.outcome.Status == "selection-required" {
+			if err := entry.auth.revalidate(ctx); err != nil {
+				entry.outcome = failedOutcome(entry.outcome.ProviderID, err)
+			}
+		}
+		results[i] = entry.outcome
+	}
+	return results
 }
 
 func (d Dispatcher) querySelected(ctx context.Context, plan selectionPlan) []pendingOutcome {
@@ -179,14 +190,10 @@ func (d Dispatcher) querySelected(ctx context.Context, plan selectionPlan) []pen
 
 func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, providerID string) pendingOutcome {
 	selection := plan.selection
-	auth, snapshot, _, err := d.Resolver.resolve(ctx, providerID, ResolveOptions{UseCodexUsage: selection.UseCodexUsage}, &plan.inventory)
+	auth, _, _, err := d.Resolver.resolve(ctx, providerID, ResolveOptions{UseCodexUsage: selection.UseCodexUsage, owner: plan.owner}, plan.inventory)
 	if err != nil {
 		return pendingOutcome{outcome: failedOutcome(providerID, err)}
 	}
-	if err := plan.owner.admit(snapshot); err != nil {
-		return pendingOutcome{outcome: failedOutcome(providerID, err)}
-	}
-	auth.Revalidate = d.fence(auth.Revalidate, providerID, plan.owner)
 	outcome := Outcome{ProviderID: providerID, Status: "ok"}
 	if providerID == "fireworks" {
 		return d.queryTarget(ctx, selection, auth)
@@ -197,19 +204,6 @@ func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, providerID
 	}
 	outcome.Report = &report
 	return pendingOutcome{outcome: outcome, auth: auth}
-}
-
-func (d Dispatcher) fence(check func(context.Context) error, providerID string, owner *selectionFence) func(context.Context) error {
-	return func(ctx context.Context) error {
-		if err := check(ctx); err != nil {
-			return err
-		}
-		fresh, err := d.Resolver.snapshot(ctx, map[string]any{"provider": providerID})
-		if err != nil {
-			return err
-		}
-		return owner.verify(fresh)
-	}
 }
 
 func (d Dispatcher) queryTarget(ctx context.Context, selection Selection, auth ResolvedAuth) pendingOutcome {

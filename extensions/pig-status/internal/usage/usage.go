@@ -202,6 +202,9 @@ func (a ResolvedAuth) revalidate(ctx context.Context) error {
 		if ctx.Err() != nil {
 			return ctx.Err()
 		}
+		if errors.Is(err, ErrUsageChanged) {
+			return ErrUsageChanged
+		}
 		return errors.New("usage authentication revalidation failed")
 	}
 	return ctx.Err()

@@ -76,9 +76,6 @@ func (c Client) queryXai(ctx context.Context, auth ResolvedAuth) (Report, error)
 		}
 		return nil
 	}
-	if err := check(); err != nil {
-		return Report{}, err
-	}
 	user, err := c.fetch(ctx, "https://cli-chat-proxy.grok.com/v1/user?include=subscription", "xAI consumer identity endpoint", identity.headers)
 	if err != nil {
 		return Report{}, err
@@ -92,9 +89,6 @@ func (c Client) queryXai(ctx context.Context, auth ResolvedAuth) (Report, error)
 	}
 	headers := identity.headers.Clone()
 	headers.Set("x-userid", id)
-	if err := check(); err != nil {
-		return Report{}, err
-	}
 	payload, err := c.fetch(ctx, "https://cli-chat-proxy.grok.com/v1/billing?format=credits", "xAI consumer billing endpoint", headers)
 	if err != nil {
 		return Report{}, err

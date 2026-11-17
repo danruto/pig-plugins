@@ -53,7 +53,10 @@ type CollectionResult struct {
 }
 
 type Resolver struct{ Host HostPort }
-type ResolveOptions struct{ UseCodexUsage bool }
+type ResolveOptions struct {
+	UseCodexUsage bool
+	owner         *selectionFence
+}
 
 var (
 	ErrNoUsageAuth      = errors.New("usage authentication unavailable")
@@ -96,6 +99,7 @@ type hostResolution struct {
 	modelState HostModelState
 	companion  *hostResolution
 	inventory  *HostInventory
+	owner      *selectionFence
 }
 
 func hostFailure(ctx context.Context) error {
@@ -211,13 +215,7 @@ func (r Resolver) collect(ctx context.Context, snapshot hostSnapshot, channel, k
 	return result.Values, ctx.Err()
 }
 
-func requestedModel(snapshot hostSnapshot, inventory HostInventory, providerID string) (map[string]any, error) {
-	if providerID == snapshot.Provider {
-		if snapshot.Model == nil {
-			return nil, ErrNoUsageAuth
-		}
-		return snapshot.Model, nil
-	}
+func requestedModel(inventory HostInventory, providerID string) (map[string]any, error) {
 	if !inventory.Providers[providerID].Configured {
 		return nil, ErrNoUsageAuth
 	}
@@ -250,24 +248,14 @@ func (r Resolver) readyCurrent(ctx context.Context, providerID string) (hostSnap
 	if endpoint, _ := providerEndpoint(providerID); endpoint == "" {
 		return hostSnapshot{}, "", ErrUsageUnsupported
 	}
-	options := map[string]any{"provider": providerID}
-	current, err := r.snapshot(ctx, options)
+	current, err := r.snapshot(ctx, map[string]any{"provider": providerID})
 	if err != nil {
 		return hostSnapshot{}, "", err
 	}
-	if err := r.ready(ctx, current); err != nil {
-		return hostSnapshot{}, "", err
-	}
-	fresh, err := r.snapshot(ctx, options)
-	if err != nil {
-		return hostSnapshot{}, "", err
-	}
-	if fresh.SessionID != current.SessionID || !reflect.DeepEqual(current.SelectedModel, fresh.SelectedModel) {
+	if current.Provider != providerID {
 		return hostSnapshot{}, "", ErrUsageChanged
 	}
-	fresh.Provider = modelString(fresh.SelectedModel, "provider")
-	fresh.Model = fresh.SelectedModel
-	return fresh, providerID, nil
+	return current, providerID, nil
 }
 
 func (r Resolver) acquire(ctx context.Context, providerID string, inventory *HostInventory) (hostResolution, error) {
@@ -275,18 +263,20 @@ func (r Resolver) acquire(ctx context.Context, providerID string, inventory *Hos
 	if err != nil {
 		return hostResolution{}, err
 	}
-	if inventory == nil && providerID != current.Provider {
+	if providerID == modelString(current.SelectedModel, "provider") {
+		if current.Model == nil {
+			return hostResolution{}, ErrNoUsageAuth
+		}
+		return r.pin(ctx, map[string]any{"provider": providerID}, current, inventory)
+	}
+	if inventory == nil {
 		owned, err := r.inventory(ctx)
 		if err != nil {
 			return hostResolution{}, err
 		}
 		inventory = &owned
 	}
-	candidates := HostInventory{}
-	if inventory != nil {
-		candidates = *inventory
-	}
-	model, err := requestedModel(current, candidates, providerID)
+	model, err := requestedModel(*inventory, providerID)
 	if err != nil {
 		return hostResolution{}, err
 	}
@@ -298,12 +288,17 @@ func (r Resolver) acquire(ctx context.Context, providerID string, inventory *Hos
 	if snapshot.SessionID != current.SessionID || snapshot.Provider != providerID || !reflect.DeepEqual(snapshot.SelectedModel, current.SelectedModel) {
 		return hostResolution{}, ErrUsageChanged
 	}
+	return r.pin(ctx, options, snapshot, inventory)
+}
+
+func (r Resolver) pin(ctx context.Context, options map[string]any, snapshot hostSnapshot, inventory *HostInventory) (hostResolution, error) {
 	resolution := hostResolution{resolver: r, options: options, snapshot: snapshot, inventory: inventory}
+	var err error
 	resolution.modelState, err = r.modelState(ctx, snapshot)
 	if err != nil {
 		return hostResolution{}, err
 	}
-	if providerID != current.Provider && !reflect.DeepEqual(model, resolution.modelState.Model) {
+	if model, requested := options["model"]; requested && !reflect.DeepEqual(model, resolution.modelState.Model) {
 		return hostResolution{}, ErrUsageChanged
 	}
 	return resolution, resolution.validateOrigins()
@@ -338,6 +333,11 @@ func (h hostResolution) revalidate(ctx context.Context) error {
 	}
 	if fresh.SessionID != h.snapshot.SessionID || fresh.Revision != h.snapshot.Revision {
 		return ErrUsageChanged
+	}
+	if h.owner != nil {
+		if err := h.owner.verify(fresh); err != nil {
+			return err
+		}
 	}
 	state, err := h.resolver.modelState(ctx, fresh)
 	if err != nil {
@@ -404,6 +404,12 @@ func (r Resolver) resolve(ctx context.Context, providerID string, options Resolv
 	resolution, err := r.acquire(ctx, providerID, inventory)
 	if err != nil {
 		return ResolvedAuth{}, hostSnapshot{}, "", err
+	}
+	if options.owner != nil {
+		if err := options.owner.admit(resolution.snapshot); err != nil {
+			return ResolvedAuth{}, hostSnapshot{}, "", err
+		}
+		resolution.owner = options.owner
 	}
 	auth, companionRevision, err := resolution.resolved(ctx, options)
 	return auth, resolution.snapshot, companionRevision, err

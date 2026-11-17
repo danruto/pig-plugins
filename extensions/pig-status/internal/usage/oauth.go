@@ -327,9 +327,6 @@ func (c Client) queryOAuth(ctx context.Context, providerID string, auth Resolved
 		return nil
 	}
 	read := func(endpoint, description string) (map[string]any, error) {
-		if err := check(); err != nil {
-			return nil, err
-		}
 		headers, err := validatedHeaders(providerID, identity.headers)
 		if err != nil {
 			return nil, err
@@ -344,10 +341,10 @@ func (c Client) queryOAuth(ctx context.Context, providerID string, auth Resolved
 		return payload, nil
 	}
 	if providerID == "openai" && identity.companionAccess == "" {
-		if err := check(); err != nil {
-			return Report{}, err
-		}
 		return normalizeReport("openai", map[string]any{"useCodexUsage": auth.UseCodexUsage}, time.Now().UnixMilli())
+	}
+	if err := check(); err != nil {
+		return Report{}, err
 	}
 	endpoint, description := providerEndpoint(providerID)
 	if providerID == "github-copilot" {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -26,10 +27,20 @@ func (c Client) ListTargets(ctx context.Context, providerID string, auth Resolve
 	if providerID != "fireworks" {
 		return nil, errors.New("usage provider does not support billing targets")
 	}
-	if !officialProviderOrigin(providerID, auth.ModelBaseURL) {
-		return nil, errors.New("usage requires the official provider origin")
+	ctx, cancel := context.WithTimeout(ctx, min(timeout, maxQueryDuration))
+	defer cancel()
+	targets, err := c.discoverTargets(ctx, auth, timeout)
+	if err != nil {
+		return nil, err
 	}
-	headers, err := validatedHeaders(providerID, auth.Headers)
+	if err := auth.revalidate(ctx); err != nil {
+		return nil, err
+	}
+	return targets, ctx.Err()
+}
+
+func (c Client) discoverTargets(ctx context.Context, auth ResolvedAuth, timeout time.Duration) ([]Target, error) {
+	headers, err := fireworksHeaders(auth)
 	if err != nil {
 		return nil, err
 	}
@@ -48,27 +59,13 @@ func (c Client) ListTargets(ctx context.Context, providerID string, auth Resolve
 		if err := auth.revalidate(ctx); err != nil {
 			return nil, err
 		}
-		query := url.Values{"pageSize": {"200"}}
-		if pageToken != "" {
-			query.Set("pageToken", pageToken)
-		}
-		payload, err := c.fetch(ctx, "https://api.fireworks.ai/v1/accounts?"+query.Encode(), "Fireworks accounts endpoint", headers)
+		payload, err := c.fetch(ctx, fireworksAccountsURL(pageToken), "Fireworks accounts endpoint", headers)
 		if err != nil {
 			return nil, err
 		}
-		if err := auth.revalidate(ctx); err != nil {
-			return nil, err
-		}
-		accounts, err := normalizeFireworksAccounts(payload)
+		targets, err = appendFireworksTargets(targets, seen, payload)
 		if err != nil {
 			return nil, err
-		}
-		for _, id := range accounts {
-			if seen[id] {
-				return nil, errors.New("Fireworks accounts listing repeated an account.")
-			}
-			seen[id] = true
-			targets = append(targets, Target{ID: id, Label: id})
 		}
 		pageToken, err = fireworksNextPageToken(payload["nextPageToken"])
 		if err != nil {
@@ -79,6 +76,36 @@ func (c Client) ListTargets(ctx context.Context, providerID string, auth Resolve
 		}
 	}
 	return nil, errors.New("Fireworks account listing exceeded 5 pages.")
+}
+
+func fireworksHeaders(auth ResolvedAuth) (http.Header, error) {
+	if !officialProviderOrigin("fireworks", auth.ModelBaseURL) {
+		return nil, errors.New("usage requires the official provider origin")
+	}
+	return validatedHeaders("fireworks", auth.Headers)
+}
+
+func fireworksAccountsURL(pageToken string) string {
+	query := url.Values{"pageSize": {"200"}}
+	if pageToken != "" {
+		query.Set("pageToken", pageToken)
+	}
+	return "https://api.fireworks.ai/v1/accounts?" + query.Encode()
+}
+
+func appendFireworksTargets(targets []Target, seen map[string]bool, payload map[string]any) ([]Target, error) {
+	accounts, err := normalizeFireworksAccounts(payload)
+	if err != nil {
+		return nil, err
+	}
+	for _, id := range accounts {
+		if seen[id] {
+			return nil, errors.New("Fireworks accounts listing repeated an account.")
+		}
+		seen[id] = true
+		targets = append(targets, Target{ID: id, Label: id})
+	}
+	return targets, nil
 }
 
 func normalizeFireworksAccounts(payload map[string]any) ([]string, error) {

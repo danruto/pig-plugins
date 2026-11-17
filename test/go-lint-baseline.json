@@ -612,17 +612,7 @@
   {
     "file": "extensions/pig-status/internal/usage/fireworks.go",
     "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function ListTargets is 16, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/fireworks.go",
-    "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function normalizeFireworks is 19, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/fireworks.go",
-    "linter": "funlen",
-    "text": "Function 'ListTargets' has too many statements (40 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/fireworks.go",
@@ -917,7 +907,7 @@
   {
     "file": "extensions/pig-status/internal/usage/host.go",
     "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function acquire is 14, max is 10"
+    "text": "calculated cyclomatic complexity for function acquire is 11, max is 10"
   },
   {
     "file": "extensions/pig-status/internal/usage/host.go",
@@ -1197,7 +1187,7 @@
   {
     "file": "extensions/pig-status/internal/usage/oauth.go",
     "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function queryOAuth is 16, max is 10"
+    "text": "calculated cyclomatic complexity for function queryOAuth is 15, max is 10"
   },
   {
     "file": "extensions/pig-status/internal/usage/oauth.go",
@@ -1217,7 +1207,7 @@
   {
     "file": "extensions/pig-status/internal/usage/oauth.go",
     "linter": "funlen",
-    "text": "Function 'queryOAuth' has too many statements (43 > 30)"
+    "text": "Function 'queryOAuth' has too many statements (41 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/oauth.go",
@@ -1503,11 +1493,6 @@
     "file": "extensions/pig-status/internal/usage/regional_query_test.go",
     "linter": "thelper",
     "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/selection.go",
-    "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function Query is 12, max is 10"
   },
   {
     "file": "extensions/pig-status/internal/usage/selection.go",
@@ -2092,7 +2077,7 @@
   {
     "file": "extensions/pig-status/internal/usage/xai.go",
     "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function queryXai is 14, max is 10"
+    "text": "calculated cyclomatic complexity for function queryXai is 12, max is 10"
   },
   {
     "file": "extensions/pig-status/internal/usage/xai.go",
@@ -2112,7 +2097,7 @@
   {
     "file": "extensions/pig-status/internal/usage/xai.go",
     "linter": "funlen",
-    "text": "Function 'queryXai' has too many statements (35 > 30)"
+    "text": "Function 'queryXai' has too many statements (31 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/xai.go",

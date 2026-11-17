@@ -1,7 +1,7 @@
 package status
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"path/filepath"
@@ -42,19 +42,19 @@ type State struct {
 }
 
 type usageSummary struct {
-	Input        int           `json:"input"`
-	Output       int           `json:"output"`
-	CacheRead    int           `json:"cacheRead"`
-	CacheWrite   int           `json:"cacheWrite"`
-	Cost         float64       `json:"cost"`
-	Subscription bool          `json:"subscription"`
-	Windows      []quotaWindow `json:"windows"`
-	expiresAt    time.Time     `json:"-"`
+	Input        int
+	Output       int
+	CacheRead    int
+	CacheWrite   int
+	Cost         float64
+	Subscription bool
+	Windows      []quotaWindow
+	expiresAt    time.Time
 }
 
 type quotaWindow struct {
-	Label       string   `json:"label"`
-	UsedPercent *float64 `json:"usedPercent"`
+	Label       string
+	UsedPercent *float64
 	resetsAt    time.Time
 }
 
@@ -196,13 +196,96 @@ func New(options Options) (*sdk.Extension, error) {
 }
 
 func decodeSummary(data any) (*usageSummary, error) {
-	encoded, err := json.Marshal(data)
+	if data == nil {
+		return nil, nil
+	}
+	payload, ok := data.(map[string]any)
+	if !ok {
+		return nil, errors.New("usage payload was not an object")
+	}
+	summary := &usageSummary{}
+	for key, field := range map[string]*int{"input": &summary.Input, "output": &summary.Output, "cacheRead": &summary.CacheRead, "cacheWrite": &summary.CacheWrite} {
+		number, err := summaryInteger(payload, key)
+		if err != nil {
+			return nil, err
+		}
+		*field = number
+	}
+	cost, err := summaryNumber(payload, "cost")
 	if err != nil {
 		return nil, err
 	}
-	var summary *usageSummary
-	err = json.Unmarshal(encoded, &summary)
-	return summary, err
+	summary.Cost = cost
+	if value := payload["subscription"]; value != nil {
+		flag, ok := value.(bool)
+		if !ok {
+			return nil, errors.New("usage payload subscription was not a boolean")
+		}
+		summary.Subscription = flag
+	}
+	windows, err := summaryWindows(payload["windows"])
+	if err != nil {
+		return nil, err
+	}
+	summary.Windows = windows
+	return summary, nil
+}
+
+func summaryNumber(payload map[string]any, key string) (float64, error) {
+	value := payload[key]
+	if value == nil {
+		return 0, nil
+	}
+	number, ok := value.(float64)
+	if !ok {
+		return 0, fmt.Errorf("usage payload %s was not a number", key)
+	}
+	return number, nil
+}
+
+func summaryInteger(payload map[string]any, key string) (int, error) {
+	number, err := summaryNumber(payload, key)
+	if err != nil {
+		return 0, err
+	}
+	if math.Trunc(number) != number || math.Abs(number) >= math.MaxInt64 {
+		return 0, fmt.Errorf("usage payload %s was not an integer", key)
+	}
+	return int(number), nil
+}
+
+func summaryWindows(value any) ([]quotaWindow, error) {
+	if value == nil {
+		return nil, nil
+	}
+	rows, ok := value.([]any)
+	if !ok {
+		return nil, errors.New("usage payload windows was not an array")
+	}
+	windows := make([]quotaWindow, 0, len(rows))
+	for _, raw := range rows {
+		row, ok := raw.(map[string]any)
+		if !ok {
+			return nil, errors.New("usage payload window was not an object")
+		}
+		var window quotaWindow
+		if label := row["label"]; label != nil {
+			text, ok := label.(string)
+			if !ok {
+				return nil, errors.New("usage payload window label was not a string")
+			}
+			window.Label = text
+		}
+		if percent := row["usedPercent"]; percent != nil {
+			number, ok := percent.(float64)
+			if !ok {
+				return nil, errors.New("usage payload window usedPercent was not a number")
+			}
+			window.UsedPercent = &number
+		}
+		windows = append(windows, window)
+	}
+	return windows, nil
 }
 
 func render(width int, state snapshot, theme sdk.UITheme, model, cwd, name, branch string, statuses map[string]string, now time.Time) []string {

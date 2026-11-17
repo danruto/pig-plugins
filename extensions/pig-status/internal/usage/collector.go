@@ -94,9 +94,6 @@ func (c *Collector) Refresh(ctx context.Context, resolver Resolver) error {
 	if err != nil {
 		return c.fail(ticket, err)
 	}
-	if err := identity.auth.Revalidate(ctx); err != nil {
-		return c.recordFailure(ticket, identity.key, err)
-	}
 	if c.backingOff(ticket, identity.key, time.Now()) {
 		if identity.provider == "fireworks" {
 			c.publishBackoff(ticket, identity.key)
@@ -111,28 +108,29 @@ func (c *Collector) Refresh(ctx context.Context, resolver Resolver) error {
 	if c.reuse(ticket, identity.key, time.Now()) {
 		return ctx.Err()
 	}
-	return c.fetch(ctx, resolver, ticket, identity)
+	return c.fetch(ctx, ticket, identity)
 }
 
-func (c *Collector) fetch(ctx context.Context, resolver Resolver, ticket collectionTicket, identity collectionIdentity) error {
-	dispatcher := Dispatcher{Resolver: resolver, Client: c.client}
-	outcomes, err := dispatcher.Query(ctx, Selection{Mode: "current", Timeout: hostBudget(ctx), Targets: ticket.settings.Targets, UseCodexUsage: ticket.settings.UseCodexUsage})
-	if err != nil {
-		return c.recordFailure(ticket, identity.key, err)
+func (c *Collector) fetch(ctx context.Context, ticket collectionTicket, identity collectionIdentity) error {
+	targetID := ""
+	var report Report
+	var err error
+	if identity.provider == "fireworks" {
+		targetID = ticket.settings.Targets["fireworks"]
+		report, err = c.client.QueryTarget(ctx, "fireworks", identity.auth, targetID, hostBudget(ctx))
+	} else {
+		report, err = c.client.Query(ctx, identity.provider, identity.auth, hostBudget(ctx))
 	}
-	if err := identity.auth.Revalidate(ctx); err != nil {
+	if err != nil {
 		return c.recordFailure(ticket, identity.key, err)
 	}
 	if err := ctx.Err(); err != nil {
 		return c.recordFailure(ticket, identity.key, err)
 	}
-	if len(outcomes) != 1 || outcomes[0].ProviderID != identity.provider {
+	if report.ProviderID != identity.provider {
 		return c.recordFailure(ticket, identity.key, ErrUsageChanged)
 	}
-	if outcomes[0].Report != nil && outcomes[0].Report.ProviderID != identity.provider {
-		return c.recordFailure(ticket, identity.key, ErrUsageChanged)
-	}
-	return c.commit(ticket, identity.key, outcomes[0], time.Now())
+	return c.commit(ticket, identity.key, Outcome{ProviderID: identity.provider, TargetID: targetID, Status: "ok", Report: &report}, time.Now())
 }
 
 type collectionIdentity struct {
@@ -171,14 +169,20 @@ func (c *Collector) validateTarget(ctx context.Context, identity collectionIdent
 	if identity.provider != "fireworks" {
 		return nil
 	}
-	targets, err := c.client.ListTargets(ctx, "fireworks", identity.auth, hostBudget(ctx))
+	targets, err := c.client.discoverTargets(ctx, identity.auth, hostBudget(ctx))
 	if err != nil {
 		return err
 	}
 	if !selectedTarget(targets, ticket.settings.Targets["fireworks"]) {
+		if err := identity.auth.revalidate(ctx); err != nil {
+			return err
+		}
 		return errCollectionTarget
 	}
-	return identity.auth.Revalidate(ctx)
+	if c.cached(ticket, identity.key, time.Now()) {
+		return identity.auth.revalidate(ctx)
+	}
+	return nil
 }
 
 func hostBudget(ctx context.Context) time.Duration {
@@ -285,17 +289,31 @@ func (c *Collector) publishBackoff(ticket collectionTicket, key [32]byte) {
 func (c *Collector) reuse(ticket collectionTicket, key [32]byte, now time.Time) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	entry, ok := c.reusable(ticket, key, now)
+	if ok {
+		c.activate(entry)
+	}
+	return ok
+}
+
+func (c *Collector) cached(ticket collectionTicket, key [32]byte, now time.Time) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	_, ok := c.reusable(ticket, key, now)
+	return ok
+}
+
+func (c *Collector) reusable(ticket collectionTicket, key [32]byte, now time.Time) (accountEntry, bool) {
 	if !c.current(ticket) {
-		return false
+		return accountEntry{}, false
 	}
 	c.sweep(now)
 	for _, entry := range c.entries {
 		if entry.key == key && ((entry.report != nil && entry.retryAt.IsZero()) || now.Before(entry.retryAt)) {
-			c.activate(entry)
-			return true
+			return entry, true
 		}
 	}
-	return false
+	return accountEntry{}, false
 }
 
 func (c *Collector) commit(ticket collectionTicket, key [32]byte, outcome Outcome, now time.Time) error {

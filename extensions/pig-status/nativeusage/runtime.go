@@ -65,6 +65,7 @@ var errBridge = errors.New("native usage host bridge failed")
 
 const bridgeFailureReason = "host-bridge-failed"
 const bridgeFailureBackoff = 30 * time.Second
+const scheduledRefreshTimeout = 5 * time.Second
 
 func Register(ext *sdk.Extension, options Options) (*Runtime, error) {
 	if options.Publish == nil {
@@ -272,7 +273,9 @@ func (r *Runtime) tick(call sdk.Context, current *owner) error {
 		r.publishCurrent(call, current, view)
 	}
 	if current.refresh.Swap(false) || !refreshed || view.RefreshAt.IsZero() || !time.Now().Before(view.RefreshAt) {
-		err := r.collector.Refresh(ctx, usage.Resolver{Host: Port(call)})
+		refreshCtx, stopRefresh := context.WithTimeout(ctx, scheduledRefreshTimeout)
+		err := r.collector.Refresh(refreshCtx, usage.Resolver{Host: Port(call)})
+		stopRefresh()
 		if err != nil && ctx.Err() != nil {
 			return nil
 		}

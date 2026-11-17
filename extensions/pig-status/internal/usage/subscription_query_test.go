@@ -389,12 +389,44 @@ func subscriptionFenceAuth(t testing.TB, provider string, s map[string]any, optI
 	})
 }
 
-func TestOpenAIQueryFencesDefaultAuthOnlyResult(t *testing.T) {
+func TestOpenAIQueryResolvesIdentityOnceWithoutAFetch(t *testing.T) {
 	f := subscriptionNamed(t, "openai:auth-only")
 	subscriptionValidQuery(t, f)
 	server := subscriptionHTTPS(t, f)
 	s := subscriptionSnapshotFor(f)
-	auth := subscriptionFenceAuth(t, "openai", s, false, "resolve", func(s map[string]any) { s["Ready"] = false }, new(atomic.Bool))
+	var resolves, revalidations atomic.Int32
+	auth := subscriptionAuth(t, s, false, func(context.Context) (map[string]any, error) {
+		resolves.Add(1)
+		return s, nil
+	})
+	auth.Revalidate = func(context.Context) error {
+		revalidations.Add(1)
+		return nil
+	}
+
+	report, err := server.client.Query(t.Context(), "openai", auth, time.Second)
+
+	subscriptionAssertReport(t, report, err, f)
+	if got := resolves.Load(); got != 1 {
+		t.Fatalf("OAuth identity reads = %d, want 1: no I/O separates the identity read from the result", got)
+	}
+	if got := revalidations.Load(); got != 1 {
+		t.Fatalf("host revalidations = %d, want 1: no I/O separates the identity read from the result", got)
+	}
+	requireSubscriptionWire(t, server.observations(), nil)
+}
+
+func TestOpenAIQueryRefusesIdentityChangeReportedByRevalidation(t *testing.T) {
+	f := subscriptionNamed(t, "openai:auth-only")
+	subscriptionValidQuery(t, f)
+	server := subscriptionHTTPS(t, f)
+	s := subscriptionSnapshotFor(f)
+	auth := subscriptionAuth(t, s, false, func(context.Context) (map[string]any, error) {
+		return s, nil
+	})
+	auth.Revalidate = func(context.Context) error {
+		return errors.New("fixture-secret account-canary-89342 identity changed")
+	}
 
 	report, err := server.client.Query(t.Context(), "openai", auth, time.Second)
 
