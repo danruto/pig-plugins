@@ -114,7 +114,7 @@ func (c *codexFastCatalog) read(ctx context.Context, scope FastScope, request ca
 	if !c.settled(ctx, scope, fetch.generation) {
 		return FastCapability{}, false
 	}
-	return c.get(&scope.Model), true
+	return c.capabilityFor(fetch, &scope.Model)
 }
 
 func (c *codexFastCatalog) generationNow() int {
@@ -185,7 +185,7 @@ func (c *codexFastCatalog) load(ctx context.Context, account CodexAccount, fetch
 	c.requests[fetch.fingerprint] = shared
 	c.mu.Unlock()
 
-	ok := c.fetch(requestCtx, account, fetch)
+	ok := c.fetch(ctx, requestCtx, account, fetch)
 	cancel()
 	c.mu.Lock()
 	shared.ok = ok
@@ -200,11 +200,11 @@ func (c *codexFastCatalog) load(ctx context.Context, account CodexAccount, fetch
 	return ok
 }
 
-func (c *codexFastCatalog) fetch(ctx context.Context, account CodexAccount, fetch codexFastFetch) bool {
-	if !c.revalidated(ctx, account) {
+func (c *codexFastCatalog) fetch(ctx, requestCtx context.Context, account CodexAccount, fetch codexFastFetch) bool {
+	if !c.revalidated(requestCtx, account) {
 		return false
 	}
-	payload, status, err := c.client.fetchBounded(ctx, usageRequest{
+	payload, status, err := c.client.fetchBounded(requestCtx, usageRequest{
 		endpoint:    codexFastDirectoryURL(c.clientVersion),
 		description: codexFastDirectoryLabel,
 		headers:     directoryHeaders(account),
@@ -215,14 +215,18 @@ func (c *codexFastCatalog) fetch(ctx context.Context, account CodexAccount, fetc
 	if err == nil {
 		models, err = normalizeDirectory(payload)
 	}
-	if ctx.Err() != nil {
+	if ctx.Err() != nil || errors.Is(requestCtx.Err(), context.Canceled) {
 		return false
+	}
+	if err != nil && errors.Is(requestCtx.Err(), context.DeadlineExceeded) {
+		err = requestError{description: codexFastDirectoryLabel, detail: "timed out"}
+		fetch.status = 0
 	}
 	if err != nil {
 		c.recordFailure(fetch, err)
 		return true
 	}
-	if !c.revalidated(ctx, account) {
+	if !c.revalidated(requestCtx, account) {
 		return false
 	}
 	c.record(fetch, models)
@@ -296,7 +300,7 @@ func (c *codexFastCatalog) skipLocked(fetch codexFastFetch) bool {
 	if c.retryLocked(fetch.key) {
 		return true
 	}
-	if c.capabilityLocked(&fetch.model).Kind == FastUnknown {
+	if c.capabilityLocked(fetch.key, &fetch.model).Kind == FastUnknown {
 		return false
 	}
 	entry := c.accounts[fetch.key]
@@ -323,11 +327,20 @@ func (c *codexFastCatalog) storeLocked(key string, entry *codexFastEntry) {
 func (c *codexFastCatalog) get(model *CodexModel) FastCapability {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return c.capabilityLocked(model)
+	return c.capabilityLocked(c.active, model)
 }
 
-func (c *codexFastCatalog) capabilityLocked(model *CodexModel) FastCapability {
-	entry := c.accounts[c.active]
+func (c *codexFastCatalog) capabilityFor(fetch codexFastFetch, model *CodexModel) (FastCapability, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.generation != fetch.generation || c.active != fetch.key {
+		return FastCapability{}, false
+	}
+	return c.capabilityLocked(fetch.key, model), true
+}
+
+func (c *codexFastCatalog) capabilityLocked(key string, model *CodexModel) FastCapability {
+	entry := c.accounts[key]
 	if entry != nil && model != nil {
 		if supported, listed := entry.models[model.ID]; listed && supported != nil {
 			if *supported {
