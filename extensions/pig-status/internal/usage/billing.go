@@ -3,10 +3,15 @@ package usage
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
 )
+
+func basetenURL(_ ResolvedAuth, _ http.Header, _ string, now time.Time) (string, error) {
+	return basetenBillingURL(now), nil
+}
 
 func basetenBillingURL(at time.Time) string {
 	query := url.Values{}

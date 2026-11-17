@@ -134,7 +134,7 @@ func commandCodePlan(value any) string {
 	if first > 0xffff {
 		return words
 	}
-	return jsUppercase(words[:size]) + words[size:]
+	return strings.ToUpper(words[:size]) + words[size:]
 }
 
 func normalizeOpenCode(payload map[string]any, capturedAt int64) (Report, error) {

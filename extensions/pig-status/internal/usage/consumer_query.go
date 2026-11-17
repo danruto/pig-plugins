@@ -8,13 +8,12 @@ import (
 )
 
 func Schedulable(providerID string) bool {
-	endpoint, _ := providerEndpoint(providerID)
-	return endpoint != "" && providerID != "xai"
+	p, ok := lookupProvider(providerID)
+	return ok && p.scheduled
 }
 
-func (c Client) queryCommandCode(ctx context.Context, auth ResolvedAuth, headers http.Header) (Report, error) {
-	endpoint, description := providerEndpoint("command-code")
-	account, err := c.fetch(ctx, endpoint, description, headers)
+func (c Client) queryCommandCode(ctx context.Context, p provider, auth ResolvedAuth, headers http.Header) (Report, error) {
+	account, err := c.fetch(ctx, p.endpoint, p.description, headers)
 	if err != nil {
 		return Report{}, err
 	}

@@ -23,10 +23,7 @@ var fireworksAccountID = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._~-]{0,127}$
 var fireworksCurrency = regexp.MustCompile(`^[A-Z]{3}$`)
 var fireworksInteger = regexp.MustCompile(`^-?[0-9]+$`)
 
-func (c Client) ListTargets(ctx context.Context, providerID string, auth ResolvedAuth, timeout time.Duration) ([]Target, error) {
-	if providerID != "fireworks" {
-		return nil, errors.New("usage provider does not support billing targets")
-	}
+func (c Client) ListFireworksTargets(ctx context.Context, auth ResolvedAuth, timeout time.Duration) ([]Target, error) {
 	ctx, cancel := context.WithTimeout(ctx, min(timeout, maxQueryDuration))
 	defer cancel()
 	targets, err := c.discoverTargets(ctx, auth, timeout)
@@ -80,7 +77,7 @@ func (c Client) discoverTargets(ctx context.Context, auth ResolvedAuth, timeout 
 
 func fireworksHeaders(auth ResolvedAuth) (http.Header, error) {
 	if !officialProviderOrigin("fireworks", auth.ModelBaseURL) {
-		return nil, errors.New("usage requires the official provider origin")
+		return nil, ErrUsageOrigin
 	}
 	return validatedHeaders("fireworks", auth.Headers)
 }
@@ -146,6 +143,10 @@ func fireworksNextPageToken(value any) (string, error) {
 		return "", errors.New("Fireworks accounts listing returned an invalid page token.")
 	}
 	return token, nil
+}
+
+func fireworksURL(_ ResolvedAuth, _ http.Header, targetID string, now time.Time) (string, error) {
+	return fireworksBillingURL(targetID, now), nil
 }
 
 func fireworksBillingURL(accountID string, at time.Time) string {

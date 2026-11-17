@@ -64,7 +64,7 @@ def _build(tools: Any) -> None:
     modfile.write_text((ROOT / "extensions/pig-status/internal/usage/testdata/host/go.mod").read_text(encoding="utf-8"), encoding="utf-8")
     fixture = ROOT / "extensions/pig-status/internal/usage/testdata/host"
     commands = [
-        ([GO, "mod", "edit", f"-modfile={modfile}", f"-replace=github.com/MichaelKinsy/PiG/extensions/sdk={SDK}", f"-replace=github.com/danruto/pig-plugins/extensions/pig-status={ROOT / 'extensions/pig-status'}"], fixture),
+        ([GO, "mod", "edit", f"-modfile={modfile}", f"-replace=github.com/MichaelKinsy/PiG/extensions/sdk={SDK}", f"-replace=github.com/danruto/pig-plugins/extensions/pig-status={ROOT / 'extensions/pig-status'}", f"-replace=github.com/danruto/pig-plugins/extensions/pig-status/nativeusage={ROOT / 'extensions/pig-status/nativeusage'}"], fixture),
         ([GO, "build", "-race", f"-modfile={modfile}", "-o", str(build / "consumer"), "."], fixture),
         ([GO, "vet", f"-modfile={modfile}", "./..."], fixture),
     ]

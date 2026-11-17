@@ -12,32 +12,11 @@ import (
 var decimalAmount = regexp.MustCompile(`^-?(?:0|[1-9]\d*)(?:\.\d+)?$`)
 
 func normalizeReport(providerID string, payload map[string]any, capturedAt int64) (Report, error) {
-	switch providerID {
-	case "command-code":
-		return normalizeCommandCode(payload, capturedAt)
-	case "opencode-go":
-		return normalizeOpenCode(payload, capturedAt)
-	case "kimi-coding":
-		return normalizeKimi(payload, capturedAt)
-	case "openai-codex":
-		return normalizeCodex(payload, capturedAt)
-	case "github-copilot":
-		return normalizeCopilot(payload, capturedAt)
-	case "openai":
-		return normalizeOpenAI(payload, capturedAt)
-	case "baseten":
-		return normalizeBaseten(payload, capturedAt)
-	case "openrouter":
-		return normalizeOpenRouter(payload, capturedAt)
-	case "deepseek":
-		return normalizeDeepSeek(payload, capturedAt)
-	case "vercel-ai-gateway":
-		return normalizeVercel(payload, capturedAt)
-	case "moonshotai", "moonshotai-cn":
-		return normalizeMoonshot(providerID, payload, capturedAt)
-	default:
-		return Report{}, errors.New("unsupported usage provider")
+	p, ok := lookupProvider(providerID)
+	if !ok || p.normalize == nil {
+		return Report{}, ErrUsageUnsupported
 	}
+	return p.normalize(providerID, p.endpoint, "", payload, capturedAt)
 }
 
 func normalizeDeepSeek(payload map[string]any, capturedAt int64) (Report, error) {

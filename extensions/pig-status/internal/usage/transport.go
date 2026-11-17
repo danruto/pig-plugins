@@ -17,24 +17,17 @@ const (
 )
 
 type usageRequest struct {
-	endpoint    string
-	description string
-	headers     http.Header
-	maxBytes    int
-	method      string
-	body        []byte
+	endpoint     string
+	description  string
+	headers      http.Header
+	maxBytes     int
+	method       string
+	body         []byte
+	failureError func(status int, body []byte) string
 }
 
 func (c Client) fetch(ctx context.Context, endpoint, description string, headers http.Header) (map[string]any, error) {
-	return c.fetchJSON(ctx, endpoint, description, headers, false)
-}
-
-func (c Client) fetchJSON(ctx context.Context, endpoint, description string, headers http.Header, zai bool) (map[string]any, error) {
-	request := usageRequest{endpoint: endpoint, description: description, headers: headers, maxBytes: maxSuccessBodyBytes}
-	if zai {
-		return c.fetchZai(ctx, request)
-	}
-	payload, _, err := c.fetchBounded(ctx, request)
+	payload, _, err := c.fetchBounded(ctx, usageRequest{endpoint: endpoint, description: description, headers: headers, maxBytes: maxSuccessBodyBytes})
 	return payload, err
 }
 
@@ -48,40 +41,25 @@ func (c Client) fetchBounded(ctx context.Context, request usageRequest) (map[str
 	if err := redirectError(status, request.description); err != nil {
 		return nil, status, err
 	}
-	if !successStatus(status) {
-		return nil, status, fmt.Errorf("%s returned %d.", request.description, status)
-	}
-	body, err := readSuccessBody(ctx, response.Body, request)
-	if err != nil {
-		return nil, status, err
-	}
-	payload, err := decodeObject(body, request.description)
-	return payload, status, err
-}
-
-func (c Client) fetchZai(ctx context.Context, request usageRequest) (map[string]any, error) {
-	response, err := c.send(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = response.Body.Close() }()
-	status := response.StatusCode
-	if err := redirectError(status, request.description); err != nil {
-		return nil, err
-	}
 	var body []byte
-	if successStatus(status) {
+	switch {
+	case successStatus(status):
 		body, err = readSuccessBody(ctx, response.Body, request)
-	} else {
+	case request.failureError == nil:
+		return nil, status, fmt.Errorf("%s returned %d.", request.description, status)
+	default:
 		body, err = readFailureBody(ctx, response.Body, request.description)
 	}
 	if err != nil {
-		return nil, err
+		return nil, status, err
 	}
-	if message := zaiResponseError(status, body); message != "" {
-		return nil, errors.New(message)
+	if request.failureError != nil {
+		if message := request.failureError(status, body); message != "" {
+			return nil, status, errors.New(message)
+		}
 	}
-	return decodeObject(body, request.description)
+	payload, err := decodeObject(body, request.description)
+	return payload, status, err
 }
 
 func (c Client) send(ctx context.Context, request usageRequest) (*http.Response, error) {

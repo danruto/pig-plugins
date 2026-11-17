@@ -19,14 +19,14 @@ func (billingExampleTransport) RoundTrip(req *http.Request) (*http.Response, err
 	return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: make(http.Header), Request: req}, nil
 }
 
-func ExampleClient_QueryTarget() {
+func ExampleClient_QueryFireworks() {
 	client := Client{Transport: billingExampleTransport{}}
 	auth := ResolvedAuth{
 		ModelBaseURL: "https://api.fireworks.ai/inference/v1",
 		Headers:      http.Header{"Authorization": {"Bearer synthetic-token"}},
 		Revalidate:   func(context.Context) error { return nil },
 	}
-	report, err := client.QueryTarget(context.Background(), "fireworks", auth, "selected-org", time.Second)
+	report, err := client.QueryFireworks(context.Background(), auth, "selected-org", time.Second)
 	if err != nil {
 		panic(err)
 	}
@@ -34,14 +34,14 @@ func ExampleClient_QueryTarget() {
 	// Output: selected-org USD 12.5
 }
 
-func ExampleClient_ListTargets() {
+func ExampleClient_ListFireworksTargets() {
 	client := Client{Transport: billingExampleTransport{}}
 	auth := ResolvedAuth{
 		ModelBaseURL: "https://api.fireworks.ai/inference/v1",
 		Headers:      http.Header{"Authorization": {"Bearer synthetic-token"}},
 		Revalidate:   func(context.Context) error { return nil },
 	}
-	targets, err := client.ListTargets(context.Background(), "fireworks", auth, time.Second)
+	targets, err := client.ListFireworksTargets(context.Background(), auth, time.Second)
 	if err != nil {
 		panic(err)
 	}

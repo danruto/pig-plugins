@@ -133,7 +133,7 @@ func query(call sdk.Context, args string, client usage.Client) error {
 		}
 	}()
 	defer func() { cancel(); <-joined }()
-	dispatcher := usage.Dispatcher{Resolver: usage.Resolver{Host: hostPort{call: call}}, Client: client}
+	dispatcher := usage.Dispatcher{Resolver: usage.Resolver{Host: port(call)}, Client: client}
 	results, err := dispatcher.Query(ctx, selection)
 	reason := ""
 	if err != nil {

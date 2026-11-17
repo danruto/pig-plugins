@@ -25,34 +25,34 @@ type billingFixture struct {
 	Expected map[string]any  `json:"expected"`
 }
 
-func billingNamed(t testing.TB, name string) billingFixture {
-	t.Helper()
+func billingNamed(tb testing.TB, name string) billingFixture {
+	tb.Helper()
 	data, err := os.ReadFile("testdata/billing-reference.json")
 	if err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 	var reference struct {
 		Fixtures []json.RawMessage `json:"fixtures"`
 	}
 	if err := json.Unmarshal(data, &reference); err != nil {
-		t.Fatal(err)
+		tb.Fatal(err)
 	}
 	for _, raw := range reference.Fixtures {
 		var header struct {
 			Name string `json:"name"`
 		}
 		if err := json.Unmarshal(raw, &header); err != nil {
-			t.Fatal(err)
+			tb.Fatal(err)
 		}
 		if header.Name == name {
 			var fixture billingFixture
 			if err := json.Unmarshal(raw, &fixture); err != nil {
-				t.Fatal(err)
+				tb.Fatal(err)
 			}
 			return fixture
 		}
 	}
-	t.Fatalf("missing source-produced fixture %s", name)
+	tb.Fatalf("missing source-produced fixture %s", name)
 	return billingFixture{}
 }
 
@@ -72,46 +72,29 @@ type billingResult struct {
 	err     error
 }
 
-func billingList(t testing.TB, client Client, ctx context.Context, provider string, auth ResolvedAuth, timeout time.Duration) billingResult {
-	t.Helper()
-	method := reflect.ValueOf(client).MethodByName("ListTargets")
-	if !method.IsValid() {
-		t.Fatal("Client.ListTargets missing: explicit billing-target discovery unavailable")
-	}
-	values := method.Call([]reflect.Value{reflect.ValueOf(ctx), reflect.ValueOf(provider), reflect.ValueOf(auth), reflect.ValueOf(timeout)})
-	var result billingResult
-	if !values[1].IsNil() {
-		result.err = values[1].Interface().(error)
-	}
-	encoded, err := json.Marshal(values[0].Interface())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := json.Unmarshal(encoded, &result.targets); err != nil {
-		t.Fatal(err)
+func billingList(tb testing.TB, client Client, ctx context.Context, auth ResolvedAuth, timeout time.Duration) billingResult {
+	tb.Helper()
+	targets, err := client.ListFireworksTargets(ctx, auth, timeout)
+	result := billingResult{err: err}
+	for _, target := range targets {
+		result.targets = append(result.targets, billingTarget(target))
 	}
 	return result
 }
 
-func billingTargetQuery(t testing.TB, client Client, ctx context.Context, provider string, auth ResolvedAuth, target string, timeout time.Duration) billingResult {
-	t.Helper()
-	query, ok := any(client).(interface {
-		QueryTarget(context.Context, string, ResolvedAuth, string, time.Duration) (Report, error)
-	})
-	if !ok {
-		t.Fatal("Client.QueryTarget missing: explicit billing-target query unavailable")
-	}
-	report, err := query.QueryTarget(ctx, provider, auth, target, timeout)
+func billingTargetQuery(tb testing.TB, client Client, ctx context.Context, auth ResolvedAuth, target string, timeout time.Duration) billingResult {
+	tb.Helper()
+	report, err := client.QueryFireworks(ctx, auth, target, timeout)
 	return billingResult{report: report, err: err}
 }
 
-func billingCall(t testing.TB, client Client, ctx context.Context, surface string, auth ResolvedAuth, timeout time.Duration) billingResult {
-	t.Helper()
+func billingCall(tb testing.TB, client Client, ctx context.Context, surface string, auth ResolvedAuth, timeout time.Duration) billingResult {
+	tb.Helper()
 	switch surface {
 	case "targets":
-		return billingList(t, client, ctx, "fireworks", auth, timeout)
+		return billingList(tb, client, ctx, auth, timeout)
 	case "fireworks":
-		return billingTargetQuery(t, client, ctx, "fireworks", auth, "synthetic-account", timeout)
+		return billingTargetQuery(tb, client, ctx, auth, "synthetic-account", timeout)
 	default:
 		report, err := client.Query(ctx, surface, auth, timeout)
 		return billingResult{report: report, err: err}
@@ -129,69 +112,69 @@ func billingGoodName(provider string) string {
 	return map[string]string{"baseten": "baseten:exact-decimals", "openrouter": "openrouter:limit-and-spend", "fireworks": "fireworks:currencies-series-exact"}[provider]
 }
 
-func billingBody(t testing.TB, surface string) []byte {
-	t.Helper()
+func billingBody(tb testing.TB, surface string) []byte {
+	tb.Helper()
 	if surface == "targets" {
 		return []byte(`{"accounts":[{"name":"accounts/synthetic-account"}]}`)
 	}
-	return billingNamed(t, billingGoodName(surface)).Payload
+	return billingNamed(tb, billingGoodName(surface)).Payload
 }
 
-func requireBillingSuccess(t testing.TB, result billingResult) {
-	t.Helper()
+func requireBillingSuccess(tb testing.TB, result billingResult) {
+	tb.Helper()
 	if result.err != nil {
-		t.Fatalf("valid billing call failed: %v", result.err)
+		tb.Fatalf("valid billing call failed: %v", result.err)
 	}
 	if result.report.ProviderID == "" && len(result.targets) == 0 {
-		t.Fatal("valid billing call produced neither report nor targets")
+		tb.Fatal("valid billing call produced neither report nor targets")
 	}
 }
 
-func requireBillingRefusal(t testing.TB, result billingResult) {
-	t.Helper()
-	requireQueryRefused(t, result.report, result.err)
+func requireBillingRefusal(tb testing.TB, result billingResult) {
+	tb.Helper()
+	requireQueryRefused(tb, result.report, result.err)
 	if len(result.targets) != 0 {
-		t.Fatal("refused discovery published partial targets")
+		tb.Fatal("refused discovery published partial targets")
 	}
 }
 
-func requireBillingTargetRefusal(t testing.TB, targets []billingTarget, err error) {
-	t.Helper()
-	requireBillingRefusal(t, billingResult{targets: targets, err: err})
+func requireBillingTargetRefusal(tb testing.TB, targets []billingTarget, err error) {
+	tb.Helper()
+	requireBillingRefusal(tb, billingResult{targets: targets, err: err})
 }
 
-func requireBillingTargets(t testing.TB, targets []billingTarget, err error, want []billingTarget) {
-	t.Helper()
+func requireBillingTargets(tb testing.TB, targets []billingTarget, err error, want []billingTarget) {
+	tb.Helper()
 	if err != nil {
-		t.Fatalf("discovery failed: %v", err)
+		tb.Fatalf("discovery failed: %v", err)
 	}
 	if !reflect.DeepEqual(targets, want) {
-		t.Fatalf("targets = %#v, want %#v", targets, want)
+		tb.Fatalf("targets = %#v, want %#v", targets, want)
 	}
 }
 
-func requireBillingReport(t testing.TB, report Report, err error, f billingFixture, before, after time.Time) {
-	t.Helper()
-	requirePinnedQueryReport(t, report, err, providerQueryFixture{provider: f.Provider, expected: f.Expected})
+func requireBillingReport(tb testing.TB, report Report, err error, f billingFixture, before, after time.Time) {
+	tb.Helper()
+	requirePinnedQueryReport(tb, report, err, providerQueryFixture{provider: f.Provider, expected: f.Expected})
 	if report.CapturedAt < before.UnixMilli() || report.CapturedAt > after.UnixMilli() {
-		t.Fatal("report capture timestamp is not current Unix milliseconds")
+		tb.Fatal("report capture timestamp is not current Unix milliseconds")
 	}
 }
 
-func billingGood(t testing.TB, provider string) {
-	t.Helper()
-	f := billingNamed(t, billingGoodName(provider))
-	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) { writeQueryFixture(t, w, f.Payload) })
+func billingGood(tb testing.TB, provider string) {
+	tb.Helper()
+	f := billingNamed(tb, billingGoodName(provider))
+	client := fixtureClient(tb, func(w http.ResponseWriter, _ *http.Request) { writeQueryFixture(tb, w, f.Payload) })
 	before := time.Now()
-	result := billingCall(t, client, t.Context(), provider, billingAuth(provider), time.Second)
-	requireBillingReport(t, result.report, result.err, f, before, time.Now())
+	result := billingCall(tb, client, tb.Context(), provider, billingAuth(provider), time.Second)
+	requireBillingReport(tb, result.report, result.err, f, before, time.Now())
 }
 
-func billingDiscoveryGood(t testing.TB) {
-	t.Helper()
-	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) { writeQueryFixture(t, w, billingBody(t, "targets")) })
-	result := billingCall(t, client, t.Context(), "targets", billingAuth("fireworks"), time.Second)
-	requireBillingTargets(t, result.targets, result.err, []billingTarget{{"synthetic-account", "synthetic-account"}})
+func billingDiscoveryGood(tb testing.TB) {
+	tb.Helper()
+	client := fixtureClient(tb, func(w http.ResponseWriter, _ *http.Request) { writeQueryFixture(tb, w, billingBody(tb, "targets")) })
+	result := billingCall(tb, client, tb.Context(), "targets", billingAuth("fireworks"), time.Second)
+	requireBillingTargets(tb, result.targets, result.err, []billingTarget{{"synthetic-account", "synthetic-account"}})
 }
 
 type billingWire struct {
@@ -204,14 +187,14 @@ type billingServer struct {
 	wire   []billingWire
 }
 
-func billingHTTPS(t testing.TB, body []byte) *billingServer {
-	t.Helper()
+func billingHTTPS(tb testing.TB, body []byte) *billingServer {
+	tb.Helper()
 	s := new(billingServer)
-	s.client = fixtureClient(t, func(w http.ResponseWriter, r *http.Request) {
+	s.client = fixtureClient(tb, func(w http.ResponseWriter, r *http.Request) {
 		s.mu.Lock()
 		s.wire = append(s.wire, billingWire{r.Method, r.Host, r.URL.Path, r.Header.Get("Authorization"), r.URL.Query()})
 		s.mu.Unlock()
-		writeQueryFixture(t, w, body)
+		writeQueryFixture(tb, w, body)
 	})
 	return s
 }
@@ -222,26 +205,26 @@ func (s *billingServer) observations() []billingWire {
 	return append([]billingWire(nil), s.wire...)
 }
 
-func requireBillingOrigin(t testing.TB, wire []billingWire, provider string) {
-	t.Helper()
+func requireBillingOrigin(tb testing.TB, wire []billingWire, provider string) {
+	tb.Helper()
 	if len(wire) != 1 {
-		t.Fatalf("billing query made %d requests, want exactly one", len(wire))
+		tb.Fatalf("billing query made %d requests, want exactly one", len(wire))
 	}
 	host := map[string]string{"baseten": "api.baseten.co", "openrouter": "openrouter.ai", "fireworks": "api.fireworks.ai"}[provider]
 	if wire[0].Host != host || wire[0].Method != "GET" || wire[0].Authorization != "Bearer fixture-secret" {
-		t.Fatal("incorrect official billing origin, method or authorization")
+		tb.Fatal("incorrect official billing origin, method or authorization")
 	}
 }
 
-func requireBillingWires(t testing.TB, got, want []billingWire) {
-	t.Helper()
+func requireBillingWires(tb testing.TB, got, want []billingWire) {
+	tb.Helper()
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("billing wire differs: got %#v, want %#v", got, want)
+		tb.Fatalf("billing wire differs: got %#v, want %#v", got, want)
 	}
 }
 
-func requireBillingWindow(t testing.TB, wire billingWire, before, after time.Time) {
-	t.Helper()
+func requireBillingWindow(tb testing.TB, wire billingWire, before, after time.Time) {
+	tb.Helper()
 	query := wire.Query
 	if wire.Host == "openrouter.ai" {
 		return
@@ -252,14 +235,14 @@ func requireBillingWindow(t testing.TB, wire billingWire, before, after time.Tim
 		wantBefore := url.Values{"startTime": {beforeDay.AddDate(0, 0, -29).Format(time.RFC3339)}, "endTime": {beforeDay.AddDate(0, 0, 1).Format(time.RFC3339)}}
 		wantAfter := url.Values{"startTime": {afterDay.AddDate(0, 0, -29).Format(time.RFC3339)}, "endTime": {afterDay.AddDate(0, 0, 1).Format(time.RFC3339)}}
 		if !reflect.DeepEqual(query, wantBefore) && !reflect.DeepEqual(query, wantAfter) {
-			t.Fatal("Fireworks did not use UTC day start-29/end+1 billing window")
+			tb.Fatal("Fireworks did not use UTC day start-29/end+1 billing window")
 		}
 		return
 	}
 	start, e1 := time.Parse("2006-01-02T15:04:05.000Z", query.Get("start_date"))
 	end, e2 := time.Parse("2006-01-02T15:04:05.000Z", query.Get("end_date"))
 	if e1 != nil || e2 != nil || len(query) != 2 || end.Sub(start) != 30*24*time.Hour || end.UnixMilli() < before.UnixMilli() || end.UnixMilli() > after.UnixMilli() {
-		t.Fatal("Baseten did not use rolling 30x24h UTC millisecond billing window")
+		tb.Fatal("Baseten did not use rolling 30x24h UTC millisecond billing window")
 	}
 }
 
@@ -296,8 +279,8 @@ func TestBillingClientRefusesMalformedSourcePayloads(t *testing.T) {
 	}
 }
 
-func billingPageScenario(t testing.TB, tokens []string) {
-	t.Helper()
+func billingPageScenario(tb testing.TB, tokens []string) {
+	tb.Helper()
 	var mu sync.Mutex
 	var wire []billingWire
 	var wantTargets []billingTarget
@@ -311,13 +294,13 @@ func billingPageScenario(t testing.TB, tokens []string) {
 		}
 		wantWire = append(wantWire, billingWire{"GET", "api.fireworks.ai", "/v1/accounts", "Bearer fixture-secret", q})
 	}
-	client := fixtureClient(t, func(w http.ResponseWriter, r *http.Request) {
+	client := fixtureClient(tb, func(w http.ResponseWriter, r *http.Request) {
 		mu.Lock()
 		defer mu.Unlock()
 		i := len(wire)
 		wire = append(wire, billingWire{r.Method, r.Host, r.URL.Path, r.Header.Get("Authorization"), r.URL.Query()})
 		if i > len(tokens) {
-			t.Error("unexpected extra discovery page")
+			tb.Error("unexpected extra discovery page")
 			w.WriteHeader(500)
 			return
 		}
@@ -327,16 +310,16 @@ func billingPageScenario(t testing.TB, tokens []string) {
 		}
 		encoded, err := json.Marshal(response)
 		if err != nil {
-			t.Error(err)
+			tb.Error(err)
 			return
 		}
-		writeQueryFixture(t, w, encoded)
+		writeQueryFixture(tb, w, encoded)
 	})
-	result := billingCall(t, client, t.Context(), "targets", billingAuth("fireworks"), time.Second)
-	requireBillingTargets(t, result.targets, result.err, wantTargets)
+	result := billingCall(tb, client, tb.Context(), "targets", billingAuth("fireworks"), time.Second)
+	requireBillingTargets(tb, result.targets, result.err, wantTargets)
 	mu.Lock()
 	defer mu.Unlock()
-	requireBillingWires(t, wire, wantWire)
+	requireBillingWires(tb, wire, wantWire)
 }
 
 func TestBillingClientDiscoversDistinctPagedTargets(t *testing.T) {
@@ -352,19 +335,19 @@ func TestBillingClientDiscoversDistinctPagedTargets(t *testing.T) {
 	}
 }
 
-func billingSelectedScenario(t testing.TB, selected string) {
-	t.Helper()
-	f := billingNamed(t, "fireworks:currencies-series-exact")
+func billingSelectedScenario(tb testing.TB, selected string) {
+	tb.Helper()
+	f := billingNamed(tb, "fireworks:currencies-series-exact")
 	f.Expected["accountLabel"] = selected
-	server := billingHTTPS(t, f.Payload)
+	server := billingHTTPS(tb, f.Payload)
 	before := time.Now()
-	result := billingTargetQuery(t, server.client, t.Context(), "fireworks", billingAuth("fireworks"), selected, time.Second)
-	requireBillingReport(t, result.report, result.err, f, before, time.Now())
+	result := billingTargetQuery(tb, server.client, tb.Context(), billingAuth("fireworks"), selected, time.Second)
+	requireBillingReport(tb, result.report, result.err, f, before, time.Now())
 	wire := server.observations()
-	requireBillingOrigin(t, wire, "fireworks")
-	requireBillingWindow(t, wire[0], before, time.Now())
+	requireBillingOrigin(tb, wire, "fireworks")
+	requireBillingWindow(tb, wire[0], before, time.Now())
 	query := wire[0].Query
-	requireBillingWires(t, wire, []billingWire{{"GET", "api.fireworks.ai", "/v1/accounts/" + selected + "/billing/summary", "Bearer fixture-secret", query}})
+	requireBillingWires(tb, wire, []billingWire{{"GET", "api.fireworks.ai", "/v1/accounts/" + selected + "/billing/summary", "Bearer fixture-secret", query}})
 }
 
 func TestBillingClientQueriesOnlyExplicitTarget(t *testing.T) {
@@ -385,7 +368,7 @@ func TestBillingClientRejectsMissingUnsafeOrForeignTargets(t *testing.T) {
 				writeQueryFixture(t, w, billingBody(t, "fireworks"))
 			})
 
-			result := billingTargetQuery(t, client, t.Context(), tt.provider, billingAuth("fireworks"), tt.target, time.Second)
+			result := billingTargetQuery(t, client, t.Context(), billingAuth(tt.provider), tt.target, time.Second)
 
 			requireQueryRefused(t, result.report, result.err)
 			requireSafeDiagnostic(t, result.err)
@@ -404,7 +387,7 @@ func TestBillingClientDoesNotImplicitlyDiscoverTargets(t *testing.T) {
 	})
 
 	report, err := client.Query(t.Context(), "fireworks", billingAuth("fireworks"), time.Second)
-	foreign := billingList(t, client, t.Context(), "openrouter", billingAuth("openrouter"), time.Second)
+	foreign := billingList(t, client, t.Context(), billingAuth("openrouter"), time.Second)
 
 	requireQueryRefused(t, report, err)
 	requireSafeDiagnostic(t, err)
@@ -413,23 +396,23 @@ func TestBillingClientDoesNotImplicitlyDiscoverTargets(t *testing.T) {
 	requireRequestCount(t, requests.Load(), 0)
 }
 
-func billingBadPages(t testing.TB, pages []string, wantRequests int32) {
-	t.Helper()
-	billingDiscoveryGood(t)
+func billingBadPages(tb testing.TB, pages []string, wantRequests int32) {
+	tb.Helper()
+	billingDiscoveryGood(tb)
 	var requests atomic.Int32
-	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
+	client := fixtureClient(tb, func(w http.ResponseWriter, _ *http.Request) {
 		index := int(requests.Add(1)) - 1
 		if index >= len(pages) {
-			t.Error("exceeded discovery page bound")
+			tb.Error("exceeded discovery page bound")
 			w.WriteHeader(500)
 			return
 		}
-		writeQueryFixture(t, w, []byte(pages[index]))
+		writeQueryFixture(tb, w, []byte(pages[index]))
 	})
-	result := billingCall(t, client, t.Context(), "targets", billingAuth("fireworks"), time.Second)
-	requireBillingTargetRefusal(t, result.targets, result.err)
-	requireSafeDiagnostic(t, result.err)
-	requireRequestCount(t, requests.Load(), wantRequests)
+	result := billingCall(tb, client, tb.Context(), "targets", billingAuth("fireworks"), time.Second)
+	requireBillingTargetRefusal(tb, result.targets, result.err)
+	requireSafeDiagnostic(tb, result.err)
+	requireRequestCount(tb, requests.Load(), wantRequests)
 }
 
 func TestBillingClientRejectsUnsafeDiscoveryAtomically(t *testing.T) {
@@ -452,13 +435,13 @@ func TestBillingClientRejectsUnsafeDiscoveryAtomically(t *testing.T) {
 	}
 }
 
-func billingSurfaceGood(t testing.TB, surface string) {
-	t.Helper()
+func billingSurfaceGood(tb testing.TB, surface string) {
+	tb.Helper()
 	if surface == "targets" {
-		billingDiscoveryGood(t)
+		billingDiscoveryGood(tb)
 		return
 	}
-	billingGood(t, surface)
+	billingGood(tb, surface)
 }
 
 func TestBillingClientGuardsOfficialOriginsAndAuthorization(t *testing.T) {
@@ -544,13 +527,13 @@ func TestBillingClientUsesBoundedRedirectRefusingTransport(t *testing.T) {
 	}
 }
 
-func billingFenceScenario(t testing.TB, surface string, failAt int32, wantRequests int32) {
-	t.Helper()
-	billingSurfaceGood(t, surface)
+func billingFenceScenario(tb testing.TB, surface string, failAt int32, wantRequests int32) {
+	tb.Helper()
+	billingSurfaceGood(tb, surface)
 	var requests, validations atomic.Int32
-	client := fixtureClient(t, func(w http.ResponseWriter, _ *http.Request) {
+	client := fixtureClient(tb, func(w http.ResponseWriter, _ *http.Request) {
 		requests.Add(1)
-		writeQueryFixture(t, w, billingBody(t, surface))
+		writeQueryFixture(tb, w, billingBody(tb, surface))
 	})
 	auth := billingAuth(billingProvider(surface))
 	auth.Revalidate = func(context.Context) error {
@@ -562,10 +545,10 @@ func billingFenceScenario(t testing.TB, surface string, failAt int32, wantReques
 	if failAt == -1 {
 		auth.Revalidate = nil
 	}
-	result := billingCall(t, client, t.Context(), surface, auth, time.Second)
-	requireBillingRefusal(t, result)
-	requireSafeDiagnostic(t, result.err)
-	requireRequestCount(t, requests.Load(), wantRequests)
+	result := billingCall(tb, client, tb.Context(), surface, auth, time.Second)
+	requireBillingRefusal(tb, result)
+	requireSafeDiagnostic(tb, result.err)
+	requireRequestCount(tb, requests.Load(), wantRequests)
 }
 
 func TestBillingClientRevalidatesBeforeRequestsAndResults(t *testing.T) {
@@ -637,11 +620,11 @@ func TestBillingClientDeadlineCoversAuthAndResponse(t *testing.T) {
 	}
 }
 
-func billingDeadlineScenario(t testing.TB, surface, phase string) {
-	t.Helper()
-	billingSurfaceGood(t, surface)
+func billingDeadlineScenario(tb testing.TB, surface, phase string) {
+	tb.Helper()
+	billingSurfaceGood(tb, surface)
 	var requests atomic.Int32
-	client := fixtureClient(t, func(w http.ResponseWriter, r *http.Request) {
+	client := fixtureClient(tb, func(w http.ResponseWriter, r *http.Request) {
 		requests.Add(1)
 		w.WriteHeader(200)
 		w.(http.Flusher).Flush()
@@ -653,20 +636,20 @@ func billingDeadlineScenario(t testing.TB, surface, phase string) {
 		wantRequests = 0
 		auth.Revalidate = func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }
 	}
-	result := billingCall(t, client, t.Context(), surface, auth, 50*time.Millisecond)
-	requireBillingRefusal(t, result)
-	requireDeadline(t, result.err)
-	requireRequestCount(t, requests.Load(), wantRequests)
+	result := billingCall(tb, client, tb.Context(), surface, auth, 50*time.Millisecond)
+	requireBillingRefusal(tb, result)
+	requireDeadline(tb, result.err)
+	requireRequestCount(tb, requests.Load(), wantRequests)
 }
 
-func requireBillingSameDeadline(t testing.TB, deadlines []time.Time) {
-	t.Helper()
+func requireBillingSameDeadline(tb testing.TB, deadlines []time.Time) {
+	tb.Helper()
 	if len(deadlines) < 2 {
-		t.Fatal("pagination did not propagate bounded contexts")
+		tb.Fatal("pagination did not propagate bounded contexts")
 	}
 	for _, deadline := range deadlines {
 		if deadline.IsZero() || !deadline.Equal(deadlines[0]) {
-			t.Fatal("pagination renewed or dropped the total query deadline")
+			tb.Fatal("pagination renewed or dropped the total query deadline")
 		}
 	}
 }
@@ -704,39 +687,39 @@ func TestBillingClientPaginationSharesDeadline(t *testing.T) {
 	mu.Unlock()
 }
 
-func requireBillingCanceled(t testing.TB, err error) {
-	t.Helper()
+func requireBillingCanceled(tb testing.TB, err error) {
+	tb.Helper()
 	if !errors.Is(err, context.Canceled) {
-		t.Fatalf("error = %v, want context cancellation", err)
+		tb.Fatalf("error = %v, want context cancellation", err)
 	}
 }
 
-func billingCancellationScenario(t testing.TB, surface string) {
-	t.Helper()
-	billingSurfaceGood(t, surface)
+func billingCancellationScenario(tb testing.TB, surface string) {
+	tb.Helper()
+	billingSurfaceGood(tb, surface)
 	started := make(chan struct{}, 1)
 	release := make(chan struct{})
-	t.Cleanup(func() { close(release) })
-	client := fixtureClient(t, func(w http.ResponseWriter, r *http.Request) {
+	tb.Cleanup(func() { close(release) })
+	client := fixtureClient(tb, func(w http.ResponseWriter, r *http.Request) {
 		started <- struct{}{}
 		select {
 		case <-r.Context().Done():
 		case <-release:
-			writeQueryFixture(t, w, billingBody(t, surface))
+			writeQueryFixture(tb, w, billingBody(tb, surface))
 		}
 	})
-	ctx, cancel := context.WithCancel(t.Context())
+	ctx, cancel := context.WithCancel(tb.Context())
 	result := make(chan billingResult, 1)
 	var workers sync.WaitGroup
 	workers.Go(func() {
-		result <- billingCall(t, client, ctx, surface, billingAuth(billingProvider(surface)), time.Second)
+		result <- billingCall(tb, client, ctx, surface, billingAuth(billingProvider(surface)), time.Second)
 	})
-	t.Cleanup(func() { cancel(); workers.Wait() })
-	awaitQueryEvent(t, started)
+	tb.Cleanup(func() { cancel(); workers.Wait() })
+	awaitQueryEvent(tb, started)
 	cancel()
 	got := <-result
-	requireBillingRefusal(t, got)
-	requireBillingCanceled(t, got.err)
+	requireBillingRefusal(tb, got)
+	requireBillingCanceled(tb, got.err)
 }
 
 func TestBillingClientCancellationStopsHTTPS(t *testing.T) {

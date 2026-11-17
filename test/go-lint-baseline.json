@@ -11,11 +11,6 @@
   },
   {
     "file": "extensions/pig-status/internal/usage/balance.go",
-    "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function normalizeReport is 13, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/balance.go",
     "linter": "funlen",
     "text": "Function 'normalizeDeepSeek' has too many statements (32 > 30)"
   },
@@ -151,16 +146,6 @@
   },
   {
     "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "forcetypeassert",
-    "text": "type assertion must be checked"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "musttag",
-    "text": "the given struct should be annotated with the `json` tag"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
     "linter": "prealloc",
     "text": "Consider preallocating wantTargets with capacity len(tokens) + 1"
   },
@@ -172,7 +157,7 @@
   {
     "file": "extensions/pig-status/internal/usage/billing_query_test.go",
     "linter": "revive",
-    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 6"
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
   },
   {
     "file": "extensions/pig-status/internal/usage/billing_query_test.go",
@@ -187,7 +172,7 @@
   {
     "file": "extensions/pig-status/internal/usage/billing_query_test.go",
     "linter": "revive",
-    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 7"
+    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 6"
   },
   {
     "file": "extensions/pig-status/internal/usage/billing_query_test.go",
@@ -203,131 +188,6 @@
     "file": "extensions/pig-status/internal/usage/billing_query_test.go",
     "linter": "revive",
     "text": "context-as-argument: context.Context should be the first parameter of a function"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/billing_query_test.go",
-    "linter": "thelper",
-    "text": "parameter testing.TB should have name tb"
   },
   {
     "file": "extensions/pig-status/internal/usage/billing.go",
@@ -527,12 +387,7 @@
   {
     "file": "extensions/pig-status/internal/usage/consumer_query.go",
     "linter": "funlen",
-    "text": "Function 'queryCommandCode' has too many statements (32 > 30)"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/consumer_uppercase.go",
-    "linter": "gochecknoglobals",
-    "text": "jsUppercaseExpansions is a global variable"
+    "text": "Function 'queryCommandCode' has too many statements (31 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/consumer.go",
@@ -1187,11 +1042,6 @@
   {
     "file": "extensions/pig-status/internal/usage/oauth.go",
     "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function queryOAuth is 15, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/oauth.go",
-    "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function resolveCompanion is 16, max is 10"
   },
   {
@@ -1203,11 +1053,6 @@
     "file": "extensions/pig-status/internal/usage/oauth.go",
     "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function resolveNativeOpenAI is 20, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/oauth.go",
-    "linter": "funlen",
-    "text": "Function 'queryOAuth' has too many statements (41 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/oauth.go",
@@ -1498,11 +1343,6 @@
     "file": "extensions/pig-status/internal/usage/selection.go",
     "linter": "cyclop",
     "text": "calculated cyclomatic complexity for function selectProviders is 11, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/selection.go",
-    "linter": "gochecknoglobals",
-    "text": "usageProviderIDs is a global variable"
   },
   {
     "file": "extensions/pig-status/internal/usage/subscription_query_test.go",
@@ -1912,11 +1752,6 @@
   {
     "file": "extensions/pig-status/internal/usage/transport.go",
     "linter": "revive",
-    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport.go",
-    "linter": "revive",
     "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
   },
   {
@@ -1948,11 +1783,6 @@
     "file": "extensions/pig-status/internal/usage/transport.go",
     "linter": "revive",
     "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/transport.go",
-    "linter": "revive",
-    "text": "flag-parameter: parameter 'zai' seems to be a control flag, avoid control coupling"
   },
   {
     "file": "extensions/pig-status/internal/usage/transport.go",
@@ -1988,26 +1818,6 @@
     "file": "extensions/pig-status/internal/usage/transport.go",
     "linter": "staticcheck",
     "text": "ST1005: error strings should not end with punctuation or newlines"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function providerEndpoint is 19, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "cyclop",
-    "text": "calculated cyclomatic complexity for function query is 34, max is 10"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "funlen",
-    "text": "Function 'providerEndpoint' has too many statements (37 > 30)"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "funlen",
-    "text": "Function 'query' has too many statements (57 > 30)"
   },
   {
     "file": "extensions/pig-status/internal/usage/usage.go",
@@ -2022,27 +1832,12 @@
   {
     "file": "extensions/pig-status/internal/usage/usage.go",
     "linter": "revive",
-    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "revive",
     "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
   },
   {
     "file": "extensions/pig-status/internal/usage/usage.go",
     "linter": "revive",
     "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "revive",
-    "text": "error-strings: error strings should not be capitalized or end with punctuation or a newline"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "staticcheck",
-    "text": "QF1003: could use tagged switch on providerID"
   },
   {
     "file": "extensions/pig-status/internal/usage/usage.go",
@@ -2053,11 +1848,6 @@
     "file": "extensions/pig-status/internal/usage/usage.go",
     "linter": "staticcheck",
     "text": "ST1005: error strings should not be capitalized"
-  },
-  {
-    "file": "extensions/pig-status/internal/usage/usage.go",
-    "linter": "staticcheck",
-    "text": "ST1005: error strings should not end with punctuation or newlines"
   },
   {
     "file": "extensions/pig-status/internal/usage/usage.go",

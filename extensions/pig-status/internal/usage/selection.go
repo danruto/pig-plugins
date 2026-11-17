@@ -97,9 +97,9 @@ func selectProviders(selection Selection, current string, inventory HostInventor
 			return nil, errors.New("all selection cannot name another provider")
 		}
 		ids := []string{}
-		for _, id := range usageProviderIDs {
-			if id == current || inventory.Providers[id].Configured {
-				ids = append(ids, id)
+		for _, p := range providerTable() {
+			if p.id == current || inventory.Providers[p.id].Configured {
+				ids = append(ids, p.id)
 			}
 		}
 		return ids, nil
@@ -107,8 +107,6 @@ func selectProviders(selection Selection, current string, inventory HostInventor
 		return nil, errors.New("explicit usage selection required")
 	}
 }
-
-var usageProviderIDs = []string{"baseten", "openai", "openai-codex", "deepseek", "github-copilot", "openrouter", "vercel-ai-gateway", "command-code", "fireworks", "opencode-go", "kimi-coding", "minimax", "minimax-cn", "moonshotai", "moonshotai-cn", "zai", "zai-coding-cn", "xai"}
 
 func (d Dispatcher) Query(ctx context.Context, selection Selection) ([]Outcome, error) {
 	selection.Targets = maps.Clone(selection.Targets)
@@ -207,7 +205,7 @@ func (d Dispatcher) queryOne(ctx context.Context, plan selectionPlan, providerID
 }
 
 func (d Dispatcher) queryTarget(ctx context.Context, selection Selection, auth ResolvedAuth) pendingOutcome {
-	targets, err := d.Client.ListTargets(ctx, "fireworks", auth, selection.Timeout)
+	targets, err := d.Client.ListFireworksTargets(ctx, auth, selection.Timeout)
 	if err != nil {
 		return pendingOutcome{outcome: failedOutcome("fireworks", err)}
 	}
@@ -219,7 +217,7 @@ func (d Dispatcher) queryTarget(ctx context.Context, selection Selection, auth R
 	if !selectedTarget(targets, targetID) {
 		return pendingOutcome{outcome: outcome, auth: auth}
 	}
-	report, err := d.Client.QueryTarget(ctx, "fireworks", auth, targetID, selection.Timeout)
+	report, err := d.Client.QueryFireworks(ctx, auth, targetID, selection.Timeout)
 	if err != nil {
 		return pendingOutcome{outcome: failedOutcome("fireworks", err)}
 	}

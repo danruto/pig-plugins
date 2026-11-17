@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -215,7 +216,7 @@ func kimiWallet(raw any) []Metric {
 func kimiMoney(raw any) (float64, string, bool) {
 	row := object(raw)
 	cents, valid := kimiInteger(row["priceInCents"])
-	currency := jsUppercase(displayString(row["currency"], 3))
+	currency := strings.ToUpper(displayString(row["currency"], 3))
 	if !valid || len(currency) != 3 {
 		return 0, "", false
 	}

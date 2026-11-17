@@ -244,10 +244,10 @@ func (c UsageCommand) otherProviders(ctx context.Context) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	providerIDs := make([]string, 0, len(usageProviderIDs))
-	for _, providerID := range usageProviderIDs {
-		if providerID != metadata.ProviderID && inventory.Providers[providerID].Configured {
-			providerIDs = append(providerIDs, providerID)
+	providerIDs := make([]string, 0, len(providerTable()))
+	for _, p := range providerTable() {
+		if p.id != metadata.ProviderID && inventory.Providers[p.id].Configured {
+			providerIDs = append(providerIDs, p.id)
 		}
 	}
 	return providerIDs, nil

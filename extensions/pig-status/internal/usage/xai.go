@@ -61,13 +61,13 @@ func resolveXai(snapshot OAuthSnapshot) (subscriptionIdentity, error) {
 	return identity, nil
 }
 
-func (c Client) queryXai(ctx context.Context, auth ResolvedAuth) (Report, error) {
-	identity, err := auth.subscriptionIdentity(ctx, "xai")
+func (c Client) queryXai(ctx context.Context, p provider, auth ResolvedAuth, _ http.Header) (Report, error) {
+	identity, err := auth.subscriptionIdentity(ctx, p.id)
 	if err != nil {
 		return Report{}, err
 	}
 	check := func() error {
-		fresh, err := auth.subscriptionIdentity(ctx, "xai")
+		fresh, err := auth.subscriptionIdentity(ctx, p.id)
 		if err != nil {
 			return err
 		}

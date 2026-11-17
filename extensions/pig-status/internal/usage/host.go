@@ -153,7 +153,7 @@ func (r Resolver) inventory(ctx context.Context) (HostInventory, error) {
 	if err := ctx.Err(); err != nil {
 		return HostInventory{}, err
 	}
-	inventory, err := r.Host.Inventory(ctx, append([]string(nil), usageProviderIDs...))
+	inventory, err := r.Host.Inventory(ctx, providerIDs())
 	if err != nil {
 		return HostInventory{}, hostFailure(ctx)
 	}
@@ -171,9 +171,9 @@ func (r Resolver) inventory(ctx context.Context) (HostInventory, error) {
 
 func selectedInventory(inventory HostInventory) HostInventory {
 	providers := make(map[string]HostProvider)
-	for id, provider := range inventory.Providers {
-		if endpoint, _ := providerEndpoint(id); endpoint != "" {
-			providers[id] = provider
+	for id, configured := range inventory.Providers {
+		if _, ok := lookupProvider(id); ok {
+			providers[id] = configured
 		}
 	}
 	return HostInventory{Models: firstOfficialModels(inventory.Models), Available: firstOfficialModels(inventory.Available), Providers: providers}
@@ -245,7 +245,7 @@ func (r Resolver) readyCurrent(ctx context.Context, providerID string) (hostSnap
 	if providerID == "" {
 		return hostSnapshot{}, "", ErrNoUsageAuth
 	}
-	if endpoint, _ := providerEndpoint(providerID); endpoint == "" {
+	if _, ok := lookupProvider(providerID); !ok {
 		return hostSnapshot{}, "", ErrUsageUnsupported
 	}
 	current, err := r.snapshot(ctx, map[string]any{"provider": providerID})

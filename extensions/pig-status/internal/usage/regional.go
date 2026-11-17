@@ -2,6 +2,7 @@ package usage
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -16,6 +17,24 @@ func miniMaxEndpoint(providerID, kind string) string {
 		return root + "/account/query_balance"
 	}
 	return root + "/v1/token_plan/remains"
+}
+
+func miniMaxKind(endpoint string) string {
+	if strings.HasSuffix(endpoint, "/account/query_balance") {
+		return "account-balance"
+	}
+	return "token-plan"
+}
+
+func miniMaxUsageURL(providerID string, auth ResolvedAuth, headers http.Header) (string, error) {
+	key := auth.APIKey
+	if match := bearerAuthorization.FindStringSubmatch(headers.Get("Authorization")); len(match) == 2 {
+		key = match[1]
+	}
+	if key == "" {
+		return "", errors.New("minimax runtime API key was unavailable")
+	}
+	return miniMaxEndpoint(providerID, miniMaxUsageKind(key)), nil
 }
 
 func moonshotAuthAllowed(providerID string, auth ResolvedAuth) bool {
@@ -39,21 +58,21 @@ func moonshotAuthAllowed(providerID string, auth ResolvedAuth) bool {
 	return true
 }
 
-func (c Client) queryZai(ctx context.Context, providerID string, auth ResolvedAuth, headers http.Header) (Report, error) {
-	endpoint, description := providerEndpoint(providerID)
+func (c Client) queryZai(ctx context.Context, p provider, auth ResolvedAuth, headers http.Header) (Report, error) {
 	headers = headers.Clone()
 	if match := bearerAuthorization.FindStringSubmatch(headers.Get("Authorization")); len(match) == 2 {
 		headers.Set("Authorization", match[1])
 	}
-	payload, err := c.fetchJSON(ctx, endpoint, description, headers, true)
+	payload, _, err := c.fetchBounded(ctx, usageRequest{endpoint: p.endpoint, description: p.description, headers: headers, maxBytes: maxSuccessBodyBytes, failureError: zaiResponseError})
 	if err != nil {
 		return Report{}, err
 	}
 	if err := auth.revalidate(ctx); err != nil {
 		return Report{}, err
 	}
-	planURL := strings.TrimSuffix(endpoint, "/api/monitor/usage/quota/limit") + "/api/biz/subscription/list"
-	planPayload, planErr := c.fetchJSON(ctx, planURL, strings.Replace(description, "quota", "plan", 1), headers, true)
+	planURL := strings.TrimSuffix(p.endpoint, "/api/monitor/usage/quota/limit") + "/api/biz/subscription/list"
+	planRequest := usageRequest{endpoint: planURL, description: strings.Replace(p.description, "quota", "plan", 1), headers: headers, maxBytes: maxSuccessBodyBytes, failureError: zaiResponseError}
+	planPayload, _, planErr := c.fetchBounded(ctx, planRequest)
 	if err := ctx.Err(); err != nil {
 		return Report{}, err
 	}
@@ -64,7 +83,7 @@ func (c Client) queryZai(ctx context.Context, providerID string, auth ResolvedAu
 	if planErr == nil {
 		plan = normalizeZaiSubscription(planPayload)
 	}
-	report, err := normalizeZai(providerID, payload, time.Now().UnixMilli(), plan)
+	report, err := normalizeZai(p.id, payload, time.Now().UnixMilli(), plan)
 	if err != nil {
 		return Report{}, err
 	}

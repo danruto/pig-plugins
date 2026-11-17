@@ -117,7 +117,7 @@ func (c *Collector) fetch(ctx context.Context, ticket collectionTicket, identity
 	var err error
 	if identity.provider == "fireworks" {
 		targetID = ticket.settings.Targets["fireworks"]
-		report, err = c.client.QueryTarget(ctx, "fireworks", identity.auth, targetID, hostBudget(ctx))
+		report, err = c.client.QueryFireworks(ctx, identity.auth, targetID, hostBudget(ctx))
 	} else {
 		report, err = c.client.Query(ctx, identity.provider, identity.auth, hostBudget(ctx))
 	}

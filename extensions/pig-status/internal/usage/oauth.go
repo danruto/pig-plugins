@@ -47,15 +47,8 @@ var copilotHost = regexp.MustCompile(`^api\.[a-z0-9-]+\.githubcopilot\.com$`)
 var bearerAuthorization = regexp.MustCompile(`(?i)^Bearer[\t\n\v\f\r ]+(.+)$`)
 
 func officialProviderOrigin(providerID, base string) bool {
-	if providerID == "baseten" && sameHTTPSOrigin(base, "https://inference.baseten.co") {
-		return true
-	}
-	if providerID == "github-copilot" {
-		u, err := url.Parse(base)
-		return err == nil && u.Scheme == "https" && u.User == nil && (u.Port() == "" || u.Port() == "443") && copilotHost.MatchString(strings.ToLower(u.Hostname()))
-	}
-	endpoint, _ := providerEndpoint(providerID)
-	return endpoint != "" && sameHTTPSOrigin(base, endpoint)
+	p, ok := lookupProvider(providerID)
+	return ok && p.allowsOrigin(base)
 }
 
 func jsTrim(value string) string {
@@ -280,13 +273,15 @@ func (a ResolvedAuth) subscriptionIdentity(ctx context.Context, providerID strin
 	if err != nil {
 		return subscriptionIdentity{}, errors.New("OAuth credential discovery failed closed")
 	}
-	if providerID == "xai" {
-		return resolveXai(snapshot)
+	p, ok := lookupProvider(providerID)
+	if !ok || p.identity == nil {
+		return subscriptionIdentity{}, ErrUsageUnsupported
 	}
-	if providerID == "github-copilot" {
-		return resolveCopilot(snapshot)
-	}
-	return resolveOpenAI(snapshot, a.UseCodexUsage)
+	return p.identity(snapshot, a)
+}
+
+func openAIIdentity(snapshot OAuthSnapshot, auth ResolvedAuth) (subscriptionIdentity, error) {
+	return resolveOpenAI(snapshot, auth.UseCodexUsage)
 }
 
 func resolveOpenAI(snapshot OAuthSnapshot, useCompanion bool) (subscriptionIdentity, error) {
@@ -311,61 +306,76 @@ func resolveOpenAI(snapshot OAuthSnapshot, useCompanion bool) (subscriptionIdent
 	return identity, nil
 }
 
-func (c Client) queryOAuth(ctx context.Context, providerID string, auth ResolvedAuth) (Report, error) {
-	identity, err := auth.subscriptionIdentity(ctx, providerID)
+func (c Client) queryOAuth(ctx context.Context, p provider, auth ResolvedAuth, _ http.Header) (Report, error) {
+	identity, err := auth.subscriptionIdentity(ctx, p.id)
 	if err != nil {
 		return Report{}, err
 	}
-	check := func() error {
-		fresh, err := auth.subscriptionIdentity(ctx, providerID)
-		if err != nil {
-			return err
-		}
-		if !reflect.DeepEqual(identity, fresh) {
-			return errors.New("usage OAuth account changed during query")
-		}
-		return nil
-	}
-	read := func(endpoint, description string) (map[string]any, error) {
-		headers, err := validatedHeaders(providerID, identity.headers)
-		if err != nil {
-			return nil, err
-		}
-		payload, err := c.fetch(ctx, endpoint, description, headers)
-		if err != nil {
-			return nil, err
-		}
-		if err := check(); err != nil {
-			return nil, err
-		}
-		return payload, nil
-	}
-	if providerID == "openai" && identity.companionAccess == "" {
+	session := oauthSession{client: c, auth: auth, provider: p.id, identity: identity}
+	if p.id == "openai" && identity.companionAccess == "" {
 		return normalizeReport("openai", map[string]any{"useCodexUsage": auth.UseCodexUsage}, time.Now().UnixMilli())
 	}
-	if err := check(); err != nil {
+	if err := session.check(ctx); err != nil {
 		return Report{}, err
 	}
-	endpoint, description := providerEndpoint(providerID)
-	if providerID == "github-copilot" {
-		payload, err := read(endpoint, description)
+	if p.id == "github-copilot" {
+		payload, err := session.read(ctx, p.endpoint, p.description)
 		if err != nil {
 			return Report{}, err
 		}
 		return normalizeCopilot(payload, time.Now().UnixMilli())
 	}
-	endpoint, _ = providerEndpoint("openai-codex")
-	apps, err := read(endpoint+"/chatpass/apps", "ChatGPT companion app usage endpoint")
+	return session.companionReport(ctx)
+}
+
+type oauthSession struct {
+	client   Client
+	auth     ResolvedAuth
+	provider string
+	identity subscriptionIdentity
+}
+
+func (s oauthSession) check(ctx context.Context) error {
+	fresh, err := s.auth.subscriptionIdentity(ctx, s.provider)
+	if err != nil {
+		return err
+	}
+	if !reflect.DeepEqual(s.identity, fresh) {
+		return errors.New("usage OAuth account changed during query")
+	}
+	return nil
+}
+
+func (s oauthSession) read(ctx context.Context, endpoint, description string) (map[string]any, error) {
+	headers, err := validatedHeaders(s.provider, s.identity.headers)
+	if err != nil {
+		return nil, err
+	}
+	payload, err := s.client.fetch(ctx, endpoint, description, headers)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.check(ctx); err != nil {
+		return nil, err
+	}
+	return payload, nil
+}
+
+func (s oauthSession) companionReport(ctx context.Context) (Report, error) {
+	codex, ok := lookupProvider("openai-codex")
+	if !ok {
+		return Report{}, ErrUsageUnsupported
+	}
+	apps, err := s.read(ctx, codex.endpoint+"/chatpass/apps", "ChatGPT companion app usage endpoint")
 	if err != nil {
 		return Report{}, err
 	}
-	_, _, err = matchingOpenAIAppBuckets(apps, identity.clientID)
+	if _, _, err := matchingOpenAIAppBuckets(apps, s.identity.clientID); err != nil {
+		return Report{}, err
+	}
+	plan, err := s.read(ctx, codex.endpoint, "ChatGPT companion plan usage endpoint")
 	if err != nil {
 		return Report{}, err
 	}
-	plan, err := read(endpoint, "ChatGPT companion plan usage endpoint")
-	if err != nil {
-		return Report{}, err
-	}
-	return normalizeReport("openai", map[string]any{"apps": apps, "plan": plan, "clientId": identity.clientID}, time.Now().UnixMilli())
+	return normalizeReport("openai", map[string]any{"apps": apps, "plan": plan, "clientId": s.identity.clientID}, time.Now().UnixMilli())
 }
