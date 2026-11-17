@@ -395,11 +395,6 @@
     "text": "comparing with != will fail on wrapped errors. Use errors.Is to check for a specific error"
   },
   {
-    "file": "extensions/pig-status/internal/usage/collector_test.go",
-    "linter": "revive",
-    "text": "argument-limit: maximum number of arguments per function exceeded; max 4 but got 5"
-  },
-  {
     "file": "extensions/pig-status/internal/usage/collector.go",
     "linter": "musttag",
     "text": "the given struct should be annotated with the `json` tag"

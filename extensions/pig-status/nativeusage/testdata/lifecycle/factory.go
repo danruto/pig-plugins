@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"syscall"
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
@@ -37,19 +38,46 @@ func record(kind string, detail any) {
 }
 
 func hold(ctx context.Context) bool {
+	dir := os.Getenv("NA_OUTPUT")
+	fd, err := syscall.InotifyInit1(syscall.IN_NONBLOCK | syscall.IN_CLOEXEC)
+	if err != nil {
+		panic("fixture control unavailable")
+	}
+	watch := os.NewFile(uintptr(fd), "hold-watch")
+	defer watch.Close()
+	if _, err := syscall.InotifyAddWatch(fd, dir, syscall.IN_DELETE|syscall.IN_MOVED_FROM); err != nil {
+		panic("fixture control unavailable")
+	}
+	path := filepath.Join(dir, "hold")
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	} else if err != nil {
+		panic("fixture control unavailable")
+	}
+	removed := make(chan struct{}, 1)
+	go func() {
+		buffer := make([]byte, 4096)
+		for {
+			if _, err := watch.Read(buffer); err != nil {
+				return
+			}
+			select {
+			case removed <- struct{}{}:
+			default:
+			}
+		}
+	}()
 	for {
-		_, err := os.Stat(filepath.Join(os.Getenv("NA_OUTPUT"), "hold"))
-		if os.IsNotExist(err) {
-			return false
-		}
-		if err != nil {
-			panic("fixture control unavailable")
-		}
 		select {
 		case <-ctx.Done():
 			record("cancelled", true)
 			return true
-		case <-time.After(5 * time.Millisecond):
+		case <-removed:
+			if _, err := os.Stat(path); os.IsNotExist(err) {
+				return false
+			} else if err != nil {
+				panic("fixture control unavailable")
+			}
 		}
 	}
 }

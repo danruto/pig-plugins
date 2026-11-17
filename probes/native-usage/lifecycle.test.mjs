@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, constants, mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
@@ -90,6 +90,28 @@ function digestsIn(value) {
   return [];
 }
 
+async function reviewedInterpreter() {
+  let found = process.env.PIG_NATIVE_USAGE_PYTHON;
+  if (!found) {
+    for (const entry of (process.env.PATH ?? "").split(path.delimiter).filter(Boolean)) {
+      const candidate = path.join(entry, "python3");
+      try {
+        await access(candidate, constants.X_OK);
+      } catch {
+        continue;
+      }
+      found = candidate;
+      break;
+    }
+  }
+  const resolved = found ? await realpath(found) : "";
+  assert.ok(
+    resolved.startsWith("/nix/store/"),
+    `set PIG_NATIVE_USAGE_PYTHON to a reviewed Nix-store python3 (found ${found})`,
+  );
+  return resolved;
+}
+
 async function launch(scenario = []) {
   const scratch = process.env.PIG_NATIVE_USAGE_SCRATCH;
   assert.ok(scratch, "set PIG_NATIVE_USAGE_SCRATCH to an objective-22 disposable root");
@@ -108,7 +130,7 @@ async function launch(scenario = []) {
   const env = Object.fromEntries(
     keys.filter((key) => process.env[key] !== undefined).map((key) => [key, process.env[key]]),
   );
-  const python = process.env.PIG_NATIVE_USAGE_PYTHON ?? "python3";
+  const python = await reviewedInterpreter();
   let result;
   try {
     result = await execute(python, ["scripts/check-native-usage.py", ...scenario], {

@@ -34,6 +34,10 @@ store toolchain. Required executables on PATH: `go`, `cc` (race support), `node`
 `bash`, `env`, `strace`, `bwrap`, `git`, `nix-store`; the Python interpreter and
 executables must resolve inside the Nix store. An explicit tool path can instead
 be supplied as `PIG_NATIVE_USAGE_<TOOL>` (uppercase; `NIX_STORE` for `nix-store`).
+`PIG_NATIVE_USAGE_PYTHON` names the interpreter that
+`probes/native-usage/lifecycle.test.mjs` uses to launch this script; without it
+the probe resolves `python3` from `PATH`, and either way the interpreter must
+resolve inside the Nix store.
 These are existing system tools; there are no new Python/package dependencies.
 Go must support the staged modules' Go version. Resolution is offline, telemetry
 is disabled, and concurrency is fixed to `GOMAXPROCS=2`, `GOFLAGS=-p=2 -modcacherw`.

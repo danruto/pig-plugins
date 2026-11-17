@@ -24,6 +24,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from typing import Any, NotRequired, Protocol, TypedDict
 
 HOST_SHA256 = "d21d884ef0cab28224bf3eccfa302c8d70e430bc35d71a9a049f9eb1a612587b"
 SDK_SHA256 = "32342e9e495ac9016e110b1c8d043f8c0a5b59e6bd8a7f084515cd6a25cbf70b"
@@ -33,6 +34,26 @@ STATUS_MODULE = "github.com/danruto/pig-plugins/extensions/pig-status"
 
 class PrerequisiteError(Exception):
     pass
+
+
+class Receipt(TypedDict):
+    event: str
+    detail: Any
+    time: int
+
+
+class ReplyData(TypedDict):
+    disposition: NotRequired[str]
+
+
+class Reply(TypedDict):
+    id: str
+    success: NotRequired[bool]
+    data: NotRequired[ReplyData]
+
+
+class WaitFor(Protocol):
+    def __call__(self, predicate: Callable[[], bool], timeout: int = 90) -> None: ...
 
 
 def _digest(path: Path) -> str:
@@ -138,9 +159,9 @@ def _drive_lifecycle(work: Path, tools: dict[str, str], *, env: dict[str, str], 
         selector.register(process.stdout, selectors.EVENT_READ, "rpc")
         selector.register(notify_fd, selectors.EVENT_READ, "receipt")
         pending = b""
-        replies: dict[str, dict] = {}
+        replies: dict[str, Reply] = {}
 
-        def events() -> list[dict]:
+        def events() -> list[Receipt]:
             try:
                 raw = (work / "lifecycle.jsonl").read_text(encoding="utf-8")
             except FileNotFoundError:
@@ -216,18 +237,21 @@ def _drive_lifecycle(work: Path, tools: dict[str, str], *, env: dict[str, str], 
         _audit_connections(trace, [row["detail"] for row in events() if row["event"] == "https"])
 
 
-def _qualification(work, events, wait_for, command, begin, finish) -> None:
-    def phase(name):
+def _qualification(work: Path, events: Callable[[], list[Receipt]], wait_for: WaitFor,
+                   command: Callable[[str], None], begin: Callable[[str], str],
+                   finish: Callable[[str], None]) -> None:
+    def phase(name: str) -> None:
         with (work / "lifecycle.jsonl").open("a", encoding="utf-8") as stream:
             stream.write(json.dumps({"event": "phase", "detail": name, "time": time.time_ns() // 1_000_000}) + "\n")
 
-    def count(kind):
+    def count(kind: str) -> int:
         return sum(row["event"] == kind for row in events())
 
-    def response(used=70, fail=False, hold=False, targets=True):
+    def response(*, used: int = 70, fail: bool = False, hold: bool = False, targets: bool = True) -> None:
         command("/lifecycle-response " + json.dumps({"used": used, "fail": fail, "hold": hold, "targets": targets}))
 
-    def owner(key="synthetic-lifecycle", max_tokens=128, provider="openrouter", select=False):
+    def owner(*, key: str = "synthetic-lifecycle", max_tokens: int = 128, provider: str = "openrouter",
+              select: bool = False) -> None:
         command("/lifecycle-owner " + json.dumps({"provider": provider, "key": key, "maxTokens": max_tokens, "select": select}))
 
     command("/lifecycle-stop")
