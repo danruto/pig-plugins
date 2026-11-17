@@ -2,8 +2,59 @@ package nativeusage
 
 import (
 	"errors"
+	"sync/atomic"
 	"testing"
 )
+
+func TestEmitGateHoldsOneDispatchPerReadiness(t *testing.T) {
+	held := errors.New("readiness still held")
+	release := make(chan struct{})
+	started := make(chan emitKey, 3)
+	var runs atomic.Int32
+	dispatch := func(key emitKey) func() error {
+		return func() error {
+			runs.Add(1)
+			started <- key
+			<-release
+			return held
+		}
+	}
+	readiness := emitKey{channel: "oauth:credential-readiness:v1", provider: "deepseek", session: "01a1e221-69f7-75ca-9cf0-06f11fba16ea"}
+	sibling := emitKey{channel: readiness.channel, provider: "openrouter", session: readiness.session}
+	gate := newEmitGate()
+
+	first := gate.join(readiness, dispatch(readiness))
+	if got := <-started; got != readiness {
+		t.Fatalf("the first dispatch ran for %+v, want %+v", got, readiness)
+	}
+	again := gate.join(readiness, dispatch(readiness))
+	other := gate.join(sibling, dispatch(sibling))
+	if got := <-started; got != sibling {
+		t.Fatalf("the second dispatch ran for %+v, want %+v", got, sibling)
+	}
+	close(release)
+	<-first.done
+	<-other.done
+
+	if again != first {
+		t.Fatal("a readiness collection for an in-flight dispatch started another dispatch")
+	}
+	if other == first {
+		t.Fatal("a readiness collection for another provider joined the first provider's dispatch")
+	}
+	if !errors.Is(first.err, held) || !errors.Is(other.err, held) {
+		t.Fatalf("the joined dispatches settled with %v and %v, want %v on both", first.err, other.err, held)
+	}
+	fresh := gate.join(readiness, dispatch(readiness))
+	if fresh == first {
+		t.Fatal("a settled dispatch stayed in the gate")
+	}
+	<-started
+	<-fresh.done
+	if runs.Load() != 3 {
+		t.Fatalf("the gate ran %d dispatches, want 3", runs.Load())
+	}
+}
 
 func TestAuthRevisionTracksSessionModelAndAuth(t *testing.T) {
 	baseline := authIdentity{

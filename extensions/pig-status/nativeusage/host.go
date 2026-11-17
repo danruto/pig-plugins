@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"sync"
 	"time"
 
 	sdk "github.com/MichaelKinsy/PiG/extensions/sdk"
@@ -15,9 +16,52 @@ import (
 
 var errUnobservableCollection = errors.New("credential collection is not observable over the native event bus")
 
-type hostPort struct{ call sdk.Context }
+type hostPort struct {
+	call  sdk.Context
+	emits *emitGate
+}
 
-func Port(call sdk.Context) usage.HostPort { return hostPort{call: call} }
+type emitKey struct {
+	channel  string
+	provider string
+	session  string
+}
+
+type pendingEmit struct {
+	done chan struct{}
+	err  error
+}
+
+type emitGate struct {
+	mu       sync.Mutex
+	inflight map[emitKey]*pendingEmit
+}
+
+func newEmitGate() *emitGate { return &emitGate{inflight: map[emitKey]*pendingEmit{}} }
+
+func Port(call sdk.Context) usage.HostPort { return ownerPort(call, newEmitGate()) }
+
+func ownerPort(call sdk.Context, emits *emitGate) usage.HostPort {
+	return hostPort{call: call, emits: emits}
+}
+
+func (g *emitGate) join(key emitKey, run func() error) *pendingEmit {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	if existing, held := g.inflight[key]; held {
+		return existing
+	}
+	entry := &pendingEmit{done: make(chan struct{})}
+	g.inflight[key] = entry
+	go func() {
+		entry.err = run()
+		g.mu.Lock()
+		delete(g.inflight, key)
+		g.mu.Unlock()
+		close(entry.done)
+	}()
+	return entry
+}
 
 func (p hostPort) Metadata(ctx context.Context) (usage.HostMetadata, error) {
 	if err := ctx.Err(); err != nil {
@@ -289,15 +333,17 @@ func (p hostPort) Collect(ctx context.Context, request usage.CollectionRequest) 
 }
 
 func (p hostPort) emit(ctx context.Context, request usage.CollectionRequest) error {
-	settled := make(chan error, 1)
-	go func() {
-		settled <- p.call.Events().Emit(request.Channel, map[string]any{"provider": request.ProviderID, "sessionId": request.SessionID})
-	}()
+	settled := p.emits.join(
+		emitKey{channel: request.Channel, provider: request.ProviderID, session: request.SessionID},
+		func() error {
+			return p.call.Events().Emit(request.Channel, map[string]any{"provider": request.ProviderID, "sessionId": request.SessionID})
+		},
+	)
 	timer := time.NewTimer(time.Duration(max(1, request.TimeoutMS)) * time.Millisecond)
 	defer timer.Stop()
 	select {
-	case err := <-settled:
-		if err != nil {
+	case <-settled.done:
+		if settled.err != nil {
 			return usage.ErrUsageChanged
 		}
 	case <-ctx.Done():

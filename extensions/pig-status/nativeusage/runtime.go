@@ -56,6 +56,7 @@ type owner struct {
 	wake      chan struct{}
 	listeners sync.WaitGroup
 	off       func()
+	emits     *emitGate
 	err       error
 	reason    string
 	refresh   atomic.Bool
@@ -180,7 +181,7 @@ func predecessorError(err error) error {
 }
 
 func (r *Runtime) launch() error {
-	current := &owner{stop: make(chan struct{}), done: make(chan struct{}), wake: make(chan struct{}, 1)}
+	current := &owner{stop: make(chan struct{}), done: make(chan struct{}), wake: make(chan struct{}, 1), emits: newEmitGate()}
 	channel := "native-usage-private-" + rand.Text()
 	off, err := r.ext.Events().On(channel, func(call sdk.Context, _ any) error { return r.tick(call, current) })
 	if err != nil {
@@ -277,7 +278,7 @@ func (r *Runtime) tick(call sdk.Context, current *owner) error {
 	}
 	if current.refresh.Swap(false) || !refreshed || view.RefreshAt.IsZero() || !time.Now().Before(view.RefreshAt) {
 		refreshCtx, stopRefresh := context.WithTimeout(ctx, scheduledRefreshTimeout)
-		err := r.collector.Refresh(refreshCtx, usage.Resolver{Host: Port(call)})
+		err := r.collector.Refresh(refreshCtx, usage.Resolver{Host: ownerPort(call, current.emits)})
 		stopRefresh()
 		if err != nil && ctx.Err() != nil {
 			return nil

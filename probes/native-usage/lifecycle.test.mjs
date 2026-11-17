@@ -235,6 +235,32 @@ function cachePercentages(rows) {
   );
 }
 
+function phaseIndex(rows, name) {
+  const index = rows.findIndex((row) => row.event === "phase" && row.detail === name);
+  assert.notEqual(index, -1, `missing phase ${name}`);
+  return index;
+}
+
+function fenceSpan(rows) {
+  return rows.slice(phaseIndex(rows, "fence-session") + 1);
+}
+
+function successorPublish(rows) {
+  const held = eventIndex(rows, "fence-held");
+  const index = rows.findIndex(
+    (row, position) =>
+      position > held &&
+      row.event === "publish" &&
+      row.detail.windows?.some((window) => window.UsedPercent === 70),
+  );
+  assert.notEqual(index, -1, "successor session must publish a 70 percent window after the fence");
+  return index;
+}
+
+function requestedHosts(rows) {
+  return [...new Set(events(rows, "request").map((row) => row.detail))].sort();
+}
+
 async function qualification() {
   const root = await launch(["--scenario", "qualification"]);
   const rows = (await readFile(path.join(root, "lifecycle.jsonl"), "utf8"))
@@ -392,4 +418,49 @@ test("native usage owned refresh qualification", { timeout: 650_000 }, async (t)
       assert.equal(wait.waitOwner, process.waitOwner);
     },
   );
+
+  await t.test("fence-session: readiness is held once and the successor publishes after it", async () => {
+    const { rows } = await proof;
+    const segment = fenceSpan(rows);
+    const held = eventIndex(segment, "fence-held");
+    const successor = successorPublish(segment);
+
+    assert.deepEqual(
+      events(segment, "fence-held").map((row) => row.detail),
+      [{ provider: "deepseek" }],
+    );
+    assert.ok(successor > held, "the successor session must publish after the held readiness");
+  });
+
+  await t.test("fence-session: the superseded owner publishes no quota and sends no request", async () => {
+    const { rows } = await proof;
+    const segment = fenceSpan(rows);
+    const window = segment.slice(eventIndex(segment, "fence-held") + 1, successorPublish(segment));
+
+    assert.deepEqual(nonemptyViews(window), []);
+    assert.deepEqual(requestedHosts(window), ["openrouter.ai"]);
+  });
+
+  await t.test("fence-offers: credential offers are refused whole for an OAuth provider", async () => {
+    const { rows } = await proof;
+    const segment = phaseSegment(rows, "fence-offers", "fence-recovered");
+
+    assert.deepEqual(
+      events(segment, "offers-refused").map((row) => row.detail),
+      [{ provider: "openrouter", refused: true, values: 0 }],
+    );
+  });
+
+  await t.test("fence-recovered: the successor session republishes fresh quota", async () => {
+    const { rows } = await proof;
+    const recovered = rows.slice(
+      eventIndex(rows, "fence-held") + 1,
+      phaseIndex(rows, "fence-recovered"),
+    );
+
+    assert.deepEqual(
+      nonemptyViews(recovered).map((view) => view.windows.map((window) => window.UsedPercent)),
+      [[70]],
+    );
+  });
 });
