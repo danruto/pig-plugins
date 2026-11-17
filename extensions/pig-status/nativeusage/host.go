@@ -344,7 +344,10 @@ func (p hostPort) emit(ctx context.Context, request usage.CollectionRequest) err
 	select {
 	case <-settled.done:
 		if settled.err != nil {
-			return usage.ErrUsageChanged
+			if err := p.sameSession(request.SessionID); err != nil {
+				return err
+			}
+			return errBridge
 		}
 	case <-ctx.Done():
 		return ctx.Err()

@@ -287,9 +287,9 @@ func TestEmitFailurePublishesBridgeFailureViewAndKeepsSchedulerAlive(t *testing.
 	current := ownedOwner(t, runtime)
 	runtime.wake()
 	select {
-	case <-current.done:
-		t.Fatal("scheduler ended after the emit failure")
-	default:
+	case current.wake <- struct{}{}:
+	case <-time.After(lifecycleDeadline):
+		t.Fatalf("the scheduler did not consume its wake within the %v cap, so a return in the emit failure branch left the loop dead", lifecycleDeadline)
 	}
 }
 

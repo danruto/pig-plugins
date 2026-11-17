@@ -230,6 +230,7 @@ func (r *Runtime) schedule(current *owner, channel string) {
 			timer.Reset(bridgeFailureBackoff)
 			continue
 		}
+		current.err = nil
 		timer.Reset(nextWake(r.collector.Snapshot(time.Now()), time.Now()))
 	}
 }
