@@ -316,10 +316,13 @@ def _qualification(work: Path, events: Callable[[], list[Receipt]], wait_for: Wa
     except TimeoutError:
         _json(work / "notification-observation.json", {"result": "timeout", "scope": "owner-change diagnostic; not clean completion"})
     response()
+    owner(max_tokens=512)
     (work / "hold").touch()
     held = count("held")
+    start = len(events())
     command("/lifecycle-model openrouter/fixture")
-    wait_for(lambda: count("held") > held)
+    wait_for(lambda: count("held") > held and any(
+        row["event"] == "request" and row.get("detail") == "openrouter.ai" for row in events()[start:]))
     phase("session-active")
     ready = count("ready")
     command("/lifecycle-session")
