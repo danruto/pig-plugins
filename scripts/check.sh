@@ -102,11 +102,16 @@ ts_lint() {
 }
 
 cross_build() {
-  local target os arch
+  local target os arch artifact
   for target in linux/amd64 linux/arm64 darwin/arm64; do
     os=${target%%/*}
     arch=${target##*/}
-    in_status env CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -modfile="$modfile" -o "$tmp/cross-$os-$arch" .
+    artifact=$tmp/cross-$os-$arch
+    in_status env CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -modfile="$modfile" -o "$artifact" .
+    if [[ ! -s $artifact ]]; then
+      echo "cross-build: $os/$arch produced no binary at $artifact" >&2
+      return 1
+    fi
     printf 'cross-build: %s/%s ok (cross-build, not runtime evidence)\n' "$os" "$arch"
   done
 }
@@ -142,4 +147,4 @@ step "package" package-layout without_node "$python_bin" test/check-package.py "
 step "package" package-validate without_node pig install "$package_dir" --validate-only --json
 step "package" package-discovery without_node env PIG_STATUS_PACKAGE="$package_dir" "$python_bin" test/check-discovery.py
 step "package" package-footer without_node env PIG_STATUS_PACKAGE="$package_dir" "$python_bin" test/check-footer.py
-step "package" package-measure without_node "$python_bin" scripts/measure-status.py "$package_dir"
+step "package" package-measure without_node "$python_bin" test/check-measure.py "$package_dir"

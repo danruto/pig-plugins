@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assert the layout of a built pig-status package: manifest, native footer, no Node runtime, payload."""
+"""Assert the layout of a built pig-status package: manifest, native footer, no Node runtime, no pinned SDK source path, payload."""
 
 import json
 import os
@@ -26,8 +26,10 @@ NATIVE_MAGIC = (
     b"\xfe\xed\xfa\xce",
 )
 NODE_RUNTIME_REFERENCE = re.compile(rb"/nix/store/[0-9a-z]{32}-nodejs")
+REMOVED_REFERENCE_HASH = b"e" * 32
+SDK_SOURCE_REFERENCE = re.compile(rb"/nix/store/(?!" + REMOVED_REFERENCE_HASH + rb"-)[0-9a-z]{32}-source")
 SCAN_CHUNK = 1 << 20
-SCAN_OVERLAP = len(b"/nix/store/") + 32 + len("-nodejs")
+SCAN_OVERLAP = len(b"/nix/store/") + 32 + max(len("-nodejs"), len("-source"))
 
 Check = Callable[[Path, dict[str, object]], list[str]]
 
@@ -71,11 +73,11 @@ def node_modules_problems(package: Path, manifest: dict[str, object]) -> list[st
     return [f"package ships node_modules: {shipped}"] if shipped else []
 
 
-def references_node_runtime(path: Path) -> bool:
+def references(path: Path, pattern: re.Pattern[bytes]) -> bool:
     tail = b""
     with path.open("rb") as stream:
         while chunk := stream.read(SCAN_CHUNK):
-            if NODE_RUNTIME_REFERENCE.search(tail + chunk):
+            if pattern.search(tail + chunk):
                 return True
             tail = chunk[-SCAN_OVERLAP:]
     return False
@@ -87,9 +89,16 @@ def closure_problems(package: Path, manifest: dict[str, object]) -> list[str]:
         if path.is_symlink():
             if NODE_RUNTIME_REFERENCE.search(os.readlink(path).encode()):
                 offenders.append(str(path.relative_to(package)))
-        elif path.is_file() and references_node_runtime(path):
+        elif path.is_file() and references(path, NODE_RUNTIME_REFERENCE):
             offenders.append(str(path.relative_to(package)))
     return [f"package files reference a nodejs runtime: {offenders}"] if offenders else []
+
+
+def sdk_source_problems(package: Path, manifest: dict[str, object]) -> list[str]:
+    footer = package / "bin/pig-status"
+    if not footer.is_file():
+        return [f"bin/pig-status is missing from {package}, so the pinned SDK source scan proves nothing"]
+    return ["bin/pig-status references a pinned -source store path"] if references(footer, SDK_SOURCE_REFERENCE) else []
 
 
 def payload_problems(package: Path, manifest: dict[str, object]) -> list[str]:
@@ -103,6 +112,7 @@ CHECKS: list[tuple[str, Check]] = [
     ("footer binary", binary_problems),
     ("no node_modules", node_modules_problems),
     ("no nodejs runtime reference", closure_problems),
+    ("no sdk source reference", sdk_source_problems),
     ("compaction payload", payload_problems),
 ]
 

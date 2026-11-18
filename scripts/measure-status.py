@@ -22,6 +22,10 @@ SHUTDOWN_TIMEOUT = 30.0
 METRICS = ("startup", "rss_kib", "shutdown")
 MEASUREMENTS = Path(__file__).resolve().parent.parent / "docs/compatibility/usage/measurements.json"
 ARCH_ALIASES = {"aarch64": "arm64", "x86_64": "x64", "amd64": "x64"}
+PROTOCOL = (
+    "Cold disposable PiG root per sample; RPC get_commands readiness; no /usage refresh; "
+    "aggregate host/descendant RSS; stdin EOF shutdown with all observed PIDs gone."
+)
 
 
 class MeasureError(Exception):
@@ -110,15 +114,26 @@ def descendants(root: int) -> list[int]:
 def await_shutdown(process: subprocess.Popen[bytes], request: IO[bytes], observed: Sequence[int]) -> float:
     started = time.monotonic()
     deadline = started + SHUTDOWN_TIMEOUT
-    request.close()
+    opened: list[int] = []
     try:
-        process.wait(timeout=max(0.0, deadline - time.monotonic()))
-    except subprocess.TimeoutExpired as error:
-        raise MeasureError(f"pig did not exit within {SHUTDOWN_TIMEOUT:.0f} s of stdin closing") from error
-    while any(Path(f"/proc/{pid}").exists() for pid in observed):
-        if time.monotonic() >= deadline:
-            raise MeasureError("descendant processes outlived pig")
-        time.sleep(0.005)
+        for pid in observed:
+            with contextlib.suppress(ProcessLookupError):
+                opened.append(os.pidfd_open(pid))
+        request.close()
+        try:
+            process.wait(timeout=max(0.0, deadline - time.monotonic()))
+        except subprocess.TimeoutExpired as error:
+            raise MeasureError(f"pig did not exit within {SHUTDOWN_TIMEOUT:.0f} s of stdin closing") from error
+        pending = list(opened)
+        while pending:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise MeasureError("descendant processes outlived pig")
+            ready = select.select(pending, [], [], remaining)[0]
+            pending = [fd for fd in pending if fd not in ready]
+    finally:
+        for fd in opened:
+            os.close(fd)
     return time.monotonic() - started
 
 
@@ -200,6 +215,15 @@ def normalized_arch(machine: str) -> str:
     return ARCH_ALIASES.get(machine.lower(), machine.lower())
 
 
+def identity_reasons(recorded: dict[str, object]) -> list[str]:
+    digest = recorded.get("probeSha256")
+    if isinstance(digest, str) and digest:
+        return [f"toolchain identity probeSha256 {digest[:12]} is not recomputed by measure-status, so it is unverified"]
+    if recorded.get("identityProtocol"):
+        return ["toolchain identity identityProtocol carries no probeSha256, so it is unverified"]
+    return ["unknown toolchain identity: the record carries no probeSha256 or identityProtocol"]
+
+
 def comparison(recorded: dict[str, object] | None, package: Path) -> str:
     if recorded is None:
         return f"unmatched: no retained package measurements in {MEASUREMENTS}"
@@ -217,6 +241,10 @@ def comparison(recorded: dict[str, object] | None, package: Path) -> str:
     current = sorted(declared_extensions(package))
     if retained != current:
         reasons.append(f"recorded composition {retained}, current {current}")
+    retained_protocol = retained_package.get("protocol") if isinstance(retained_package, dict) else None
+    if retained_protocol != PROTOCOL:
+        reasons.append(f"recorded protocol {retained_protocol or 'unknown'} is not this tool's protocol {PROTOCOL}")
+    reasons.extend(identity_reasons(recorded))
     return "unmatched: " + "; ".join(reasons) if reasons else "matched"
 
 

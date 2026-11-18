@@ -90,7 +90,7 @@ nix build "path:$PWD#pig-status"
 pig install ./result --validate-only --json
 ```
 
-The build compiles the Go footer natively and prepares the pinned compactor hooks from their fetched tarball; Node is a build-time input only. The output holds `bin/pig-status`, the compactor extension, `compaction/payload.ts`, `compaction/generated/`, the licence, the notices, and a `package.json` naming `bin/pig-status`. It ships no `node_modules` and no Node runtime in its closure; PiG's own closure supplies the Node runtime the compactor runs on.
+The build compiles the Go footer natively and prepares the pinned compactor hooks from their fetched tarball; Node is a build-time input only. The output holds `bin/pig-status`, the compactor extension, `compaction/payload.ts`, `compaction/generated/`, the licence, the notices, and a `package.json` naming `bin/pig-status`. It ships no `node_modules` and no Node runtime in its closure, and the footer binary carries no pinned SDK source path; PiG's own closure supplies the Node runtime the compactor runs on.
 
 Qualify the built output inside the flake devShell:
 

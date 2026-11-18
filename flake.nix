@@ -52,7 +52,7 @@
               filter = path: type: !(builtins.elem (baseNameOf path) [ ".git" ".pb" "node_modules" ".direnv" "result" ])
                 && path != (toString ./. + "/compaction/generated");
             };
-            nativeBuildInputs = [ pkgs.go pkgs.nodejs pkgs.python3 ];
+            nativeBuildInputs = [ pkgs.go pkgs.nodejs pkgs.python3 pkgs.removeReferencesTo ];
             env = {
               CGO_ENABLED = "0";
               GOTOOLCHAIN = "local";
@@ -89,6 +89,7 @@
               runHook preInstall
               mkdir -p "$out/bin" "$out/extensions" "$out/compaction"
               install -m755 "$TMPDIR/pig-status" "$out/bin/pig-status"
+              remove-references-to -t ${sdkSource} "$out/bin/pig-status"
               cp extensions/pig-openai-server-compaction.ts "$out/extensions/"
               cp compaction/payload.ts "$out/compaction/"
               cp -r compaction/generated "$out/compaction/"

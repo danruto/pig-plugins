@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Assert the startup, memory and shutdown document a built package produces."""
+"""Assert the startup, memory and shutdown record a built package produces, its comparison identity, and the shutdown wait it measures."""
 
+import importlib.util
 import json
 import os
 import platform
+import re
+import signal
 import subprocess
 import sys
 import tempfile
+import time
+import types
 from collections.abc import Callable
 from pathlib import Path
 
@@ -20,7 +25,14 @@ MEDIAN_KEYS = {"startup", "rss_kib", "shutdown"}
 POSITIVE_METRICS = ("startup", "rss_kib")
 NON_NEGATIVE_METRICS = ("shutdown", "loadavg")
 ARCH_ALIASES = {"aarch64": "arm64", "x86_64": "amd64", "x64": "amd64"}
+COMPOSITION_PREFIX = "$PACKAGE/"
+TOOLCHAIN_IDENTITY = re.compile(r"probeSha256|identity\s?protocol|toolchain identity", re.IGNORECASE)
 RUN_TIMEOUT = 300
+DESCENDANT_LIFETIME = "2.0"
+DESCENDANT_LAUNCHER = (
+    "import subprocess, sys\n"
+    f"print(subprocess.Popen([sys.executable, '-c', 'import time; time.sleep({DESCENDANT_LIFETIME})']).pid, flush=True)\n"
+)
 
 Check = Callable[[Path, dict[str, object]], list[str]]
 
@@ -175,6 +187,124 @@ def describes_this_host(recorded: dict[str, object] | None) -> bool:
     return same_system and same_arch
 
 
+def measure_tool() -> types.ModuleType:
+    spec = importlib.util.spec_from_file_location("pig_status_measure", TOOL)
+    assert spec is not None and spec.loader is not None, TOOL
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def retained_composition(recorded: dict[str, object] | None) -> list[str] | None:
+    if recorded is None:
+        return None
+    retained = recorded.get("package")
+    composition = retained.get("composition") if isinstance(retained, dict) else None
+    if not isinstance(composition, list) or not all(isinstance(entry, str) for entry in composition):
+        return None
+    return composition
+
+
+def candidate_package(composition: list[str], root: Path) -> Path:
+    extensions = [entry.removeprefix(COMPOSITION_PREFIX) for entry in composition]
+    for extension in extensions:
+        declared = root / extension
+        declared.parent.mkdir(parents=True, exist_ok=True)
+        declared.write_text("", encoding="utf-8")
+    manifest = {"name": "pig-status-identity", "pi": {"extensions": extensions}}
+    (root / "package.json").write_text(json.dumps(manifest), encoding="utf-8")
+    return root
+
+
+def identity_problems(package: Path, document: dict[str, object]) -> list[str]:
+    recorded = recorded_measurements()
+    composition = retained_composition(recorded)
+    if recorded is None:
+        return [f"{MEASUREMENTS} is missing, so the comparison identity cannot be probed"]
+    if composition is None:
+        return [f"{MEASUREMENTS} records no package composition to probe"]
+    with tempfile.TemporaryDirectory(prefix="pig-status-identity-") as stub:
+        candidate = candidate_package(composition, Path(stub))
+        crafted = dict(recorded, platform=platform.system(), arch=normalized_arch(platform.machine()))
+        verdict = measure_tool().comparison(crafted, candidate)
+    if not isinstance(verdict, str) or not verdict.startswith("unmatched: "):
+        return [
+            f"a record differing only in protocol and toolchain identity compared as {verdict!r},"
+            " expected 'unmatched: <reason>'"
+        ]
+    reason = verdict.removeprefix("unmatched: ")
+    problems = []
+    if "protocol" not in reason.lower():
+        problems.append(f"the unmatched reason omits the protocol: {reason!r}")
+    if TOOLCHAIN_IDENTITY.search(reason) is None:
+        problems.append(f"the unmatched reason omits the toolchain identity: {reason!r}")
+    return problems
+
+
+def shutdown_wait_problems(package: Path, document: dict[str, object]) -> list[str]:
+    tool = measure_tool()
+    child = subprocess.Popen(
+        [sys.executable, "-c", DESCENDANT_LAUNCHER],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    descendant_output = child.stdout
+    assert descendant_output is not None, child.args
+    descendant = int(descendant_output.readline())
+    descendant_output.close()
+    child.wait()
+    sleeps: list[float] = []
+    original_sleep = time.sleep
+    time.sleep = sleeps.append
+    try:
+        elapsed = tool.await_shutdown(child, child.stdin, [descendant])
+    finally:
+        time.sleep = original_sleep
+        if child.poll() is None:
+            child.kill()
+        child.wait()
+        kill_descendant(descendant)
+    problems = []
+    if sleeps:
+        problems.append(f"the shutdown wait polled time.sleep {len(sleeps)} times over a descendant instead of blocking on its pid")
+    if not isinstance(elapsed, float) or elapsed <= 0:
+        problems.append(f"the shutdown wait reported {elapsed!r} for a descendant that had to exit, expected a positive duration")
+    return problems
+
+
+def kill_descendant(pid: int) -> None:
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        return
+
+
+def departed_pid_shutdown_problems(package: Path, document: dict[str, object]) -> list[str]:
+    tool = measure_tool()
+    departed = subprocess.Popen(
+        [sys.executable, "-c", "pass"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    departed.wait()
+    child = subprocess.Popen(
+        [sys.executable, "-c", "import sys; sys.stdin.buffer.read()"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        elapsed = tool.await_shutdown(child, child.stdin, [departed.pid])
+    finally:
+        if child.poll() is None:
+            child.kill()
+        child.wait()
+    if not isinstance(elapsed, float) or elapsed <= 0:
+        return [f"a shutdown wait over the departed pid {departed.pid} reported {elapsed!r}, expected a positive duration"]
+    return []
+
+
 def comparison_problems(package: Path, document: dict[str, object]) -> list[str]:
     verdict = document.get("comparison")
     current = f"{platform.system()}/{platform.machine()}"
@@ -194,6 +324,9 @@ CHECKS: list[tuple[str, Check]] = [
     ("median", median_problems),
     ("retained measurements", retained_problems),
     ("comparison verdict", comparison_problems),
+    ("comparison identity", identity_problems),
+    ("shutdown wait", shutdown_wait_problems),
+    ("departed pid shutdown", departed_pid_shutdown_problems),
     ("failed launch", launch_failure_problems),
 ]
 
